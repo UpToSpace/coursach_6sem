@@ -1,0 +1,31 @@
+{
+  "name": "transport",
+  "version": "1.0.0",
+  "description": "An application that allows to use public transport in Minsk city",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "server": "nodemon app.js --ignore client",
+    "client": "npm run start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "author": "Valerie",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "config": "^3.3.9",
+    "express": "^4.18.2",
+    "express-validator": "^6.15.0",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.0.2",
+    "react-confetti": "^6.1.0",
+    "react-hook-form": "^7.43.8",
+    "react-materialize": "^3.10.0",
+    "sweetalert2": "^11.7.3",
+    "yup": "^1.0.2"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "nodemon": "^2.0.21"
+  }
+}
