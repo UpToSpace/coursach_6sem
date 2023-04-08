@@ -3,12 +3,16 @@ import { useHttp } from '../hooks/http.hook';
 import M from 'materialize-css';
 import { AuthContext } from '../context/AuthContext';
 import { groupBy, dateToString, stringToDate } from '../components/functions/functions';
+import { DatePicker } from "react-materialize";
 
 const Step1 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket }) => {
     useEffect(() => {
         var selects = document.querySelectorAll('select');
         M.FormSelect.init(selects, null);
         M.updateTextFields();
+        const ticketType = allTicketTypes.filter(el => el.type === "На определенное количество поездок")[0];
+        //console.log(ticketType)
+        setTicket({...ticket, ...ticketType});
         //console.log(ticketTypes)
         //console.log(ticket)
     }, []);
@@ -20,7 +24,9 @@ const Step1 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 break;
             case 'type':
                 setTicketTypes(allTicketTypes.filter(el => el.type === e.target.value));
-                //setTicket(allTicketTypes.filter(el => el.type === e.target.value)[0]);
+                const ticketType = allTicketTypes.filter(el => el.type === e.target.value)[0];
+                console.log(ticketType)
+                setTicket({...ticket, ...ticketType});
                 break;
             default:
                 break;
@@ -54,28 +60,20 @@ const Step1 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
 }
 
 const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket }) => {
-    const datepickerOptions = {
-        format: 'dd.mm.yyyy',
-        autoClose: true
-    }
+    console.log(ticketTypes)
+    console.log(ticket)
     useEffect(() => {
         var selects = document.querySelectorAll('select');
         M.FormSelect.init(selects, null);
+        setTicket({...ticket, ...ticketTypes[0]});
         //console.log(ticket)
         //console.log(ticketTypes)
-        var datepickerBegin = document.getElementById('dateBegin');
-        M.Datepicker.init(datepickerBegin, datepickerOptions);
-        const datepickerDateBegin = M.Datepicker.getInstance(datepickerBegin);
-        datepickerDateBegin.minDate = new Date();
-        datepickerDateBegin.maxDate = new Date().setFullYear(new Date().getFullYear() + 1);
-        datepickerDateBegin.setDate(ticket.dateBegin)
-        datepickerDateBegin.setInputValue(ticket.dateBegin);
         M.updateTextFields();
-    }, [ticket, datepickerOptions]);
+    }, []);
 
     const handleChange = (e) => {
         //console.log(e.target.name)
-        console.log(ticket)
+        //console.log(ticket)
         switch (e.target.name) {
             case "transport":
                 setTicketTypes(allTicketTypes.filter(el => el.type === ticket.type && el.transport === e.target.value));
@@ -86,9 +84,9 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                     && el.transport === ticketTypes[0].transport));
                 console.log(allTicketTypes.filter(el => el.type === ticket.type && el.tripCount === +e.target.value));
                 break;
-            case "dateBegin": // ТУТ НЕ РАБОТАЕТ
-                console.log(e.target.value)
-                const date = stringToDate(e.target.value);
+            case "dateBegin":
+                //console.log(e.target.value)
+                const date = new Date(e.target.value);
                 const dateEndValue = new Date(date);
                 dateEndValue.setDate(date.getDate() + +ticketTypes[0].duration);
                 //console.log(date);
@@ -152,7 +150,7 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
             <>
                 <div className="input-field col s12">
                     <select name="transport" onChange={handleChange} value={ticket.transport}>
-                        {console.log(transportOptions)}
+                        {/* {console.log(transportOptions)} */}
                         {transportOptions.map((option, index) => {
                             return (
                                 <option key={index} value={option}>{option}</option>
@@ -163,7 +161,7 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 </div>
                 <div className="input-field col s12" >
                     <select name="duration" onChange={handleChange} value={ticket.duration}>
-                        {console.log(durationOptions)}
+                        {/* {console.log(durationOptions)} */}
                         {durationOptions.map((option, index) => {
                             return (
                                 <option key={index} value={option}>{option}</option>
@@ -178,10 +176,16 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
 
     return (
         <>
+        {console.log(ticket.type)}
             {ticket.type === "На определенное количество поездок" ? ticketForTrips() : ticketForDays()}
 
             <div className="input-field col s12">
-                <input name="dateBegin" value={dateToString(ticket.dateBegin)} onSelect={handleChange} type="text" className="datepicker" id="dateBegin" />
+                <DatePicker id="dateBegin" name="dateBegin" value={dateToString(ticket.dateBegin)} onChange={(newDate) => handleChange({
+                    target: {
+                        name: "dateBegin",
+                        value: newDate
+                    }
+                })} />
                 <label
                     htmlFor="dateBegin">
                     Выберите дату начала билета
@@ -240,7 +244,7 @@ export const BuyTicketPage = () => { //TODO: Add validation and progress bar
             case 2:
                 return <Step2 ticket={ticket} setTicket={setTicket} setTicketTypes={setTicketTypes} ticketTypes={ticketTypes} allTicketTypes={allTicketTypes} />
             case 3:
-                return <Step3 setTicketTypes={setTicketTypes} ticketTypes={ticketTypes} />
+                return <Step3 ticket={ticket} setTicketTypes={setTicketTypes} ticketTypes={ticketTypes} />
             case 4:
                 return <Result setTicketTypes={setTicketTypes} ticketTypes={ticketTypes} />
             default:
@@ -255,10 +259,11 @@ export const BuyTicketPage = () => { //TODO: Add validation and progress bar
             setAllTicketTypes(ticketTypes);
             var filteredTicketTypes = ticketTypes.filter(ticketType => ticketType.type === ticketTypes[0].type);
             setTicketTypes(filteredTicketTypes)
-            setTicket({
-                ...ticket, type: filteredTicketTypes[0].type, price: filteredTicketTypes[0].price,
-                transport: filteredTicketTypes[0].transport, duration: filteredTicketTypes[0].duration, tripCount: filteredTicketTypes[0].tripCount
-            })
+            console.log(filteredTicketTypes)
+            // setTicket({
+            //     ...ticket, type: filteredTicketTypes[0].type, price: filteredTicketTypes[0].price,
+            //     transport: filteredTicketTypes[0].transport, duration: filteredTicketTypes[0].duration, tripCount: filteredTicketTypes[0].tripCount
+            // })
         }
         func();
     }, [request, auth.token]);
