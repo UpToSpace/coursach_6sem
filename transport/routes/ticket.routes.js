@@ -26,16 +26,14 @@ router.get('/:id', auth, async (req, res) => {
     }
 });
 
-// /api/ticket/generate
-router.post('/generate', auth, async (req, res) => {
+// /api/ticket
+router.post('/', auth, async (req, res) => {
     try {
-        const baseUrl = config.get('baseUrl');
-        const {id, transport, duration, tripCount, price} = req.body;
-        const ticket = new Ticket({id, transport, duration, tripCount, price, owner: req.user.userId});
+        const ticket = new Ticket({...req.body});
         await ticket.save();
         res.status(201).json({ticket});
     } catch (e) {
-        res.status(500).json({message: 'Что-то пошло не так ticket.routes.js /api/ticket/generate'});
+        res.status(500).json({message: 'Что-то пошло не так ticket.routes.js /api/ticket POST'});
     }
 });
 

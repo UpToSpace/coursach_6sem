@@ -1,29 +1,30 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
-import { LinksPage } from "./pages/LinksPage";
+import { TicketsPage } from "./pages/TicketsPage";
 import { BuyTicketPage } from "./pages/BuyTicketPage";
 import { AuthPage } from "./pages/AuthPage";
+import { MainPage } from "./pages/MainPage";
 
 export const useRoutes = (isAuthenticated) => {
     if (isAuthenticated) {
         return (
             <Routes>
-                <Route path="/links" exact element={<LinksPage />} />
-                <Route path="create" element={<BuyTicketPage />} />
-                <Route path="/detail/:id" exact element={<BuyTicketPage />} />
-                <Route path="*" element={<Navigate to="/create" />} />
+                <Route path="/tickets" element={<TicketsPage />} />
+                <Route path="/tickets/buy" element={<BuyTicketPage />} />
+                <Route path="/" exact element={<MainPage />} />
+                <Route path="*" element={<MainPage />} />
             </Routes>
         );
     }
 
     return (
         <Routes>
-            <Route path="/" exact element={
+            <Route path="*" exact element={
                 <AuthPage />
             } />
-            <Route path="*" element={
+            {/* <Route path="*" element={
                 <Navigate to="/" />
-            } />
+            } /> */}
         </Routes>
     );
 }
