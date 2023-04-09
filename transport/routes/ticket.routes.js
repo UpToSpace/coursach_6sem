@@ -1,6 +1,7 @@
 const {Router} = require('express');
 const config = require('config');
 const Ticket = require('../models/Ticket');
+const TicketType = require('../models/TicketType');
 const auth = require('../middleware/auth.middleware');
 const router = Router();
 
@@ -20,7 +21,9 @@ router.get('/', auth, async (req, res) => {
 router.get('/:id', auth, async (req, res) => {
     try {
         const ticket = await Ticket.findById(req.params.id);
-        res.json(ticket);
+        const ticketType = await TicketType.findById(ticket.ticketType);
+        const ticketData = {ticket, ticketType};
+        res.json(ticketData);
     } catch (e) {
         res.status(500).json({message: 'Что-то пошло не так ticket.routes.js /api/ticket/:id'});
     }

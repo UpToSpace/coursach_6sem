@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { useHttp } from '../hooks/http.hook';
 import M from 'materialize-css';
 import { AuthContext } from '../context/AuthContext';
+import { Loader } from '../components/Loader';
 import { groupBy, dateToString, stringToDate } from '../components/functions/functions';
 import { DatePicker } from "react-materialize";
 import Confetti from 'react-confetti';
@@ -20,7 +21,7 @@ const Step1 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
         switch (e.target.name) {
             case 'type':
                 setTicketTypes(allTicketTypes.filter(el => el.type === e.target.value));
-                setTicket({ ...ticket, ...allTicketTypes.filter(el => el.type === e.target.value)[0] });
+                setTicket({ ...ticket, ticketType: allTicketTypes.filter(el => el.type === e.target.value)[0] });
                 break;
             default:
                 break;
@@ -76,11 +77,11 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                     , ticketType => ticketType.duration).keys)
                 setTripCountOptions(groupBy(allTicketTypes.filter(el => el.type ===
                     ticketTypes[0].type && el.transport === e.target.value), ticketType => ticketType.tripCount).keys)
-                const filteredTicketTypes = allTicketTypes.filter(el => el.type === ticket.type && el.transport === e.target.value);
+                const filteredTicketTypes = allTicketTypes.filter(el => el.type === ticket.ticketType.type && el.transport === e.target.value);
                 setTicketTypes(filteredTicketTypes);
                 const dateEndValue = new Date(ticket.dateBegin);
                 dateEndValue.setDate(ticket.dateBegin.getDate() + +filteredTicketTypes[0].duration);
-                setTicket(ticket => ({ ...ticket, ...filteredTicketTypes[0], dateEnd: dateEndValue }));
+                setTicket(ticket => ({ ...ticket, ticketType: filteredTicketTypes[0], dateEnd: dateEndValue }));
                 // console.log(filteredTicketTypes)
                 // console.log({ ...ticket, ...filteredTicketTypes[0], dateEnd: dateEndValue })
                 const dateEnd = document.getElementById('dateEnd');
@@ -90,12 +91,12 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 break;
             }
             case "tripCount": {
-                const filteredTicketTypes = allTicketTypes.filter(el => el.type === ticket.type && el.tripCount === +e.target.value
+                const filteredTicketTypes = allTicketTypes.filter(el => el.type === ticket.ticketType.type && el.tripCount === +e.target.value
                     && el.transport === ticketTypes[0].transport);
                 setTicketTypes(filteredTicketTypes);
                 const dateEndValue = new Date(ticket.dateBegin);
                 dateEndValue.setDate(ticket.dateBegin.getDate() + +filteredTicketTypes[0].duration);
-                setTicket(ticket => ({ ...ticket, ...filteredTicketTypes[0], dateEnd: dateEndValue }));
+                setTicket(ticket => ({ ...ticket, ticketType: filteredTicketTypes[0], dateEnd: dateEndValue }));
                 const dateEnd = document.getElementById('dateEnd');
                 dateEnd.value = dateEndValue;
                 console.log(dateEndValue)
@@ -115,13 +116,13 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 break;
             }
             case "duration": {
-                const filteredTicketTypes = allTicketTypes.filter(el => el.type === ticket.type && el.transport === ticket.transport
-                    && el.tripCount === ticket.tripCount && el.duration === +e.target.value);
+                const filteredTicketTypes = allTicketTypes.filter(el => el.type === ticket.ticketType.type && el.transport === ticket.ticketType.transport
+                    && el.tripCount === ticket.ticketType.tripCount && el.duration === +e.target.value);
                 setTicketTypes(filteredTicketTypes);
                 //console.log(e.target.value)
                 const dateEndValue = new Date(ticket.dateBegin);
                 dateEndValue.setDate(ticket.dateBegin.getDate() + +e.target.value);
-                setTicket(ticket => ({ ...ticket, ...filteredTicketTypes[0], dateEnd: dateEndValue }));
+                setTicket(ticket => ({ ...ticket, ticketType: filteredTicketTypes[0], dateEnd: dateEndValue }));
                 const dateEnd = document.getElementById('dateEnd');
                 dateEnd.value = dateToString(dateEndValue);
                 M.updateTextFields();
@@ -130,7 +131,7 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 break;
             }
             case "price": {
-                e.target.value = ticket.price;
+                e.target.value = ticket.ticketType.price;
                 break;
             }
             default:
@@ -202,7 +203,7 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
 
     return (
         <>
-            {ticket.type === "На определенное количество поездок" ? ticketForTrips() : ticketForDays()}
+            {ticket.ticketType.type === "На определенное количество поездок" ? ticketForTrips() : ticketForDays()}
 
             <div className="input-field col s12">
                 <DatePicker id="dateBegin" name="dateBegin" value={dateToString(ticket.dateBegin)} onChange={(newDate) => handleChange({
@@ -246,15 +247,15 @@ const Step3 = ({ ticket, ticketTypes }) => {
         return (
             <>
                 <div className="input-field col s12">
-                    <input type="text" value={ticket.type} readOnly />
+                    <input type="text" value={ticket.ticketType.transport} readOnly />
                     <label>Вид транспорта</label>
                 </div>
                 <div className="input-field col s12" >
-                    <input type="text" value={ticket.tripCount} readOnly />
+                    <input type="text" value={ticket.ticketType.tripCount} readOnly />
                     <label>Количество поездок</label>
                 </div >
                 <div className="input-field col s12" readOnly>
-                    <input type="text" value={ticket.duration} readOnly />
+                    <input type="text" value={ticket.ticketType.duration} readOnly />
                     <label htmlFor="duration">Количество суток</label>
                 </div >
             </>
@@ -265,11 +266,11 @@ const Step3 = ({ ticket, ticketTypes }) => {
         return (
             <>
                 <div className="input-field col s12">
-                    <input type="text" value={ticket.transport} readOnly />
+                    <input type="text" value={ticket.ticketType.transport} readOnly />
                     <label>Вид транспорта</label>
                 </div>
                 <div className="input-field col s12" >
-                    <input type="text" value={ticket.duration} readOnly />
+                    <input type="text" value={ticket.ticketType.duration} readOnly />
                     <label>Количество суток</label>
                 </div >
             </>
@@ -277,7 +278,7 @@ const Step3 = ({ ticket, ticketTypes }) => {
     }
     return (
         <>
-            {ticket.type === "На определенное количество поездок" ? ticketForTrips() : ticketForDays()}
+            {ticket.ticketType.type === "На определенное количество поездок" ? ticketForTrips() : ticketForDays()}
 
             <div className="input-field col s12">
                 <input type="text" value={dateToString(ticket.dateBegin)} readOnly />
@@ -294,7 +295,7 @@ const Step3 = ({ ticket, ticketTypes }) => {
             </div>
 
             <div className="input-field col s12">
-                <input type="text" value={ticket.price} readOnly />
+                <input type="text" value={ticket.ticketType.price} readOnly />
                 <label>
                     Итоговая стоимость
                 </label>
@@ -303,16 +304,7 @@ const Step3 = ({ ticket, ticketTypes }) => {
     )
 }
 
-const Result = ({ ticket }) => {
-    const auth = useContext(AuthContext);
-    const { loading, request } = useHttp();
-    useEffect(() => { // default ticket
-        const func = async () => {
-            var ticket = await request('/api/ticket', 'POST', ticket, { 'Authorization': `Bearer ${auth.token}` });
-            console.log(ticket);
-        }
-        func();
-    }, [auth.token, ticket]);
+const Result = () => {
     return (
         <>
             <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} tweenDuration={7000}
@@ -345,7 +337,7 @@ export const BuyTicketPage = () => {
     const [ticketTypes, setTicketTypes] = useState([]); // ticket types that can be used for current ticket
     const { loading, request } = useHttp();
 
-    const StepDisplay = () => {
+    const StepDisplay = useCallback(() => {
         switch (step) {
             case 1:
                 return <Step1 ticket={ticket} setTicket={setTicket} setTicketTypes={setTicketTypes} ticketTypes={ticketTypes} allTicketTypes={allTicketTypes} />
@@ -353,26 +345,37 @@ export const BuyTicketPage = () => {
                 return <Step2 ticket={ticket} setTicket={setTicket} setTicketTypes={setTicketTypes} ticketTypes={ticketTypes} allTicketTypes={allTicketTypes} />
             case 3:
                 return <Step3 ticket={ticket} ticketTypes={ticketTypes} />
-            case 4:
-                return <Result ticket={ticket} />
             default:
                 return <Step1 ticket={ticket} setTicket={setTicket} setTicketTypes={setTicketTypes} ticketTypes={ticketTypes} allTicketTypes={allTicketTypes} />
         }
-    }
+    }, [step, ticket, ticketTypes, allTicketTypes, setTicket, setTicketTypes])
+
+    const setDefaultTicket = useCallback(async () => {
+        var ticketTypes = await request('/api/ticket/types', 'GET', null, { 'Authorization': `Bearer ${auth.token}` });
+        //console.log(ticketTypes);
+        setAllTicketTypes(ticketTypes);
+        setTicketTypes(ticketTypes)
+        setTicket({
+            ...ticket, ticketType: ticketTypes[0]
+        })
+    }, [auth.token, request])
 
     useEffect(() => { // default ticket
-        const func = async () => {
-            if (ticketTypes !== undefined) return;
-            var ticketTypes = await request('/api/ticket/types', 'GET', null, { 'Authorization': `Bearer ${auth.token}` });
-            //console.log(ticketTypes);
-            setAllTicketTypes(ticketTypes);
-            setTicketTypes(ticketTypes)
-            setTicket({
-                ...ticket, ...ticketTypes[0]
-            })
-        }
-        func();
-    }, [request, auth.token]);
+        setDefaultTicket();
+    }, [setDefaultTicket]);
+
+    const confirm = async () => {
+        try {
+            console.log(ticket)
+            const data = await request('/api/ticket', 'POST', ticket, { 'Authorization': `Bearer ${auth.token}` });
+            console.log(data);
+            setStep(4);
+        } catch (e) { }
+    }
+
+    if (loading) {
+        return <Loader />
+    }
 
     return (
         <div className="row" >
@@ -404,7 +407,7 @@ export const BuyTicketPage = () => {
                                 <button
                                     className="waves-effect waves-light btn-large"
                                     disabled={loading}
-                                    onClick={() => setStep(step + 1)}>
+                                    onClick={step === 3 ? confirm : () => setStep(step + 1)}>
                                     {step === 3 ? "Подтвердить" : "Далее"}
                                 </button>
                             </div>
