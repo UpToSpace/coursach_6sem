@@ -7,8 +7,9 @@ const app = express();
 app.use(express.json({ extended: true }));
 
 app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/ticket/types', require('./routes/ticket.types.routes'));
-app.use('/api/ticket', require('./routes/ticket.routes'));
+app.use('/api/tickets/types', require('./routes/ticket.types.routes'));
+app.use('/api/tickets', require('./routes/ticket.routes'));
+app.use('/api/stops', require('./routes/stops.routes'));
 
 const PORT = config.get('port') || 5000;
 async function start() {

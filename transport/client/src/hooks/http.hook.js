@@ -6,6 +6,7 @@ export const useHttp = () => {
 
     const request = useCallback(async (url, method = 'GET', body = null, headers = {}) => {
         setLoading(true);
+
         try {
 
             if (body) {
@@ -24,7 +25,8 @@ export const useHttp = () => {
                 throw new Error(data.message || 'Something went wrong');
             }
 
-            setLoading(false);
+            setLoading(false)
+            // setTimeout(() => setLoading(false), 60000)
 
             return data;
         } catch (e) {

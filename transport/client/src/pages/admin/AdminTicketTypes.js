@@ -1,26 +1,24 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { useHttp } from '../hooks/http.hook';
 import { AuthContext } from '../context/AuthContext';
-import { useParams } from 'react-router-dom';
 import { Loader } from '../components/Loader';
 
-export const TicketPage = () => {
+export const AdminTicketTypesPage = () => {
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
-    const [ticket, setTicket] = useState();
-    const { id } = useParams();
+    const [ticketTypes, setTicketTypes] = useState();
 
-    const getTicket = useCallback(async () => {
-        const data = await request('/api/tickets/' + id, 'GET', null, {
+    const getTicketTypes = useCallback(async () => {
+        const data = await request('/api/ticket/types', 'GET', null, {
             Authorization: `Bearer ${auth.token}`
         });
-        setTicket(data);
+        setTicketTypes(data);
         console.log(data);
     }, [auth.token, request])
 
     useEffect(() => {
-        getTicket();
-    }, [getTicket])
+        getTicketTypes();
+    }, [getTicketTypes])
 
     if(loading) {
         return <Loader />
