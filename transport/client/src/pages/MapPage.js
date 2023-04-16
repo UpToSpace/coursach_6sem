@@ -1,8 +1,13 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState, useRef } from "react";
 import { useHttp } from '../hooks/http.hook';
 import { AuthContext } from '../context/AuthContext';
 import { Loader } from '../components/Loader';
-import Map, { Marker } from 'react-map-gl';
+import Map, { Marker, Popup } from 'react-map-gl';
+import ReactMapGL, {
+    FullscreenControl,
+    GeolocateControl,
+    FlyToInterpolator,
+} from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import busIcon from "../styles/images/bus-icon.svg"
 
@@ -15,6 +20,16 @@ export const MapPage = () => {
         longitude: 27.567444,
         zoom: 11
     });
+    const [selectedStop, setSelectedStop] = useState(null);
+    const geolocateControlStyle = {
+        left: 10,
+        top: 10,
+    };
+
+    const fullscreenControlStyle = {
+        right: 10,
+        top: 10,
+    };
 
     const getStops = useCallback(async () => {
         const data = await request('/api/stops', 'GET', null, {
@@ -32,6 +47,43 @@ export const MapPage = () => {
         return <Loader />
     }
 
+    const closePopup = () => {
+        setSelectedStop(null)
+    };
+
+    const openPopup = (stop) => {
+        setSelectedStop(stop)
+    }
+
+    const CustomPopup = ({ stop, closePopup }) => {
+        return (
+            <Popup
+                latitude={stop.latitude}
+                longitude={stop.longitude}
+                onClose={closePopup}
+                closeButton={true}
+                closeOnClick={false}
+                offsetTop={-30}
+            >
+                {stop.name}
+            </Popup>
+        )
+    };
+
+    const CustomMarker = ({ stop, openPopup }) => {
+        return (
+            <Marker
+                longitude={stop.longitude}
+                latitude={stop.latitude}>
+                <div className="marker" onClick={() => openPopup(stop)}>
+                    <img src={busIcon} alt="marker" height={viewState.zoom + "px"}/>
+                </div>
+            </Marker>
+        )
+    };
+
+
+
     return (
         stops &&
         <div>
@@ -42,16 +94,27 @@ export const MapPage = () => {
                 mapboxAccessToken="pk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2RwNHJ3MTAwdXUzc256bHMwc2dpOWwifQ.v4F89QHCuyottjdKLOFfKg"
                 mapStyle="mapbox://styles/mapbox/streets-v9"
             >
-                {stops.map(stop => (
-                    <Marker
-                        key={stop._id}
-                        latitude={stop.latitude}
-                        longitude={stop.longitude}
-                    >
-                        <img src={busIcon} alt="marker" height={viewState.zoom + "px"} />
-                    </Marker>
-                ))
-                }
+                <FullscreenControl style={fullscreenControlStyle} />
+                <GeolocateControl
+                    style={geolocateControlStyle}
+                    positionOptions={{ enableHighAccuracy: true }}
+                    trackUserLocation={true}
+                    auto={false}
+                />
+                
+                stops && {stops.map(stop => {
+                    return(
+                        <CustomMarker
+                          key={stop._id}
+                          stop={stop}
+                          openPopup={openPopup}
+                         />
+                        )})}
+                {selectedStop !== null &&
+                        <CustomPopup
+                        stop={selectedStop}
+                        closePopup={closePopup}
+                      />}
             </Map>
         </div>
     )
