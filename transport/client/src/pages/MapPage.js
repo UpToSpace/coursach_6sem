@@ -7,9 +7,13 @@ import ReactMapGL, {
     FullscreenControl,
     GeolocateControl,
     FlyToInterpolator,
+    Bla
 } from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
+//import 'react-map-gl-directions/dist/mapbox-gl-directions.css'
 import busIcon from "../styles/images/bus-icon.svg"
+const MAP_TOKEN = "pk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2RwNHJ3MTAwdXUzc256bHMwc2dpOWwifQ.v4F89QHCuyottjdKLOFfKg";
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
@@ -76,13 +80,17 @@ export const MapPage = () => {
                 longitude={stop.longitude}
                 latitude={stop.latitude}>
                 <div className="marker" onClick={() => openPopup(stop)}>
-                    <img src={busIcon} alt="marker" height={viewState.zoom + "px"}/>
+                    <img src={busIcon} alt="marker" height={viewState.zoom + "px"} />
                 </div>
             </Marker>
         )
     };
 
-
+    const directions = new MapboxDirections({
+        accessToken: MAP_TOKEN,
+        unit: 'metric',
+        profile: 'mapbox/driving',
+      });
 
     return (
         stops &&
@@ -91,7 +99,7 @@ export const MapPage = () => {
                 {...viewState}
                 onMove={event => setViewState(event.viewState)}
                 style={{ width: 800, height: 600 }}
-                mapboxAccessToken="pk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2RwNHJ3MTAwdXUzc256bHMwc2dpOWwifQ.v4F89QHCuyottjdKLOFfKg"
+                mapboxAccessToken={MAP_TOKEN}
                 mapStyle="mapbox://styles/mapbox/streets-v9"
             >
                 <FullscreenControl style={fullscreenControlStyle} />
@@ -101,20 +109,35 @@ export const MapPage = () => {
                     trackUserLocation={true}
                     auto={false}
                 />
-                
+
+                <MapboxDirections
+                    accessToken={MAP_TOKEN}
+                    unit='metric'
+                    profile='mapbox/driving'
+                    origin={[-122.48369693756104, 37.83381888486939]}
+                    destination={[-122.48348236083984, 37.83317489144141]}
+                    waypoints={[
+                        [-122.48339653015138, 37.83270036637107],
+                        [-122.48356819152832, 37.832056363179625],
+                        [-122.48404026031496, 37.83114119107971],
+
+                    ]}
+                />
+
                 stops && {stops.map(stop => {
-                    return(
+                    return (
                         <CustomMarker
-                          key={stop._id}
-                          stop={stop}
-                          openPopup={openPopup}
-                         />
-                        )})}
+                            key={stop._id}
+                            stop={stop}
+                            openPopup={openPopup}
+                        />
+                    )
+                })}
                 {selectedStop !== null &&
-                        <CustomPopup
+                    <CustomPopup
                         stop={selectedStop}
                         closePopup={closePopup}
-                      />}
+                    />}
             </Map>
         </div>
     )
