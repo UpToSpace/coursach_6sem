@@ -2,23 +2,23 @@ import React, { useCallback, useContext, useEffect, useState, useRef } from "rea
 import { useHttp } from '../hooks/http.hook';
 import { AuthContext } from '../context/AuthContext';
 import { Loader } from '../components/Loader';
-import Map, { Marker, Popup } from 'react-map-gl';
+import Map, { Marker, Popup, Source } from 'react-map-gl';
 import ReactMapGL, {
     FullscreenControl,
     GeolocateControl,
-    FlyToInterpolator,
-    Bla
+    Layer,
 } from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
-//import 'react-map-gl-directions/dist/mapbox-gl-directions.css'
 import busIcon from "../styles/images/bus-icon.svg"
+
 const MAP_TOKEN = "pk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2RwNHJ3MTAwdXUzc256bHMwc2dpOWwifQ.v4F89QHCuyottjdKLOFfKg";
+const SECRET_TOKEN = "sk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2tsaWVpMTBkdzQzZHFxOW53M2hoanAifQ.v_wnapRnZGiB1Xof48SmPw"
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
     const [stops, setStops] = useState();
+    const [routes, setRoutes] = useState([]);
     const [viewState, setViewState] = useState({
         latitude: 53.893009,
         longitude: 27.567444,
@@ -43,8 +43,64 @@ export const MapPage = () => {
         console.log(data);
     }, [auth.token, request])
 
+    const ROUTE_LAYER = {
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+        },
+        paint: {
+            'line-color': '#888',
+            'line-width': 8,
+        },
+      };
+
     useEffect(() => {
         getStops();
+        // Make a request to the Mapbox Directions API
+        // fetch(
+        //     // `https://api.mapbox.com/directions/v5/mapbox/driving/${stops
+        //     //     .map((stop) => `${stop.longitude},${stop.latitude}`).join(';')}?
+        //     //     access_token=${MAP_TOKEN}}`,
+        //     `https://api.mapbox.com/directions/v5/mapbox/driving/27.5748,53.83616;27.57468,53.84002?access_token=${MAP_TOKEN}`,
+        //     {
+        //         method: 'GET',
+        //         headers: {
+        //             'Authorization': `Bearer ${MAP_TOKEN}`,
+        //             'Content-Type': 'application/json'
+        //         }
+        //     }
+        // )
+        //     .then((response) => response.json())
+        //     .then((data) => {
+        //         // Save the routes in state
+        //         console.log(data);
+        //         setRoutes({
+        //             type: 'FeatureCollection',
+        //             features: data.routes.map((route) => ({
+        //                 type: 'Feature',
+        //                 geometry: {
+        //                     type: 'LineString',
+        //                     coordinates: route.geometry,
+        //                 },
+        //                 properties: {
+        //                     color: 'blue',
+        //                 },
+        //             })),
+        //         });
+        //     })
+        //     .catch((error) => {
+        //         console.log('Error fetching routes', error);
+        //     });
+        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/27.5748,53.83616;27.57468,53.84002?geometries=geojson&access_token=${MAP_TOKEN}`;
+        //const url = `https://api.mapbox.com/directions/v5/mapbox/driving/53.83616,27.5748;53.84002,27.57468?geometries=geojson&access_token=${MAP_TOKEN}`;
+
+        fetch(url)
+            .then((res) => res.json())
+            .then((data) => setRoutes(data.routes[0].geometry.coordinates))
+            .catch((error) => console.error(error));
     }, [getStops])
 
     if (loading) {
@@ -86,16 +142,10 @@ export const MapPage = () => {
         )
     };
 
-    const directions = new MapboxDirections({
-        accessToken: MAP_TOKEN,
-        unit: 'metric',
-        profile: 'mapbox/driving',
-      });
-
     return (
         stops &&
         <div>
-            <Map
+            <ReactMapGL
                 {...viewState}
                 onMove={event => setViewState(event.viewState)}
                 style={{ width: 800, height: 600 }}
@@ -109,21 +159,6 @@ export const MapPage = () => {
                     trackUserLocation={true}
                     auto={false}
                 />
-
-                <MapboxDirections
-                    accessToken={MAP_TOKEN}
-                    unit='metric'
-                    profile='mapbox/driving'
-                    origin={[-122.48369693756104, 37.83381888486939]}
-                    destination={[-122.48348236083984, 37.83317489144141]}
-                    waypoints={[
-                        [-122.48339653015138, 37.83270036637107],
-                        [-122.48356819152832, 37.832056363179625],
-                        [-122.48404026031496, 37.83114119107971],
-
-                    ]}
-                />
-
                 stops && {stops.map(stop => {
                     return (
                         <CustomMarker
@@ -138,7 +173,20 @@ export const MapPage = () => {
                         stop={selectedStop}
                         closePopup={closePopup}
                     />}
-            </Map>
-        </div>
+
+                {routes && (
+                    <Source id="track" type="geojson" data={{
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: routes
+                        }
+                    }}>
+                        <Layer {...ROUTE_LAYER} />
+                        </Source>
+                    )}
+
+        </ReactMapGL>
+        </div >
     )
 }
