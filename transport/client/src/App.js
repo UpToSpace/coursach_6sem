@@ -19,7 +19,7 @@ function App() {
     <AuthContext.Provider value={{ token, userId, login, logout, isAuthenticated }}>
         <Router>
           {isAuthenticated && <Navbar />}
-          <div className="container">
+          <div style={{"width" : "90%", "margin" : "auto"}}>
             {routes}
           </div>
         </Router>

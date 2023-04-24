@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState, useRef } from "react";
-import { useHttp } from '../hooks/http.hook';
-import { AuthContext } from '../context/AuthContext';
-import { Loader } from '../components/Loader';
+import { useHttp } from '../../hooks/http.hook';
+import { AuthContext } from '../../context/AuthContext';
+import { Loader } from '../../components/Loader';
 import Map, { Marker, Popup, Source } from 'react-map-gl';
 import ReactMapGL, {
     FullscreenControl,
@@ -10,9 +10,9 @@ import ReactMapGL, {
 } from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MAP_TOKEN, geolocateControlStyle, fullscreenControlStyle, CustomMarker, CustomPopup, 
-    ROUTE_LAYER, CENTER, ZOOM } from '../components/MapComponents';
+    ROUTE_LAYER, CENTER, ZOOM } from '../../components/MapComponents';
 
-export const MapPage = () => {
+export const AdminRoutesPage = () => {
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
     const [stops, setStops] = useState();
