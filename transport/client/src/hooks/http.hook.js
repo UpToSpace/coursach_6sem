@@ -26,7 +26,6 @@ export const useHttp = () => {
             }
 
             setLoading(false)
-            // setTimeout(() => setLoading(false), 60000)
 
             return data;
         } catch (e) {
