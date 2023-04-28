@@ -11,18 +11,30 @@ import ReactMapGL, {
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MAP_TOKEN, geolocateControlStyle, fullscreenControlStyle, CustomMarker, CustomPopup, 
     ROUTE_LAYER, CENTER, ZOOM } from '../components/MapComponents';
+import { TransportTable } from '../components/TransportTable';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
     const [stops, setStops] = useState();
-    const [routes, setRoutes] = useState([]);
+    const [routes, setRoutes] = useState(); // routes for selected transport
     const [selectedStop, setSelectedStop] = useState(null);
     const [viewState, setViewState] = useState({
         latitude: CENTER[1],
         longitude: CENTER[0],
         zoom: ZOOM
     });
+    const [transports, setTransports] = useState();
+    const [selectedTransportType, setSelectedTransportType] = useState(null);
+    const [selectedTransport, setSelectedTransport] = useState(null);
+
+    const getTransports = useCallback(async () => {
+        const data = await request('/api/transports', 'GET', null, {
+            Authorization: `Bearer ${auth.token}`
+        });
+        setTransports(data);
+        console.log(data);
+    }, [auth.token, request])
     
     const getStops = useCallback(async () => {
         const data = await request('/api/stops', 'GET', null, {
@@ -34,11 +46,7 @@ export const MapPage = () => {
 
     useEffect(() => {
         getStops();
-        const url = `https://api.mapbox.com/directions/v5/mapbox/driving/27.5748,53.83616;27.57206,53.84309?geometries=geojson&access_token=${MAP_TOKEN}`;
-        fetch(url)
-            .then((res) => res.json())
-            .then((data) => setRoutes(data.routes[0].geometry.coordinates))
-            .catch((error) => console.error(error));
+        getTransports();
     }, [getStops])
 
     if (loading) {
@@ -105,6 +113,7 @@ export const MapPage = () => {
                         </Source>
                     )}
         </ReactMapGL>
+        {TransportTable({transports, selectedTransportType, setSelectedTransportType, setSelectedTransport, setRoutes})}
         {selectedStop && <Schedule stop={selectedStop} />}
         </div >
     )

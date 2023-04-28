@@ -24,7 +24,7 @@ export const AdminRoutesPage = () => {
     const [routes, setRoutes] = useState([]);
     const [routeStops, setRouteStops] = useState([]);
     const [transport, setTransport] = useState({
-        transportType: transportTypes[0],
+        transportType: null,
         number: null
     });
     const [selectedStop, setSelectedStop] = useState(null);
@@ -92,7 +92,7 @@ export const AdminRoutesPage = () => {
 
     const handleChange = (event) => {
         event.target.name === "transportType" ? setTransport({ ...transport, [event.target.name]: event.target.value.value }) :
-        setTransport({ ...transport, [event.target.name]: event.target.value });
+            setTransport({ ...transport, [event.target.name]: event.target.value });
     }
 
     const AddForm = () => {
@@ -117,13 +117,41 @@ export const AdminRoutesPage = () => {
                     <input placeholder="" name="number" type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
                 </div>
                 <button onClick={AddRouteHandler} className="waves-effect waves-light btn-small">Добавить</button>
+                <button onClick={DeleteRouteHandler} className="waves-effect waves-light btn-small">Удалить</button>
             </div>
         )
     }
 
+    const DeleteRouteHandler = async () => {
+        try {
+            if (transport.transportType === null) {
+                return window.alert('Тип транспорта не выбран')
+            }
+            if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
+                return window.alert('Номер транспорта введен некорректно')
+            }
+            var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
+                Authorization: `Bearer ${auth.token}`
+            });
+            if (transportFromDB) {
+                const data = await request(`/api/routes`, 'DELETE', { transport: transportFromDB }, {
+                    Authorization: `Bearer ${auth.token}`
+                })
+                console.log(data);
+            } else {
+                window.alert('Транспорт не найден')
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     const AddRouteHandler = async () => {
         try {
-            console.log({ stops: routeStops, transport: transport })
+            //console.log({ stops: routeStops, transport: transport })
+            if (transport.transportType === null) {
+                return window.alert('Тип транспорта не выбран')
+            }
             if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
                 return window.alert('Номер транспорта введен некорректно')
             }
@@ -133,10 +161,11 @@ export const AdminRoutesPage = () => {
             var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
                 Authorization: `Bearer ${auth.token}`
             });
-            if (transportFromDB.length > 0) {
-                if(window.confirm('Маршрут для транспорт с таким номером уже существует. Желаете измениить его?')) {
+            if (transportFromDB) {
+                if (window.confirm('Маршрут для транспорт с таким номером уже существует. Желаете измениить его?')) {
                     const data = await request(`/api/routes`, 'DELETE', { transport: transportFromDB }, {
-                        Authorization: `Bearer ${auth.token}`})
+                        Authorization: `Bearer ${auth.token}`
+                    })
                     console.log(data);
                 } else {
                     return;
@@ -145,14 +174,20 @@ export const AdminRoutesPage = () => {
                 const data = await request(`/api/transports`, 'POST', { transport: transport }, {
                     Authorization: `Bearer ${auth.token}`
                 });
-                transportFromDB = data;
+                transportFromDB = data.transport;
             }
+            console.log(transportFromDB)
             const data = await request('/api/routes', 'POST', { stops: routeStops, transport: transportFromDB }, {
                 Authorization: `Bearer ${auth.token}`
             });
             console.log(data);
             window.alert('Маршрут добавлен')
             setRouteStops([]);
+            setRoutes([]);
+            setTransport({
+                transportType: null,
+                number: null
+            })
         } catch (e) { }
     }
 

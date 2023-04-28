@@ -8,10 +8,16 @@ const router = Router();
 router.get('/', auth, async (req, res) => {
     try {
         if (!req.query.type) {
-            const transports = await Transport.find({});
+            const transports = await Transport.find({}).populate({
+                path: 'routeStops',
+                populate: {
+                    path: 'stopId',
+                    model: 'Stop'
+                }
+            });
             res.json(transports);
         } else {
-            const transport = await Transport.find({ type: req.query.type, number: req.query.number });
+            const transport = await Transport.findOne({ type: req.query.type, number: req.query.number });
             res.json(transport);
         }
     } catch (e) {
@@ -23,6 +29,7 @@ router.get('/', auth, async (req, res) => {
 // /api/transports
 router.post('/', auth, async (req, res) => {
     try {
+        //console.log(req.body)
         const transportType = req.body.transport.transportType;
         const number = req.body.transport.number;
         const transport = new Transport({type: transportType, number: number});

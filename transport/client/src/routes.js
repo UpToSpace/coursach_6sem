@@ -12,6 +12,7 @@ import { AdminTicketTypesUpdatePage } from "./pages/admin/AdminTicketTypesUpdate
 import { AdminStopsPage } from "./pages/admin/AdminStopsPage";
 import { AdminRoutesPage } from "./pages/admin/AdminRoutesPage";
 import { AdminPage } from "./pages/admin/AdminPage";
+import { AdminSchedulePage } from "./pages/admin/AdminSchedulePage";
 
 export const useRoutes = (isAuthenticated) => {
     if (isAuthenticated) {
@@ -23,6 +24,7 @@ export const useRoutes = (isAuthenticated) => {
                 <Route path="/admin" exact element={<AdminPage />} />
                 <Route path="/admin/stops" exact element={<AdminStopsPage />} />
                 <Route path="/admin/routes" exact element={<AdminRoutesPage />} />
+                <Route path="/admin/schedule" exact element={<AdminSchedulePage />} />
                 <Route path="/admin/tickets" exact element={<AdminTicketTypesPage />} />
                 <Route path="/admin/tickets/:id" element={<AdminTicketTypesUpdatePage />} />
                 <Route path="/map" element={<MapPage />} />

@@ -14,6 +14,7 @@ app.use('/api/tickets', require('./routes/ticket.routes'));
 app.use('/api/stops', require('./routes/stops.routes'));
 app.use('/api/routes', require('./routes/routes.routes'));
 app.use('/api/transports', require('./routes/transport.routes'));
+app.use('/api/schedule', require('./routes/schedule.routes'));
 
 const PORT = config.get('port') || 5000;
 async function start() {

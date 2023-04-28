@@ -1,6 +1,7 @@
 const { Schema, model, Types } = require('mongoose');
 
 const schema = new Schema({
+    scheduleNumber: { type: Number, required: true },
     arrivalTime: { type: Date, required: true },
     routeStopId: { type: Types.ObjectId, ref: 'RouteStop' }
 });
