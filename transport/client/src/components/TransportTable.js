@@ -2,13 +2,17 @@ import { transportTypes } from './arrays'
 import { useState } from 'react'
 import { MAP_TOKEN } from './MapComponents'
 
-export const TransportTable = ({ transports, selectedTransportType, setSelectedTransportType, setSelectedTransport, setRoutes }) => {
+export const TransportTable = ({ transports, selectedTransportType, setSelectedTransportType, setSelectedTransport, setRoutes, 
+    getSchedule, setRouteStops, setSchedule }) => {
     const tabHandleClick = (type) => {
         console.log(transports)
         setSelectedTransportType(type)
+        setRouteStops(null);
+        setSchedule(null);
+        setRoutes(null);
     }
 
-    const transportHandleClick = (transport) => {
+    const transportHandleClick = async (transport) => {
         setSelectedTransport(transport)
         console.log(transport)
         fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${transport.routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
@@ -18,6 +22,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
             setRoutes(data.routes[0].geometry.coordinates);
         })
         .catch((error) => console.error(error));
+        await getSchedule(transport)
     }
 
     return (

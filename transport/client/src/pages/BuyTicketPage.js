@@ -80,7 +80,9 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 const filteredTicketTypes = allTicketTypes.filter(el => el.type === ticket.ticketType.type && el.transport === e.target.value);
                 setTicketTypes(filteredTicketTypes);
                 const dateEndValue = new Date(ticket.dateBegin);
+                console.log(dateEndValue)
                 dateEndValue.setDate(ticket.dateBegin.getDate() + +filteredTicketTypes[0].duration);
+                console.log(dateEndValue)
                 setTicket(ticket => ({ ...ticket, ticketType: filteredTicketTypes[0], dateEnd: dateEndValue }));
                 // console.log(filteredTicketTypes)
                 // console.log({ ...ticket, ...filteredTicketTypes[0], dateEnd: dateEndValue })
@@ -108,8 +110,8 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 const date = e.target.value;
                 const dateEndValue = new Date(date);
                 dateEndValue.setDate(date.getDate() + +ticketTypes[0].duration);
-                //console.log(date);
-                //console.log(dateEndValue);      
+                console.log(date);
+                console.log(dateEndValue);      
                 setTicket(ticket => ({ ...ticket, dateBegin: date, dateEnd: dateEndValue }));
                 const dateEnd = document.getElementById('dateEnd');
                 dateEnd.value = dateToString(dateEndValue);
@@ -328,6 +330,7 @@ export const BuyTicketPage = () => {
     const auth = useContext(AuthContext);
     const [step, setStep] = useState(1);
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const [allTicketTypes, setAllTicketTypes] = useState([]); // all ticket types
     const [ticket, setTicket] = useState({ // current ticket 
         owner: auth.userId,

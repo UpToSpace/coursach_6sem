@@ -13,6 +13,7 @@ import { AdminStopsPage } from "./pages/admin/AdminStopsPage";
 import { AdminRoutesPage } from "./pages/admin/AdminRoutesPage";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { AdminSchedulePage } from "./pages/admin/AdminSchedulePage";
+import { AccountPage } from "./pages/AccountPage";
 
 export const useRoutes = (isAuthenticated) => {
     if (isAuthenticated) {
@@ -21,6 +22,7 @@ export const useRoutes = (isAuthenticated) => {
                 <Route path="/tickets/buy" element={<BuyTicketPage />} />
                 <Route path="/tickets" element={<TicketsPage />} />
                 <Route path="/tickets/:id" element={<TicketPage />} />
+                <Route path="/account" element={<AccountPage />} />
                 <Route path="/admin" exact element={<AdminPage />} />
                 <Route path="/admin/stops" exact element={<AdminStopsPage />} />
                 <Route path="/admin/routes" exact element={<AdminRoutesPage />} />

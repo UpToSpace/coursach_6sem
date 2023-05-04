@@ -3,6 +3,8 @@ import { useHttp } from '../hooks/http.hook';
 import { AuthContext } from '../context/AuthContext';
 import { useParams } from 'react-router-dom';
 import { Loader } from '../components/Loader';
+import moment from 'moment';
+import 'moment/locale/be';
 
 export const TicketPage = () => {
     const { loading, request } = useHttp();
@@ -38,8 +40,8 @@ export const TicketPage = () => {
                             {ticket.ticketType.tripCount !== -1 && <p>Количество поездок: {ticket.ticketType.tripCount}</p>}
                             <p>Количество суток: {ticket.ticketType.duration}</p>
                             <p>Стоимость: {ticket.ticketType.price}</p>
-                            <p>Дата начала: {ticket.dateBegin}</p>
-                            <p>Дата окончания: {ticket.dateEnd}</p>
+                            <p>Дата начала: {moment(ticket.dateBegin).format('LLLL')}</p>
+                            <p>Дата окончания: {moment(ticket.dateEnd).format('LLLL')}</p>
                         </div>
                         <div class="card-action">
                             <a href="/tickets">Назад</a>

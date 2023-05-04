@@ -11,14 +11,16 @@ const router = Router();
 router.get('/', auth, async (req, res) => {
     try {
         if (req.query.type && req.query.number) {
-            const routeStops = await RouteStop.find({}).populate({
-                path: 'stopId',
-                model: 'Stop'
-            }).populate({
-                path: 'transportId',
-                model: 'Transport',
-                match: { type: req.query.type, number: req.query.number }
-            });
+            const transportId = await Transport.findOne({ type: req.query.type, number: req.query.number });
+            const routeStops = await RouteStop.find({ transportId })
+                .populate({
+                    path: 'stopId',
+                    model: 'Stop'
+                })
+                .populate({
+                    path: 'transportId',
+                    model: 'Transport'
+                });
             res.json(routeStops);
         }
     } catch (e) {

@@ -8,27 +8,32 @@ const router = Router();
 // /api/schedule
 router.get('/', auth, async (req, res) => {
     try {
-        if (!req.query.type) {
-            const transports = await Transport.find({}).populate({
-                path: 'routeStops',
-                populate: {
-                    path: 'stopId',
-                    model: 'Stop'
-                }
-            });
-            res.json(transports);
-        } else {
-            const schedule = await Schedule.find({}).populate({
+        if (req.query.type && req.query.number) {
+            const scheduleDB = await Schedule.find({}).populate({
                 path: 'routeStopId',
                 populate: {
                     path: 'stopId',
-                    model: 'Stop',
+                    model: 'Stop'
                 },
                 populate: {
                     path: 'transportId',
                     model: 'Transport',
                     match: { type: req.query.type, number: req.query.number }
                 }
+            })
+            const schedule = scheduleDB.filter(e => e.routeStopId.transportId !== null);
+            res.json(schedule);
+        } else {
+            const schedule = await Schedule.find({}).populate({
+                path: 'routeStopId',
+                populate: {
+                    path: 'stopId',
+                    model: 'Stop',
+                    populate: {
+                        path: 'transportId',
+                        model: 'Transport'
+                    }
+                },
             });
             res.json(schedule);
         }
@@ -41,9 +46,12 @@ router.get('/', auth, async (req, res) => {
 // /api/schedule
 router.post('/', auth, async (req, res) => {
     try {
-        const { scheduleNumber, arrivalTime, routeStopId } = req.body;
-        const schedule = new Schedule({ scheduleNumber, arrivalTime, routeStopId });
-        await schedule.save();
+        const { schedule, scheduleNumber } = req.body;
+        schedule.map(async (item) => {
+            const { arrivalTime, routeStopId } = item;
+            const newSchedule = new Schedule({ scheduleNumber, arrivalTime, routeStopId });
+            await newSchedule.save(); 
+        });
         res.status(201).json({ message: 'Расписание создано' });
     } catch (e) {
         console.log(e);

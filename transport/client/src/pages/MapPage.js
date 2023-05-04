@@ -9,8 +9,10 @@ import ReactMapGL, {
     Layer,
 } from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { MAP_TOKEN, geolocateControlStyle, fullscreenControlStyle, CustomMarker, CustomPopup, 
-    ROUTE_LAYER, CENTER, ZOOM } from '../components/MapComponents';
+import {
+    MAP_TOKEN, geolocateControlStyle, fullscreenControlStyle, CustomMarker, CustomPopup,
+    ROUTE_LAYER, CENTER, ZOOM
+} from '../components/MapComponents';
 import { TransportTable } from '../components/TransportTable';
 
 export const MapPage = () => {
@@ -27,6 +29,8 @@ export const MapPage = () => {
     const [transports, setTransports] = useState();
     const [selectedTransportType, setSelectedTransportType] = useState(null);
     const [selectedTransport, setSelectedTransport] = useState(null);
+    const [schedule, setSchedule] = useState([]);
+    const [routeStops, setRouteStops] = useState();
 
     const getTransports = useCallback(async () => {
         const data = await request('/api/transports', 'GET', null, {
@@ -35,7 +39,7 @@ export const MapPage = () => {
         setTransports(data);
         console.log(data);
     }, [auth.token, request])
-    
+
     const getStops = useCallback(async () => {
         const data = await request('/api/stops', 'GET', null, {
             Authorization: `Bearer ${auth.token}`
@@ -44,10 +48,23 @@ export const MapPage = () => {
         console.log(data);
     }, [auth.token, request])
 
+    const getSchedule = async (transport) => {
+        const schedule = await request(`/api/schedule?type=${transport.type}&number=${transport.number}`, 'GET', null, {
+            Authorization: `Bearer ${auth.token}`
+        });
+        const routeStops = await request(`/api/routes?type=${transport.type}&number=${transport.number}`, 'GET', null, {
+            Authorization: `Bearer ${auth.token}`
+        });
+        setSchedule(schedule);
+        setRouteStops(routeStops);
+        console.log(schedule);
+        console.log(routeStops);
+    }
+
     useEffect(() => {
         getStops();
         getTransports();
-    }, [getStops])
+    }, [getStops, getTransports])
 
     if (loading) {
         return <Loader />
@@ -61,11 +78,33 @@ export const MapPage = () => {
         setSelectedStop(stop)
     }
 
-    const Schedule = ({ stop }) => {
+    const ScheduleTable = () => {
+        console.log(routeStops)
+        console.log(schedule)
         return (
-        <div>
-            {stop.name}
-        </div>
+            <>
+                <table>
+                    <tbody>
+                        {
+                            routeStops && routeStops.sort(e => e.stopOrder).map((item, index) => {
+                                return (
+                                    <tr key={index}>
+                                        <th>{item.stopId.name}</th>
+                                        {/* {console.log(schedule)}
+                                        {console.log(item)}
+                                        {console.log(schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber))} */}
+                                        {schedule.length !== 0 && schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber).map((item, index) => {
+                                            return (
+                                                <td key={index}>{item.arrivalTime}</td>
+                                            )
+                                        })}
+                                    </tr>
+                                )
+                            })
+                        }
+                    </tbody>
+                </table>
+            </>
         )
     }
 
@@ -110,11 +149,12 @@ export const MapPage = () => {
                         }
                     }}>
                         <Layer {...ROUTE_LAYER} />
-                        </Source>
-                    )}
-        </ReactMapGL>
-        {TransportTable({transports, selectedTransportType, setSelectedTransportType, setSelectedTransport, setRoutes})}
-        {selectedStop && <Schedule stop={selectedStop} />}
+                    </Source>
+                )}
+            </ReactMapGL>
+            {transports && TransportTable({ transports, selectedTransportType, setSelectedTransportType, setSelectedTransport, 
+                setRoutes, getSchedule, setRouteStops, setSchedule })}
+            {routeStops && ScheduleTable()}
         </div >
     )
 }
