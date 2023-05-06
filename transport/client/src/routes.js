@@ -16,8 +16,8 @@ import { AdminSchedulePage } from "./pages/admin/AdminSchedulePage";
 import { AccountPage } from "./pages/AccountPage";
 import { roles } from "./components/arrays";
 
-export const useRoutes = (isAuthenticated, userRole) => {
-    if (isAuthenticated && userRole === roles[0]) { // admin
+export const useRoutes = (userRole) => {
+    if (userRole === roles[0]) { // admin
         return (
             <Routes>
                 <Route path="/tickets/buy" element={<BuyTicketPage />} />
@@ -37,7 +37,7 @@ export const useRoutes = (isAuthenticated, userRole) => {
         );
     }
 
-    if (isAuthenticated && userRole === roles[1]) { // user
+    if (userRole === roles[1]) { // user
         return (
             <Routes>
                 <Route path="/tickets/buy" element={<BuyTicketPage />} />

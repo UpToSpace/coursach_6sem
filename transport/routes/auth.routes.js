@@ -110,7 +110,7 @@ router.post('/logout', async (req, res) => {
         user.refreshToken = '';
         await user.save();
         res.clearCookie('refreshToken');
-        return res.json({ token });
+        return res.json({ message: 'Вы успешно вышли из системы' });
     } catch (e) {
         console.log(e);
         res.status(500).json({ message: 'Что-то пошло не так' });
@@ -134,8 +134,6 @@ router.post('/refresh', async (req, res) => {
             return res.status(401).json({ message: 'Пользователь не авторизован' });
         }
         const tokens = TokenService.generateTokens({ email: userFromDb.email, role: userFromDb.role, isActivated: userFromDb.isActivated});
-        await TokenService.saveToken(userFromDb.email, tokens.refreshToken);
-
         res.json({ token: tokens.accessToken, user: {id: userFromDb.id, role: userFromDb.role} });
     } catch (e) {
         console.log('refresh' + e);

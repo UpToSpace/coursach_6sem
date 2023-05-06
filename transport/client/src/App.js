@@ -6,20 +6,21 @@ import { Navbar } from "./components/Navbar";
 import 'materialize-css';
 import { AuthContext } from "./context/AuthContext";
 import { Loader } from "./components/Loader";
+import { useHttp } from "./hooks/http.hook";
 
 function App() {
-  const { login, logout, token, userId, ready, userRole } = useAuth();
-  const isAuthenticated = !!token;
+  const { request } = useHttp();
+  const { login, logout, userId, ready, userRole } = useAuth();
   console.log('App.js: userRole = ', userRole)
-  const routes = useRoutes(isAuthenticated, userRole);
+  const routes = useRoutes(userRole);
   if (!ready) {
     return <Loader />
   }
 
   return (
-    <AuthContext.Provider value={{ token, userId, login, logout, isAuthenticated, userRole }}>
+    <AuthContext.Provider value={{ userId, login, logout, userRole }}>
         <Router>
-          {isAuthenticated && <Navbar />}
+          {userRole && <Navbar />}
           <div style={{"width" : "95%", "margin" : "auto"}}>
             {routes}
           </div>

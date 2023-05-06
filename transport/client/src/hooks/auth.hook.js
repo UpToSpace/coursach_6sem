@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useHttp } from "./http.hook";
+import { useNavigate } from "react-router-dom";
 
 export const useAuth = () => {
     const [token, setToken] = useState(null);
@@ -17,10 +18,11 @@ export const useAuth = () => {
         }));
     }, []);
 
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
         setToken(null);
         setUserId(null);
         localStorage.removeItem('userData');
+        const data = await request('/api/auth/logout', 'POST', null);
     }, []);
 
     const getUserRole = useCallback(async (token) => {
@@ -29,13 +31,6 @@ export const useAuth = () => {
             console.log('auth.hook.js: getUserRole: data.role = ', data.role)
             setUserRole(data.role);
         } catch (e) {
-            if (e.message === 'jwt expired') {
-                const dataRefresh = await request('/api/auth/refresh', 'POST', null);
-                setUserRole(dataRefresh.user.role);
-                localStorage.setItem('userData', JSON.stringify({
-                    userId: dataRefresh.user.id, token: dataRefresh.token
-                }));
-            }
             console.log('auth.hook.js: getUserRole: e.message = ', e.message)
         }
     }, [userRole]);
@@ -44,11 +39,9 @@ export const useAuth = () => {
         const data = JSON.parse(localStorage.getItem('userData'));
         if (data && data.token) {
             getUserRole(data.token);
-            console.log('auth.hook.js: userRole = ', userRole);
-            //login(data.token, { id: data.userId, role: userRole });
         }
         setReady(true)
-    }, [login, getUserRole, userRole]);
+    }, [getUserRole]);
 
     return { login, logout, token, userId, ready, userRole };
 }

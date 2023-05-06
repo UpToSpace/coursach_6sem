@@ -29,13 +29,13 @@ export const useHttp = () => {
 
             if (!response.ok) {
                 console.log("http hook res status: " + response.status)
-                console.log(data.message)
                 if (response.status === 401 && data.message === 'jwt expired') {
                     const dataRefresh = await request('/api/auth/refresh', 'POST', null);
-                    //setUserRole(dataRefresh.user.role);
                     localStorage.setItem('userData', JSON.stringify({
                         userId: dataRefresh.user.id, token: dataRefresh.token
                     }));
+                    setLoading(false)
+                    return dataRefresh;
                 }
                 throw new Error(data.message || 'Something went wrong');
             }
