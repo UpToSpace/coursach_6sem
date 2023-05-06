@@ -25,7 +25,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start --ignore client",
+    "start": "set HTTPS=true& set SSL_CRT_FILE=D:\\University\\coursach\\transport\\cert\\L.crt& set SSL_KEY_FILE=D:\\University\\coursach\\transport\\cert\\L.key& react-scripts start --ignore client",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

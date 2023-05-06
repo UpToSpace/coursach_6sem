@@ -17,22 +17,8 @@ const wss = new WebSocket.Server({ port: WSPORT }, () => {
     console.log(`WS server started on port ${WSPORT}...`);
 });
 
-// wss.on('connection', function connection(ws) {
-//     console.log('Client connected');
-
-//     Ticket.find({ dateEnd: { $lte: new Date() } })
-//         .exec((err, tickets) => {
-//             if (err) {
-//                 console.error(err);
-//             } else {
-//                 tickets.forEach(ticket => {
-//                     ws.send(JSON.stringify(ticket));
-//                 });
-//             }
-//         });
-// });
 wss.on('connection', function connection(ws) {
-    console.log('Client connected');
+    //console.log('Client connected');
     wss.clients.forEach(async (client) => {
         const tickets = await Ticket.find({ dateEnd: { $lte: new Date() } })
         .populate('ticketType');
@@ -46,14 +32,14 @@ wss.on('connection', function connection(ws) {
 });
 
 app.use(express.json({ extended: true }));
-// app.use(cors({
-//     origin: 'http://localhost:3000',
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE']
-// }));
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(cookieParser());
+app.use(cors({
+    origin: config.get('baseUrl'),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 // app.use(session({
 //     key: 'userId',
 //     secret: 'secret',
@@ -84,8 +70,8 @@ async function start() {
         https
             .createServer(
                 {
-                    key: fs.readFileSync("./config/key.pem"),
-                    cert: fs.readFileSync("./config/cert.pem"),
+                    key: fs.readFileSync("./cert/L.key"),
+                    cert: fs.readFileSync("./cert/L.crt"),
                 },
                 app)
             .listen(PORT, () => {

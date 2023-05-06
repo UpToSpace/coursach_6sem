@@ -6,11 +6,11 @@ export const Navbar = () => {
     const message = useMessage();
     const ws = new WebSocket('ws://localhost:5001');
     ws.onopen = () => {
-        console.log('ws opened');
+        //console.log('ws opened');
     };
     ws.onmessage = function (event) {
         const ticket = JSON.parse(event.data);
-        console.log(ticket)
+        //console.log(ticket)
         var messageText;
         if(ticket.ticketType.type === options.type[0]) // На определенное количество поездок
         {
@@ -22,13 +22,13 @@ export const Navbar = () => {
         ws.close();
     };
     ws.onclose = () => {
-        console.log('ws closed');
+        //console.log('ws closed');
     };
 
     return (
         <>
             <nav>
-                <div class="nav-wrapper">
+                <div class="nav-wrapper" style={{"width" : "95%", "margin" : "auto"}}>
                     <a href="/" class="brand-logo">ROVER</a>
                     <ul id="nav-mobile" class="right hide-on-med-and-down">
                         <li><a href="/map">Расклад</a></li>

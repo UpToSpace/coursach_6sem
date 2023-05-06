@@ -2,10 +2,12 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useHttp } from '../hooks/http.hook';
 import { useMessage } from '../hooks/message.hook';
 import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { colors } from '../styles/styles'
 
 export const AuthPage = () => {
     const auth = useContext(AuthContext);
+    const navigate = useNavigate();
     const message = useMessage();
     const { loading, error, request, clearError } = useHttp();
     const [form, setForm] = useState({
@@ -32,7 +34,11 @@ export const AuthPage = () => {
     const loginHandler = async () => {
         try {
             const data = await request('/api/auth/login', 'POST', { ...form });
-            auth.login(data.token, data.userId);
+            console.log(data);
+            auth.login(data.token, data.user);
+            auth.userRole = data.user.role;
+            auth.userId = data.user.id;
+            navigate('/');
         } catch (e) { }
     }
 

@@ -2,6 +2,13 @@
     "port": 5000,
     "wsport": 5001,
     "mongoUri": "mongodb+srv://valerie:Vv1542139@cluster0.tqrbojf.mongodb.net/?retryWrites=true&w=majority",
-    "jwtSecret": "transport secret",
-    "baseUrl": "https://localhost:5000"
+    "jwtAccessSecret": "transport secret",
+    "jwtRefreshSecret": "transport refresh secret",
+    "baseUrl": "https://localhost:5000",
+    "clientUrl": "https://localhost:3000",
+    "smtpHost": "smtp.gmail.com",
+    "smtpPort": 465,
+    "smtpSecure": true,
+    "smtpUser": "korzhovalera2002@gmail.com",
+    "smtpPassword": "fzstqgczhcnlvsiv"
 }

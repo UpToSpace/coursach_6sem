@@ -23,10 +23,12 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.2",
+    "nodemailer": "^6.9.1",
     "react-confetti": "^6.1.0",
     "react-hook-form": "^7.43.8",
     "react-materialize": "^3.10.0",
     "sweetalert2": "^11.7.3",
+    "uuid": "^9.0.0",
     "ws": "^8.13.0",
     "yup": "^1.0.2"
   },

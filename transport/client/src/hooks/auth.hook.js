@@ -1,15 +1,19 @@
 import { useState, useCallback, useEffect } from "react";
+import { useHttp } from "./http.hook";
 
 export const useAuth = () => {
     const [token, setToken] = useState(null);
     const [userId, setUserId] = useState(null);
     const [ready, setReady] = useState(false);
+    const [userRole, setUserRole] = useState(null);
+    const { request } = useHttp();
 
-    const login = useCallback((jwtToken, id) => {
+    const login = useCallback((jwtToken, user) => {
         setToken(jwtToken);
-        setUserId(id);
+        setUserId(user.id);
+        setUserRole(user.role);
         localStorage.setItem('userData', JSON.stringify({
-            userId: id, token: jwtToken
+            userId: user.id, token: jwtToken
         }));
     }, []);
 
@@ -19,19 +23,32 @@ export const useAuth = () => {
         localStorage.removeItem('userData');
     }, []);
 
+    const getUserRole = useCallback(async (token) => {
+        try {
+            const data = await request('/api/auth/userrole', 'GET', null);
+            console.log('auth.hook.js: getUserRole: data.role = ', data.role)
+            setUserRole(data.role);
+        } catch (e) {
+            if (e.message === 'jwt expired') {
+                const dataRefresh = await request('/api/auth/refresh', 'POST', null);
+                setUserRole(dataRefresh.user.role);
+                localStorage.setItem('userData', JSON.stringify({
+                    userId: dataRefresh.user.id, token: dataRefresh.token
+                }));
+            }
+            console.log('auth.hook.js: getUserRole: e.message = ', e.message)
+        }
+    }, [userRole]);
+
     useEffect(() => {
-        // setTimeout(() => {
-        // const data = JSON.parse(localStorage.getItem('userData'));
-        // if (data && data.token) {
-        //     login(data.token, data.userId);
-        // }
-        // setReady(true)}, 10000);
         const data = JSON.parse(localStorage.getItem('userData'));
         if (data && data.token) {
-            login(data.token, data.userId);
+            getUserRole(data.token);
+            console.log('auth.hook.js: userRole = ', userRole);
+            //login(data.token, { id: data.userId, role: userRole });
         }
         setReady(true)
-    }, [login]);
+    }, [login, getUserRole, userRole]);
 
-    return { login, logout, token, userId, ready};
+    return { login, logout, token, userId, ready, userRole };
 }

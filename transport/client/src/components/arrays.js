@@ -4,3 +4,4 @@ export const options = {
 }
 
 export const transportTypes = ['Автобус', 'Троллейбус', 'Трамвай'];
+export const roles = ['admin', 'user'];
