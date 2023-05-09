@@ -26,12 +26,13 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
     }
 
     return (
-        <div className="row">
-            <div className="col s12">
+        <div className="row" style={{"width": "50%"}}>
+            <div className="col s10">
                 <ul className="tabs">
                     {transportTypes.map((type, index) => {
                         return (
-                            <li key={index} className="tab col s3"><a onClick={(e) => tabHandleClick(type)}>{type}</a></li>
+                            <li key={index} className={selectedTransportType === type ? "tab col s3 selected" : "tab col s3"}>
+                                <a onClick={(e) => tabHandleClick(type)}>{type}</a></li>
                         )
                     })
                     }
@@ -41,9 +42,9 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                 <table>
                     <thead>
                         <tr>
-                            <th>Номер</th>
-                            <th>Начальная остановка</th>
-                            <th>Конечная остановка</th>
+                            <th>Нумар</th>
+                            <th>Пачатковы прыпынак</th>
+                            <th>Канчатковы прыпынак</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -55,7 +56,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                                 <td>{transport.number}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[0].stopId.name}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
-                                <td><button className="btn waves-effect waves-light" onClick={() => transportHandleClick(transport)}>Посмотреть маршрут</button></td>
+                                <td><button className="btn waves-effect waves-light" onClick={() => transportHandleClick(transport)}>Паглядзець маршрут</button></td>
                             </tr>
                         })}
                     </tbody>

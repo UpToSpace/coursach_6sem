@@ -33,6 +33,7 @@ export const AdminRoutesPage = () => {
         longitude: CENTER[0],
         zoom: ZOOM
     });
+    const [selectOnFocus, setSelectOnFocus] = useState(false)
 
     const getStops = useCallback(async () => {
         const data = await request('/api/stops', 'GET', null, {
@@ -98,7 +99,7 @@ export const AdminRoutesPage = () => {
     const AddForm = () => {
         return (
             <div>
-                <div>
+                <div style={selectOnFocus ? {"marginBottom": "150px"} : undefined}>
                     <Select
                         value={transport.transport}
                         onChange={(transport) => handleChange({
@@ -110,6 +111,8 @@ export const AdminRoutesPage = () => {
                         options={transportTypes.map((type, index) => {
                             return { value: type, label: type }
                         })}
+                        onMenuOpen={() => setSelectOnFocus(true)}
+                        onMenuClose={() => setSelectOnFocus(false)}
                     />
                 </div>
                 <div className="input-field col s12">
@@ -201,11 +204,11 @@ export const AdminRoutesPage = () => {
 
     return (
         stops &&
-        <div>
+        <div className="container" style={{"marginBottom": "50px"}}>
             <ReactMapGL
                 {...viewState}
                 onMove={event => setViewState(event.viewState)}
-                style={{ width: 800, height: 600 }}
+                style={{ width: "100%", height: 600 }}
                 mapboxAccessToken={MAP_TOKEN}
                 mapStyle="mapbox://styles/mapbox/streets-v9"
             >
@@ -246,6 +249,6 @@ export const AdminRoutesPage = () => {
             </ReactMapGL>
             {AddForm()}
             {selectedStop && <Schedule stop={selectedStop} />}
-        </div >
+        </div>
     )
 }

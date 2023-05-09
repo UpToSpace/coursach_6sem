@@ -1,0 +1,98 @@
+$yellow: #f5c610;
+$blue: #00cad3;
+$green: #a3e339;
+$lightgreen: rgb(149, 210, 51);
+$pink: #ff5466;
+$gray: #a4a4a4;
+$white: #fff;
+
+@import "~materialize-css/dist/css/materialize.min.css";
+
+@font-face {
+    font-family: "Nunito";
+    src: local("Nunito"),
+        url("./styles/fonts/Nunito/static/Nunito-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "BrunoAceSC";
+    src: local("BrunoAceSC"),
+        url("./styles/fonts/Bruno_Ace_SC/BrunoAceSC-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+* {
+    font-family: 'Nunito';
+}
+
+.brand-logo {
+    font-family: 'BrunoAceSC';
+}
+
+.not-active {
+    color: $gray;
+}
+
+.waves-effect {
+    background-color: $green;
+
+    &:hover {
+        background-color: $lightgreen;
+    }
+}
+
+button a {
+    color: $white;
+}
+
+h1 {
+    text-align: center;
+}
+
+nav {
+    background-color: $pink;
+}
+
+.line {
+    display: flex;
+    justify-content: space-between;
+}
+
+.row .col {
+    padding: 0;
+
+    &.s10 {
+        width: 100%;
+    }
+}
+
+.row {
+    td,
+    th {
+        text-align: center;
+    }
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-between;
+
+    li {
+        cursor: pointer;
+    }
+}
+
+.selected {
+    a {
+        color: $pink !important;
+    }
+}
+
+h5 {
+    text-align: center;
+}
+
+.container {
+    width: 95%;
+}

@@ -128,7 +128,6 @@ router.post('/refresh', async (req, res) => {
         const userData = jwt.verify(refreshToken, config.get('jwtRefreshSecret'));
         const userFromDb = await User.findOne({ refreshToken });
         const users = await User.find({});
-        console.log(users[0].refreshToken === refreshToken);
         if (!userData || !userFromDb) {
             console.log('refresh' + userData + userFromDb)
             return res.status(401).json({ message: 'Пользователь не авторизован' });

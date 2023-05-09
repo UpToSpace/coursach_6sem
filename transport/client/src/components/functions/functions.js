@@ -35,3 +35,4 @@ export function stringToDate(date) {
     const year = dateArray[2];
     return new Date(year, month, day);
 }
+

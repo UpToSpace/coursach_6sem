@@ -5,9 +5,11 @@ import { Loader } from '../../components/Loader';
 import { transportTypes } from "../../components/arrays"
 import M from 'materialize-css';
 import Select from 'react-select';
+import { useMessage } from "../../hooks/message.hook";
 
 export const AdminSchedulePage = () => {
     const { loading, request, error } = useHttp();
+    const message = useMessage()
     const auth = useContext(AuthContext);
     const [transport, setTransport] = useState({
         transportType: null,
@@ -16,6 +18,7 @@ export const AdminSchedulePage = () => {
     const [schedule, setSchedule] = useState(null);
     const [routeStops, setRouteStops] = useState();
     const [newSchedule, setNewSchedule] = useState([]);
+    const [selectOnFocus, setSelectOnFocus] = useState(false)
 
     useEffect(() => {
         M.updateTextFields()
@@ -23,30 +26,25 @@ export const AdminSchedulePage = () => {
 
     const getSchedule = useCallback(async () => {
         try {
-            const data = await request(`/api/schedule?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
-                Authorization: `Bearer ${auth.token}`
-            });
-            const routeStops = await request(`/api/routes?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
-                Authorization: `Bearer ${auth.token}`
-            });
+            const data = await request(`/api/schedule?type=${transport.transportType}&number=${transport.number}`);
+            const routeStops = await request(`/api/routes?type=${transport.transportType}&number=${transport.number}`);
             setRouteStops(routeStops);
             setSchedule(data);
+            M.updateTextFields()
             console.log(data);
         } catch (e) { }
     }, [auth.token, request, transport]);
 
     const FindTransportHandler = async () => {
         if (transport.transportType === null) {
-            return window.alert('Тип транспорта не выбран')
+            return message('Тип транспорта не выбран')
         }
         if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
-            return window.alert('Номер транспорта введен некорректно')
+            return message('Номер транспорта введен некорректно')
         }
-        let transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
+        let transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
         if (!transportFromDB) {
-            return window.alert('Транспорт не найден')
+            return message('Транспорт не найден')
         }
         getSchedule();
     }
@@ -78,12 +76,12 @@ export const AdminSchedulePage = () => {
         console.log(newSchedule)
         console.log(routeStops.length)
         if (newSchedule.length !== routeStops.length) {
-            return window.alert('Не все остановки заполнены')
+            return message('Не все остановки заполнены')
         }
         for (let i = 0; i < newSchedule.length; i++) {
             console.log(newSchedule[i])
             if (!(new RegExp(/^([01]\d|2[0-3]):([0-5]\d)$/).test(newSchedule[i].arrivalTime))) {
-                return window.alert(`Время прибытия на остановку ${routeStops[i].stopId.name} введено некорректно`)
+                return message(`Время прибытия на остановку ${routeStops[i].stopId.name} введено некорректно`)
             }
         }
         console.log(schedule)
@@ -130,8 +128,8 @@ export const AdminSchedulePage = () => {
         )
     }
     return (
-        <div>
-            <div>
+        <div className="container" style={{"marginBottom": "50px"}}>
+            <div style={selectOnFocus ? {"marginBottom": "150px"} : undefined}>
                 <Select
                     value={transport.transport}
                     onChange={(transport) => handleChange({
@@ -140,6 +138,8 @@ export const AdminSchedulePage = () => {
                             value: transport
                         }
                     })}
+                    onMenuOpen={() => setSelectOnFocus(true)}
+                    onMenuClose={() => setSelectOnFocus(false)}
                     options={transportTypes.map((type, index) => {
                         return { value: type, label: type }
                     })}

@@ -11,7 +11,7 @@ export const AccountPage = () => {
     const navigate = useNavigate();
     const auth = useContext(AuthContext);
     const message = useMessage();
-    const [user, setUser] = useState();
+    const [userEmail, setUserEmail] = useState();
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,16 +20,14 @@ export const AccountPage = () => {
         event.preventDefault();
         if (window.confirm("Вы сапраўды хочаце выйсці?")) {
             auth.logout();
-            navigate.apply("/")
+            navigate("/")
         }
     }
 
     const getUser = useCallback(async () => {
         const id = JSON.parse(localStorage.getItem('userData')).userId;
-        const data = await request('/api/user/' + id, 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
-        setUser(data);
+        const data = await request('/api/user/' + id, 'GET', null);
+        setUserEmail(data);
         console.log(data);
     }, [auth.token, request])
 
@@ -48,9 +46,7 @@ export const AccountPage = () => {
             return;
         }
         try {
-            const data = request('/api/user', 'POST', { user, newPassword, oldPassword }, {
-                Authorization: `Bearer ${auth.token}`
-            })
+            const data = await request('/api/user', 'POST', { userId: JSON.parse(localStorage.getItem('userData')).userId, newPassword, oldPassword })
             message(data.message);
             setOldPassword('');
             setNewPassword('');
@@ -62,9 +58,9 @@ export const AccountPage = () => {
     return (
         <div>
             <a href="/" onClick={logoutHandler}>Выйсцi</a>
-            {user && <div>
+            {userEmail && <div>
                 <h2>Account</h2>
-                <p>Email: {user.email}</p>
+                <p>Email: {userEmail}</p>
                 <form onSubmit={handleSubmit}>
                     <h3>Change Password</h3>
                     <div>

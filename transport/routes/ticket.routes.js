@@ -1,17 +1,24 @@
 const {Router} = require('express');
 const config = require('config');
 const Ticket = require('../models/Ticket');
-const TicketType = require('../models/TicketType');
+const User = require('../models/User')
 const auth = require('../middleware/auth.middleware');
 const router = Router();
+const jwt = require("jsonwebtoken")
 
 // /api/tickets
 router.get('/', auth, async (req, res) => {
     try {
-        const tickets = await Ticket.find({ owner: req.user.userId }).populate('ticketType');
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, config.get('jwtAccessSecret'));
+        const user = await User.findOne({ email: decoded.email })
+        const tickets = await Ticket.find({ owner: user._id }).populate('ticketType');
         res.json(tickets);
     } catch (e) {
         console.log(e);
+        if (e instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({ message: e.message });
+        }
         res.status(500).json({message: 'Что-то пошло не так /api/ticket ticket.routes.js, попробуйте снова'});
     }
 });

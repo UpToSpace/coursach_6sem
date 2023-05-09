@@ -52,7 +52,7 @@ export const AdminStopsPage = () => { // TODO: returns a form adds a new stop
 
     const AddStopForm = () => {
         return (
-            <div className="col s12">
+            <div className="col s12 container">
                 <div className="row">
                     <div className="input-field col s6">
                         <label>

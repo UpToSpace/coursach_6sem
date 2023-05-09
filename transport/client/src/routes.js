@@ -20,9 +20,6 @@ export const useRoutes = (userRole) => {
     if (userRole === roles[0]) { // admin
         return (
             <Routes>
-                <Route path="/tickets/buy" element={<BuyTicketPage />} />
-                <Route path="/tickets" element={<TicketsPage />} />
-                <Route path="/tickets/:id" element={<TicketPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/admin" exact element={<AdminPage />} />
                 <Route path="/admin/stops" exact element={<AdminStopsPage />} />

@@ -9,7 +9,7 @@ const { check, validationResult } = require('express-validator');
 router.get('/:id', async (req, res) => {
     try {
         const user = await User.findOne({ _id: req.params.id });
-        res.json(user);
+        res.json(user.email);
     } catch (e) {
         res.status(500).json({ message: 'Что-то пошло не так' });
     }
@@ -18,22 +18,25 @@ router.get('/:id', async (req, res) => {
 // /api/user
 router.post('/',
 [
-    check('email', 'Некорректный email').isEmail(), // TODO как работает?.
+    check('email', 'Некорректный email').isEmail(), 
     check('password', 'Минимальная длина пароля составляет 6 символов').isLength({ min: 6 })
 ],
  async (req, res) => {
     try {
-        const { user, newPassword, oldPassword } = req.body;
-        const isMatch = await bcrypt.compare(user.password, oldPassword);
+        const { userId, newPassword, oldPassword } = req.body;
+        const user = await User.findOne({_id: userId})
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        console.log(isMatch)
         if (!isMatch) {
             return res.status(400).json({ message: 'Неправильный пароль, попробуйте еще раз' });
         }
-        const hashedPassword = await bcrypt.hash(password, 12);
-        const data = await User.updateOne({_id: user._id}, {$set: {
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+        const data = await User.updateOne({_id: userId}, {$set: {
             password: hashedPassword
         }})
         res.json({ message: "Пароль паспяхова зменены"});
     } catch (e) {
+        console.log(e)
         res.status(500).json({ message: 'Что-то пошло не так' });
     }
 })

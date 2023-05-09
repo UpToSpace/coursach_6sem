@@ -5,17 +5,17 @@ import { Loader } from '../../components/Loader';
 import { AddTicketTypeForm } from '../../components/AddTicketTypeForm';
 import { options } from '../../components/arrays';
 import M from 'materialize-css';
+import { useMessage } from '../../hooks/message.hook';
 
 export const AdminTicketTypesPage = () => {
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
     const [ticketTypes, setTicketTypes] = useState();
     const [newTicketType, setNewTicketType] = useState();
+    const message = useMessage()
 
     const getTicketTypes = useCallback(async () => {
-        const data = await request('/api/tickets/types', 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
+        const data = await request('/api/tickets/types');
         setTicketTypes(data);
         console.log(data);
     }, [auth.token, request])
@@ -42,17 +42,17 @@ export const AdminTicketTypesPage = () => {
         // console.log('click');
         const tripCount = newTicketType.type === options.type[0] ? newTicketType.tripCount : -1;
         if (!(new RegExp(/^\d+\.?\d*$/).test(newTicketType.price))) {
-            window.alert('Введите корректную цену');
+            message('Введите корректную цену');
             return;
         }
         if (newTicketType.transport.length === 0 || !newTicketType.duration || !newTicketType.price ||
             !tripCount) {
-            window.alert('Заполните все поля');
+            message('Заполните все поля');
             return;
         }
         if (+newTicketType.duration <= 0 || +newTicketType.price <= 0 ||
             newTicketType.type === options.type[0] && +newTicketType.tripCount <= 0) {
-            window.alert('Введите корректные данные');
+            message('Введите корректные данные');
             return;
         }
         try {
@@ -65,18 +65,14 @@ export const AdminTicketTypesPage = () => {
                     ticketType.duration === +newTicketType.duration);
             }
             if (ticketType) {
-                window.alert('Такой тип проездного уже существует');
+                message('Такой тип проездного уже существует');
                 return;
             }
             let data;
             if (newTicketType.type === options.type[0]) { // Если тип проездного на определенное количество поездок
-            data = await request('/api/tickets/types', 'POST', { ...newTicketType, transport: newTicketType.transport.sort().join('-') }, {
-                Authorization: `Bearer ${auth.token}`
-            });
+            data = await request('/api/tickets/types', 'POST', { ...newTicketType, transport: newTicketType.transport.sort().join('-') });
         } else {
-            data = await request('/api/tickets/types', 'POST', { ...newTicketType, transport: newTicketType.transport.sort().join('-'), tripCount: -1 }, {
-                Authorization: `Bearer ${auth.token}`
-            });
+            data = await request('/api/tickets/types', 'POST', { ...newTicketType, transport: newTicketType.transport.sort().join('-'), tripCount: -1 });
         }
             // console.log({ ...newTicketType, transport: newTicketType.transport.sort().join('-'), tripCount: tripCount });
             console.log(data);
@@ -96,9 +92,7 @@ export const AdminTicketTypesPage = () => {
         console.log(id);
         if (window.confirm('Удалить тип проездного?')) {
             try {
-                const data = await request(`/api/tickets/types/${id}`, 'DELETE', null, {
-                    Authorization: `Bearer ${auth.token}`
-                });
+                const data = await request(`/api/tickets/types/${id}`, 'DELETE');
                 console.log(data);
                 getTicketTypes();
             } catch (e) { }
@@ -106,7 +100,7 @@ export const AdminTicketTypesPage = () => {
     }
 
     return (
-        <div>
+        <div className='container'>
             {ticketTypes && AddTicketTypeForm({readOnly: false, onClickHandler: AddTicketTypeHandler, options, setNewTicketType, newTicketType, btnText: 'Добавить'})}
             {ticketTypes &&
                 ticketTypes.map(ticketType =>

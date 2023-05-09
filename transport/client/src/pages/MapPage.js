@@ -33,28 +33,20 @@ export const MapPage = () => {
     const [routeStops, setRouteStops] = useState();
 
     const getTransports = useCallback(async () => {
-        const data = await request('/api/transports', 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
+        const data = await request('/api/transports', 'GET', null);
         setTransports(data);
         console.log(data);
     }, [auth.token, request])
 
     const getStops = useCallback(async () => {
-        const data = await request('/api/stops', 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
+        const data = await request('/api/stops', 'GET', null);
         setStops(data);
         console.log(data);
     }, [auth.token, request])
 
     const getSchedule = async (transport) => {
-        const schedule = await request(`/api/schedule?type=${transport.type}&number=${transport.number}`, 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
-        const routeStops = await request(`/api/routes?type=${transport.type}&number=${transport.number}`, 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
+        const schedule = await request(`/api/schedule?type=${transport.type}&number=${transport.number}`, 'GET', null);
+        const routeStops = await request(`/api/routes?type=${transport.type}&number=${transport.number}`, 'GET', null);
         setSchedule(schedule);
         setRouteStops(routeStops);
         console.log(schedule);
@@ -111,49 +103,54 @@ export const MapPage = () => {
     return (
         stops &&
         <div>
-            <ReactMapGL
-                {...viewState}
-                onMove={event => setViewState(event.viewState)}
-                style={{ width: 800, height: 600 }}
-                mapboxAccessToken={MAP_TOKEN}
-                mapStyle="mapbox://styles/mapbox/streets-v9"
-            >
-                <FullscreenControl style={fullscreenControlStyle} />
-                <GeolocateControl
-                    style={geolocateControlStyle}
-                    positionOptions={{ enableHighAccuracy: true }}
-                    trackUserLocation={true}
-                    auto={false}
-                />
-                stops && {stops.map(stop => {
-                    return (
-                        <CustomMarker
-                            key={stop._id}
-                            stop={stop}
-                            openPopup={openPopup}
-                        />
-                    )
-                })}
-                {selectedStop !== null &&
-                    <CustomPopup
-                        stop={selectedStop}
-                        closePopup={closePopup}
-                    />}
+            <div class="line">
+                <ReactMapGL
+                    {...viewState}
+                    onMove={event => setViewState(event.viewState)}
+                    style={{ width: "50%", height: 600 }}
+                    mapboxAccessToken={MAP_TOKEN}
+                    mapStyle="mapbox://styles/mapbox/streets-v9"
+                >
+                    <FullscreenControl style={fullscreenControlStyle} />
+                    <GeolocateControl
+                        style={geolocateControlStyle}
+                        positionOptions={{ enableHighAccuracy: true }}
+                        trackUserLocation={true}
+                        auto={false}
+                    />
+                    stops && {stops.map(stop => {
+                        return (
+                            <CustomMarker
+                                key={stop._id}
+                                stop={stop}
+                                openPopup={openPopup}
+                            />
+                        )
+                    })}
+                    {selectedStop !== null &&
+                        <CustomPopup
+                            stop={selectedStop}
+                            closePopup={closePopup}
+                        />}
 
-                {routes && (
-                    <Source id="track" type="geojson" data={{
-                        type: 'Feature',
-                        geometry: {
-                            type: 'LineString',
-                            coordinates: routes
-                        }
-                    }}>
-                        <Layer {...ROUTE_LAYER} />
-                    </Source>
-                )}
-            </ReactMapGL>
-            {transports && TransportTable({ transports, selectedTransportType, setSelectedTransportType, setSelectedTransport, 
-                setRoutes, getSchedule, setRouteStops, setSchedule })}
+                    {routes && (
+                        <Source id="track" type="geojson" data={{
+                            type: 'Feature',
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: routes
+                            }
+                        }}>
+                            <Layer {...ROUTE_LAYER} />
+                        </Source>
+                    )}
+                </ReactMapGL>
+                {transports && TransportTable({
+                    transports, selectedTransportType, setSelectedTransportType, setSelectedTransport,
+                    setRoutes, getSchedule, setRouteStops, setSchedule
+                })}
+            </div>
+            {routeStops && <h5>Расклад</h5>}
             {routeStops && ScheduleTable()}
         </div >
     )

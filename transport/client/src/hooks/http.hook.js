@@ -34,8 +34,15 @@ export const useHttp = () => {
                     localStorage.setItem('userData', JSON.stringify({
                         userId: dataRefresh.user.id, token: dataRefresh.token
                     }));
+                    headers['Authorization'] = `Bearer ${dataRefresh.token}`;
+                    const newResponse = await fetch(url, {
+                        method,
+                        body,
+                        headers
+                    });
+                    const newData = await newResponse.json();
                     setLoading(false)
-                    return dataRefresh;
+                    return newData;
                 }
                 throw new Error(data.message || 'Something went wrong');
             }

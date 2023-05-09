@@ -6,7 +6,7 @@ export const useAuth = () => {
     const [token, setToken] = useState(null);
     const [userId, setUserId] = useState(null);
     const [ready, setReady] = useState(false);
-    const [userRole, setUserRole] = useState(null);
+    const [userRole, setUserRole] = useState(undefined);
     const { request } = useHttp();
 
     const login = useCallback((jwtToken, user) => {
@@ -19,10 +19,11 @@ export const useAuth = () => {
     }, []);
 
     const logout = useCallback(async () => {
+        const data = await request('/api/auth/logout', 'POST', null);
         setToken(null);
         setUserId(null);
-        localStorage.removeItem('userData');
-        const data = await request('/api/auth/logout', 'POST', null);
+        setUserRole(null)
+        localStorage.removeItem('userData');     
     }, []);
 
     const getUserRole = useCallback(async (token) => {
@@ -39,6 +40,9 @@ export const useAuth = () => {
         const data = JSON.parse(localStorage.getItem('userData'));
         if (data && data.token) {
             getUserRole(data.token);
+            setUserId(data.userId)
+        } else {
+            setUserRole(null)
         }
         setReady(true)
     }, [getUserRole]);

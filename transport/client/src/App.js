@@ -9,11 +9,10 @@ import { Loader } from "./components/Loader";
 import { useHttp } from "./hooks/http.hook";
 
 function App() {
-  const { request } = useHttp();
   const { login, logout, userId, ready, userRole } = useAuth();
   console.log('App.js: userRole = ', userRole)
   const routes = useRoutes(userRole);
-  if (!ready) {
+  if (!ready || userRole === undefined) {
     return <Loader />
   }
 
@@ -21,7 +20,7 @@ function App() {
     <AuthContext.Provider value={{ userId, login, logout, userRole }}>
         <Router>
           {userRole && <Navbar />}
-          <div style={{"width" : "95%", "margin" : "auto"}}>
+          <div style={{"width" : "100%", "margin" : "auto"}}>
             {routes}
           </div>
         </Router>

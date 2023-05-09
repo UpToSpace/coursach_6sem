@@ -354,7 +354,7 @@ export const BuyTicketPage = () => {
     }, [step, ticket, ticketTypes, allTicketTypes, setTicket, setTicketTypes])
 
     const setDefaultTicket = useCallback(async () => {
-        var ticketTypes = await request('/api/tickets/types', 'GET', null, { 'Authorization': `Bearer ${auth.token}` });
+        var ticketTypes = await request('/api/tickets/types', 'GET', null);
         //console.log(ticketTypes);
         setAllTicketTypes(ticketTypes);
         setTicketTypes(ticketTypes)
@@ -370,7 +370,7 @@ export const BuyTicketPage = () => {
     const confirm = async () => {
         try {
             console.log(ticket)
-            const data = await request('/api/tickets', 'POST', ticket, { 'Authorization': `Bearer ${auth.token}` });
+            const data = await request('/api/tickets', 'POST', ticket);
             console.log(data);
             setStep(4);
         } catch (e) { }
