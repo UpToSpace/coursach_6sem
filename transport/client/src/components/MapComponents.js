@@ -32,6 +32,16 @@ export const ROUTE_LAYER = {
     },
   };
 
+export const POINT_LAYER = {
+    id: 'point',
+    type: 'circle',
+    source: 'route',
+    paint: {
+        'circle-radius': ZOOM * 0.7,
+        'circle-color': '#f30',
+    },
+};
+
 export const CustomPopup = ({ stop, closePopup }) => {
     return (
         <Popup
@@ -47,13 +57,13 @@ export const CustomPopup = ({ stop, closePopup }) => {
     )
 };
 
-export const CustomMarker = ({ stop, openPopup }) => {
+export const CustomMarker = ({ stop, openPopup, icon, height }) => {
     return (
         <Marker
             longitude={stop.longitude}
             latitude={stop.latitude}>
             <div className="marker" onClick={() => openPopup(stop)}>
-                <img src={busIcon} alt="marker" height={ZOOM + "px"} />
+                <img src={icon ?? busIcon} alt="marker" height={height ?? ZOOM + "px"} />
             </div>
         </Marker>
     )

@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState, useRef } from "react";
 import { useHttp } from '../../hooks/http.hook';
+import { useMessage } from '../../hooks/message.hook';
 import { AuthContext } from '../../context/AuthContext';
 import { Loader } from '../../components/Loader';
 import Map, { Marker, Popup, Source } from 'react-map-gl';
@@ -19,6 +20,7 @@ import Select from 'react-select';
 
 export const AdminRoutesPage = () => {
     const { loading, request, error } = useHttp();
+    const message = useMessage();
     const auth = useContext(AuthContext);
     const [stops, setStops] = useState();
     const [routes, setRoutes] = useState([]);
@@ -60,7 +62,7 @@ export const AdminRoutesPage = () => {
         setSelectedStop(stop)
         if (routeStops.includes(stop)) {
             if (routeStops[routeStops.length - 1] !== stop) {
-                return window.alert('You can only remove the last stop in the route')
+                return message('You can only remove the last stop in the route')
             } else {
                 setRouteStops((prev) => prev.filter((item) => item !== stop))
                 if (routeStops.length > 2) {
@@ -128,10 +130,10 @@ export const AdminRoutesPage = () => {
     const DeleteRouteHandler = async () => {
         try {
             if (transport.transportType === null) {
-                return window.alert('Тип транспорта не выбран')
+                return message('Тип транспорта не выбран')
             }
             if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
-                return window.alert('Номер транспорта введен некорректно')
+                return message('Номер транспорта введен некорректно')
             }
             var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
                 Authorization: `Bearer ${auth.token}`
@@ -142,7 +144,7 @@ export const AdminRoutesPage = () => {
                 })
                 console.log(data);
             } else {
-                window.alert('Транспорт не найден')
+                message('Транспорт не найден')
             }
         } catch (e) {
             console.log(e)
@@ -153,13 +155,13 @@ export const AdminRoutesPage = () => {
         try {
             //console.log({ stops: routeStops, transport: transport })
             if (transport.transportType === null) {
-                return window.alert('Тип транспорта не выбран')
+                return message('Тип транспорта не выбран')
             }
             if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
-                return window.alert('Номер транспорта введен некорректно')
+                return message('Номер транспорта введен некорректно')
             }
             if (routeStops.length < 2) {
-                return window.alert('Маршрут должен содержать минимум 2 остановки')
+                return message('Маршрут должен содержать минимум 2 остановки')
             }
             var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
                 Authorization: `Bearer ${auth.token}`
@@ -184,7 +186,7 @@ export const AdminRoutesPage = () => {
                 Authorization: `Bearer ${auth.token}`
             });
             console.log(data);
-            window.alert('Маршрут добавлен')
+            message('Маршрут добавлен')
             setRouteStops([]);
             setRoutes([]);
             setTransport({

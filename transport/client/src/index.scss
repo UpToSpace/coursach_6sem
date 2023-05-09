@@ -24,6 +24,15 @@ $white: #fff;
 
 * {
     font-family: 'Nunito';
+    margin: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body + .main {
+    background-image: url("./styles/images/back.jpg");    
 }
 
 .brand-logo {
@@ -44,6 +53,10 @@ $white: #fff;
 
 button a {
     color: $white;
+}
+
+button + button {
+    margin-left: 10px;
 }
 
 h1 {
@@ -95,4 +108,21 @@ h5 {
 
 .container {
     width: 95%;
+}
+
+.centered {
+    display: flex;
+    justify-content: center;
+}
+
+.code404 {
+    width: 60%;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    img {
+        margin-bottom: 0;
+        width: 80%;
+    }
 }

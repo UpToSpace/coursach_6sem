@@ -56,15 +56,14 @@ export const AccountPage = () => {
     };
 
     return (
-        <div>
-            <a href="/" onClick={logoutHandler}>Выйсцi</a>
+        <div className='container'>
             {userEmail && <div>
-                <h2>Account</h2>
-                <p>Email: {userEmail}</p>
+                <h1>Акаунт</h1>
+                <p>Пошта: {userEmail}</p>
                 <form onSubmit={handleSubmit}>
-                    <h3>Change Password</h3>
+                    <h3>Змянiць пароль</h3>
                     <div>
-                        <label htmlFor="oldPassword">Old Password</label>
+                        <label htmlFor="oldPassword">Стары пароль</label>
                         <input
                             type="password"
                             id="oldPassword"
@@ -73,7 +72,7 @@ export const AccountPage = () => {
                         />
                     </div>
                     <div>
-                        <label htmlFor="newPassword">New Password</label>
+                        <label htmlFor="newPassword">Новы пароль</label>
                         <input
                             type="password"
                             id="newPassword"
@@ -82,7 +81,7 @@ export const AccountPage = () => {
                         />
                     </div>
                     <div>
-                        <label htmlFor="confirmPassword">Confirm New Password</label>
+                        <label htmlFor="confirmPassword">Падцвердзiць пароль</label>
                         <input
                             type="password"
                             id="confirmPassword"
@@ -90,7 +89,8 @@ export const AccountPage = () => {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                         />
                     </div>
-                    <button className="waves-effect waves-light btn-large" type="submit">Change Password</button>
+                    <button className="waves-effect waves-light btn-large" type="submit">Змянiць пароль</button>
+                    <button className="waves-effect waves-light btn-large" style={{"right": "0"}}><a href="/" onClick={logoutHandler}>Выйсцi з акаунта</a></button>
                 </form>
             </div>}
         </div>

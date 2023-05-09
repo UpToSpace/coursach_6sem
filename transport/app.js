@@ -12,24 +12,28 @@ const Ticket = require('./models/Ticket');
 
 const app = express();
 const WSPORT = config.get('wsport') || 5002;
-
+var clients = [];
 const wss = new WebSocket.Server({ port: WSPORT }, () => {
     console.log(`WS server started on port ${WSPORT}...`);
 });
 
-wss.on('connection', function connection(ws) {
-    //console.log('Client connected');
-    wss.clients.forEach(async (client) => {
-        const tickets = await Ticket.find({ dateEnd: { $lte: new Date() } })
-        .populate('ticketType');
-        // const tickets = await Ticket.find({})
-        if (client.readyState === ws.OPEN) {
-            tickets.forEach(ticket => {
-                client.send(JSON.stringify(ticket));
-            });
-        }
-    });
-});
+// wss.on('connection', function connection(ws) { 
+//     ws.on('message', function incoming(message) {
+//         console.log(message.toString());
+//         clients.push({ id: message.toString(), ws: ws });
+//         wss.clients.forEach(async (client) => {
+//             // const tickets = await Ticket.find({ dateEnd: { $lte: new Date() } })
+//             // .populate('ticketType');
+//             const tickets = await Ticket.find({})
+//             if (client.readyState === ws.OPEN && tickets.length > 0) {
+//                 tickets.forEach(ticket => {
+//                     client[ticket.owner].send(JSON.stringify(ticket));
+//                 });
+//             }
+//         });
+//     });
+// });
+
 
 app.use(express.json({ extended: true }));
 app.use(cors({
@@ -40,15 +44,6 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-// app.use(session({
-//     key: 'userId',
-//     secret: 'secret',
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//         expires: 60 * 60 * 24 * 1000 // 24 hours
-//     }
-// }));
 
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/tickets/types', require('./routes/ticket.types.routes'));

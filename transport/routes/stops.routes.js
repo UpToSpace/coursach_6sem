@@ -1,4 +1,4 @@
-const {Router} = require('express');
+const { Router } = require('express');
 const config = require('config');
 const Stop = require('../models/Stop');
 const Schedule = require('../models/Schedule');
@@ -14,20 +14,20 @@ router.get('/', auth, async (req, res) => {
         res.json(stops);
     } catch (e) {
         console.log(e);
-        res.status(500).json({message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова'});
+        res.status(500).json({ message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова' });
     }
 });
 
 router.post('/', auth, async (req, res) => {
     try {
-        const {name, latitude, longitude} = req.body;
+        const { name, latitude, longitude } = req.body;
         console.log(name, latitude, longitude);
-        const stop = new Stop({name, latitude: +latitude, longitude: +longitude});
+        const stop = new Stop({ name, latitude: +latitude, longitude: +longitude });
         await stop.save();
-        res.status(201).json({stop});
+        res.status(201).json({ stop });
     } catch (e) {
         console.log(e);
-        res.status(500).json({message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова'});
+        res.status(500).json({ message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова' });
     }
 });
 
@@ -37,9 +37,18 @@ router.get('/:id', auth, async (req, res) => {
         res.json(stop);
     } catch (e) {
         console.log(e);
-        res.status(500).json({message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова'});
+        res.status(500).json({ message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова' });
     }
 });
 
+router.delete('/:id', auth, async (req, res) => {
+    try {
+        await Stop.deleteOne({ _id: req.params.id })
+        res.json({ message: 'Прыпынак паспяхова выдалены' });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова' });
+    }
+});
 
 module.exports = router;
