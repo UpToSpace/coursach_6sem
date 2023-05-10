@@ -122,7 +122,7 @@ export const AdminStopsPage = () => {
                     </div>
                 </div>
                 <div className="row">
-                    <button onClick={AddStopHandler} className="waves-effect waves-light btn-large">Добавить</button>
+                    <button onClick={AddStopHandler} className="waves-effect waves-light btn-large">Дадаць</button>
                     <button onClick={FindStopHandler} className="waves-effect waves-light btn-large">Знайсцi</button>
                     <button onClick={(e) => setFoundStops(null)} className="waves-effect waves-light btn-large">Ачысцiць</button>
                 </div>

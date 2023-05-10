@@ -4,7 +4,7 @@ const User = require('../models/User');
 
 class TokenService {
     generateTokens(payload) {
-        const accessToken = jwt.sign(payload, config.get('jwtAccessSecret'), { expiresIn: "10s" });
+        const accessToken = jwt.sign(payload, config.get('jwtAccessSecret'), { expiresIn: "1h" });
         const refreshToken = jwt.sign(payload, config.get('jwtRefreshSecret'), { expiresIn: "30d" });
         return {
             accessToken,
