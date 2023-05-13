@@ -7,12 +7,9 @@ export const useHttp = () => {
     const request = useCallback(async (url, method = 'GET', body = null, headers = {}) => {
         setLoading(true);
         try {
-            if (localStorage.getItem('userData') !== null) {
-                const token = JSON.parse(localStorage.getItem('userData')).token;
-
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
+            const token = localStorage.getItem('token');
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
             }
 
             if (body) {
@@ -28,12 +25,9 @@ export const useHttp = () => {
             const data = await response.json();
 
             if (!response.ok) {
-                console.log("http hook res status: " + response.status)
                 if (response.status === 401 && data.message === 'jwt expired') {
                     const dataRefresh = await request('/api/auth/refresh', 'POST', null);
-                    localStorage.setItem('userData', JSON.stringify({
-                        userId: dataRefresh.user.id, token: dataRefresh.token
-                    }));
+                    localStorage.setItem('token', dataRefresh.token);
                     headers['Authorization'] = `Bearer ${dataRefresh.token}`;
                     const newResponse = await fetch(url, {
                         method,
@@ -43,6 +37,12 @@ export const useHttp = () => {
                     const newData = await newResponse.json();
                     setLoading(false)
                     return newData;
+                }
+                if (response.status === 401 && data.message === 'refresh jwt expired') {
+                    await request('/api/auth/logout', 'POST', null);
+                    localStorage.removeItem('token');
+                    window.location.reload();
+                    return;
                 }
                 throw new Error(data.message || 'Something went wrong');
             }

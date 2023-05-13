@@ -25,8 +25,7 @@ export const AccountPage = () => {
     }
 
     const getUser = useCallback(async () => {
-        const id = JSON.parse(localStorage.getItem('userData')).userId;
-        const data = await request('/api/user/' + id, 'GET', null);
+        const data = await request('/api/user', 'GET', null);
         setUserEmail(data);
         console.log(data);
     }, [auth.token, request])
@@ -46,7 +45,7 @@ export const AccountPage = () => {
             return;
         }
         try {
-            const data = await request('/api/user', 'POST', { userId: JSON.parse(localStorage.getItem('userData')).userId, newPassword, oldPassword })
+            const data = await request('/api/user', 'POST', { token: localStorage.getItem('token'), newPassword, oldPassword })
             message(data.message);
             setOldPassword('');
             setNewPassword('');

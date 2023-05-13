@@ -11,11 +11,8 @@ export const useAuth = () => {
 
     const login = useCallback((jwtToken, user) => {
         setToken(jwtToken);
-        setUserId(user.id);
         setUserRole(user.role);
-        localStorage.setItem('userData', JSON.stringify({
-            userId: user.id, token: jwtToken
-        }));
+        localStorage.setItem('token', jwtToken);
     }, []);
 
     const logout = useCallback(async () => {
@@ -23,7 +20,7 @@ export const useAuth = () => {
         setToken(null);
         setUserId(null);
         setUserRole(null)
-        localStorage.removeItem('userData');     
+        localStorage.removeItem('token');     
     }, []);
 
     const getUserRole = useCallback(async (token) => {
@@ -37,10 +34,9 @@ export const useAuth = () => {
     }, [userRole]);
 
     useEffect(() => {
-        const data = JSON.parse(localStorage.getItem('userData'));
-        if (data && data.token) {
-            getUserRole(data.token);
-            setUserId(data.userId)
+        const data = localStorage.getItem('token');
+        if (data) {
+            getUserRole();
         } else {
             setUserRole(null)
         }

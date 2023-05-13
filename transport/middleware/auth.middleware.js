@@ -12,9 +12,13 @@ module.exports = (req, res, next) => {
         if(!token) {
             return res.status(401).json({message: 'Нет авторизации'});
         }
-        //req.user = jwt.verify(token, config.get('jwtAccessSecret'));
+        jwt.verify(token, config.get('jwtAccessSecret'));
         next();
     } catch (e) {
+        console.log("middlware " + e);
+        if (e instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({ message: e.message });
+        }
         res.status(401).json({message: 'Нет авторизации'});
     }
 }

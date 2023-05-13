@@ -3,13 +3,12 @@ import { useHttp } from '../hooks/http.hook';
 import { useMessage } from '../hooks/message.hook';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { colors } from '../styles/styles'
 
 export const AuthPage = () => {
     const auth = useContext(AuthContext);
     const navigate = useNavigate();
     const message = useMessage();
-    const { loading, error, request, clearError } = useHttp();
+    const { loading, error, request, clearError, errors } = useHttp();
     const [form, setForm] = useState({
         email: '', password: ''
     });
@@ -26,6 +25,19 @@ export const AuthPage = () => {
 
     const registerHandler = async () => {
         try {
+            const { email, password } = form;
+            if (email === '' || password === '') {
+                message('Заполните все поля');
+                return;
+            }
+            if (RegExp(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/).test(email) === false) {
+                message('Некорректный email');
+                return;
+            }
+            if (password.length < 6) {
+                message('Пароль должен быть не менее 6 символов');
+                return;
+            }
             const data = await request('/api/auth/register', 'POST', { ...form });
             message(data.message);
         } catch (e) { }

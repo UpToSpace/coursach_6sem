@@ -11,8 +11,7 @@ router.get('/', auth, async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, config.get('jwtAccessSecret'));
-        const user = await User.findOne({ email: decoded.email })
-        const tickets = await Ticket.find({ owner: user._id }).populate('ticketType');
+        const tickets = await Ticket.find({ owner: decoded.id }).populate('ticketType');
         res.json(tickets);
     } catch (e) {
         console.log(e);
