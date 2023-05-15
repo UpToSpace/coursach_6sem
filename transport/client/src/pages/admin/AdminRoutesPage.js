@@ -38,11 +38,9 @@ export const AdminRoutesPage = () => {
     const [selectOnFocus, setSelectOnFocus] = useState(false)
 
     const getStops = useCallback(async () => {
-        const data = await request('/api/stops', 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
+        const data = await request('/api/stops');
         setStops(data);
-        console.log(data);
+        //console.log(data);
     }, [auth.token, request])
 
     useEffect(() => {
@@ -62,7 +60,7 @@ export const AdminRoutesPage = () => {
         setSelectedStop(stop)
         if (routeStops.includes(stop)) {
             if (routeStops[routeStops.length - 1] !== stop) {
-                return message('You can only remove the last stop in the route')
+                return message('Вы можаце выдалiць толькi апошнi прыпынак маршрута')
             } else {
                 setRouteStops((prev) => prev.filter((item) => item !== stop))
                 if (routeStops.length > 2) {
@@ -101,7 +99,7 @@ export const AdminRoutesPage = () => {
     const AddForm = () => {
         return (
             <div>
-                <div style={selectOnFocus ? {"marginBottom": "150px"} : undefined}>
+                <div style={selectOnFocus ? { "marginBottom": "150px" } : undefined}>
                     <Select
                         value={transport.transport}
                         onChange={(transport) => handleChange({
@@ -118,33 +116,71 @@ export const AdminRoutesPage = () => {
                     />
                 </div>
                 <div className="input-field col s12">
-                    <label>Номер</label>
+                    <label>Нумар</label>
                     <input placeholder="" name="number" type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
                 </div>
-                <button onClick={AddRouteHandler} className="waves-effect waves-light btn-small">Добавить</button>
-                <button onClick={DeleteRouteHandler} className="waves-effect waves-light btn-small">Удалить</button>
+                <button onClick={AddRouteHandler} className="waves-effect waves-light btn-small">Дадаць</button>
+                <button onClick={DeleteRouteHandler} className="waves-effect waves-light btn-small">Выдалiць</button>
+                <button onClick={ShowRouteHandler} className="waves-effect waves-light btn-small">Паглядзець</button>
             </div>
         )
     }
 
+    const CheckForm = () => {
+        if (transport.transportType === null) {
+            message('Тып транспорта не выбран')
+            return false
+        }
+        if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
+            message('Некарэктны нумар')
+            return false
+        }
+        return true
+    }
+    const ShowRouteHandler = async () => {
+        try {
+            if (!CheckForm()) {
+                return
+            }
+            var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
+            if (!transportFromDB) {
+                message('Транспарт не знойдзены')
+                setRoutes([])
+                return
+            }
+            const routeStops = await request(`/api/routes?type=${transport.transportType}&number=${transport.number}`, 'GET', null);
+            if (!routeStops) {
+                message('Маршрут не знойдзены')
+                setRoutes([])
+                return
+            }
+            fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setRoutes(data.routes[0].geometry.coordinates);
+                })
+                .catch((error) => console.error(error));
+        } catch (e) { }
+    }
+
     const DeleteRouteHandler = async () => {
         try {
-            if (transport.transportType === null) {
-                return message('Тип транспорта не выбран')
-            }
-            if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
-                return message('Номер транспорта введен некорректно')
-            }
-            var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
-                Authorization: `Bearer ${auth.token}`
-            });
-            if (transportFromDB) {
-                const data = await request(`/api/routes`, 'DELETE', { transport: transportFromDB }, {
-                    Authorization: `Bearer ${auth.token}`
-                })
-                console.log(data);
-            } else {
-                message('Транспорт не найден')
+            if (window.confirm('Вы упэўненыя што жадаеце выдаліць маршрут?')) {
+                if (!CheckForm()) {
+                    return
+                }
+                var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
+                if (transportFromDB) {
+                    const data = await request(`/api/routes`, 'DELETE', { transport: transportFromDB })
+                    setRouteStops([]);
+                    setRoutes([]);
+                    setTransport({
+                        transportType: null,
+                        number: null
+                    })
+                } else {
+                    message('Транспарт не знойдзены')
+                }
             }
         } catch (e) {
             console.log(e)
@@ -154,37 +190,26 @@ export const AdminRoutesPage = () => {
     const AddRouteHandler = async () => {
         try {
             //console.log({ stops: routeStops, transport: transport })
-            if (transport.transportType === null) {
-                return message('Тип транспорта не выбран')
-            }
-            if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
-                return message('Номер транспорта введен некорректно')
+            if (!CheckForm()) {
+                return
             }
             if (routeStops.length < 2) {
-                return message('Маршрут должен содержать минимум 2 остановки')
+                return message('Маршрут не можа быць менш за 2 прыпынка')
             }
-            var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`, 'GET', null, {
-                Authorization: `Bearer ${auth.token}`
-            });
+            var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
             if (transportFromDB) {
-                if (window.confirm('Маршрут для транспорт с таким номером уже существует. Желаете измениить его?')) {
-                    const data = await request(`/api/routes`, 'DELETE', { transport: transportFromDB }, {
-                        Authorization: `Bearer ${auth.token}`
-                    })
+                if (window.confirm('Маршрут для транспарту з такiм нумарам ужо створан. Жадаеце змянiць яго?')) {
+                    const data = await request(`/api/routes`, 'PUT', { transport: transportFromDB })
                     console.log(data);
                 } else {
                     return;
                 }
             } else {
-                const data = await request(`/api/transports`, 'POST', { transport: transport }, {
-                    Authorization: `Bearer ${auth.token}`
-                });
+                const data = await request(`/api/transports`, 'POST', { transport: transport });
                 transportFromDB = data.transport;
             }
             console.log(transportFromDB)
-            const data = await request('/api/routes', 'POST', { stops: routeStops, transport: transportFromDB }, {
-                Authorization: `Bearer ${auth.token}`
-            });
+            const data = await request('/api/routes', 'POST', { stops: routeStops, transport: transportFromDB });
             console.log(data);
             message('Маршрут добавлен')
             setRouteStops([]);
@@ -196,17 +221,9 @@ export const AdminRoutesPage = () => {
         } catch (e) { }
     }
 
-    const Schedule = ({ stop }) => {
-        return (
-            <div>
-                {stop.name}
-            </div>
-        )
-    }
-
     return (
         stops &&
-        <div className="container" style={{"marginBottom": "50px"}}>
+        <div className="container" style={{ "marginBottom": "50px" }}>
             <ReactMapGL
                 {...viewState}
                 onMove={event => setViewState(event.viewState)}
@@ -250,7 +267,6 @@ export const AdminRoutesPage = () => {
                 )}
             </ReactMapGL>
             {AddForm()}
-            {selectedStop && <Schedule stop={selectedStop} />}
         </div>
     )
 }

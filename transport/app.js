@@ -7,15 +7,17 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const WebSocket = require('ws');
+const jwt = require('jsonwebtoken');
 const Ticket = require('./models/Ticket');
+const User = require('./models/User');
 
 const app = express();
 const WSPORT = config.get('wsport') || 5002;
 var clients = [];
-const wss = new WebSocket.Server({ port: WSPORT }, () => {
-    console.log(`WS server started on port ${WSPORT}...`);
-});
+// const wss = new WebSocket.Server({ port: WSPORT }, () => {
+//     console.log(`WS server started on port ${WSPORT}...`);
+// });
+
 
 // wss.on('connection', function connection(ws) { 
 //     ws.on('message', function incoming(message) {
@@ -36,11 +38,7 @@ const wss = new WebSocket.Server({ port: WSPORT }, () => {
 
 
 app.use(express.json({ extended: true }));
-app.use(cors({
-    origin: config.get('baseUrl'),
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
-}));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -62,16 +60,48 @@ async function start() {
             useUnifiedTopology: true,
             //useCreateIndex: true
         });
-        https
-            .createServer(
-                {
-                    key: fs.readFileSync("./cert/L.key"),
-                    cert: fs.readFileSync("./cert/L.crt"),
-                },
-                app)
-            .listen(PORT, () => {
-                console.log(`Server has been started on port ${PORT}...`)
-            });
+        const httpsServer = https.createServer(
+            {
+                key: fs.readFileSync("./cert/L.key"),
+                cert: fs.readFileSync("./cert/L.crt"),
+            },
+            app)
+        const io = require("socket.io")(httpsServer, {
+            cors: {
+                origin: "https://localhost:3000",
+                methods: ["GET", "POST"],
+            },
+        });
+
+        io.on("connection", (socket) => {
+            console.log(`⚡: ${socket.id} user just connected!`);
+            socket.on("message", async (data) => {
+                const userId = jwt.verify(data, config.get('jwtAccessSecret')).id;
+                const user = await User.find({ _id: userId })
+                try {
+                    const tickets = await Ticket.find({ dateEnd: { $lte: new Date() }, owner: userId }).populate('ticketType');
+                    if (tickets.length > 0) {
+                        if (!clients.includes(user._id)) {
+                            clients.push(user._id)
+                            console.log(clients);
+                            socket.emit('message', JSON.stringify(tickets));
+                        }
+                    }
+                } catch (e) {
+                    if (e instanceof jwt.JsonWebTokenError) {
+                        console.log("error");
+                    }
+                    console.log(e);
+                }
+            })
+            socket.on('disconnect', () => {
+                console.log('user disconnected');
+            })
+        });
+
+        httpsServer.listen(PORT, () => {
+            console.log(`Server has been started on port ${PORT}...`)
+        });
 
     } catch (e) {
         console.log('Server Error', e.message);

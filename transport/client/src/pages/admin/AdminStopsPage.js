@@ -54,13 +54,16 @@ export const AdminStopsPage = () => {
 
     const closePopup = async () => {
         console.log(selectedStop);
-        if (window.confirm('Вы уверены, что хотите удалить остановку ' + selectedStop.name + '?')) {
+        setSelectedStop(null)
+    };
+
+    const deleteButtonHandler = async () => {
+        if (window.confirm('Вы упэўнены, што хочаце выдалiць ' + selectedStop.name + '?')) {
             const data = await request('/api/stops/' + selectedStop._id, 'DELETE', null);
             message(data.message)
             await getStops();
         }
-        setSelectedStop(null)
-    };
+    }
 
     const openPopup = (stop) => {
         setSelectedStop(stop)
@@ -72,20 +75,12 @@ export const AdminStopsPage = () => {
 
     const AddStopHandler = async () => {
         if (!stop.name || !stop.latitude || !stop.longitude) {
-            return message('Заполните все поля');
+            return message('Запоўнiце ўсе палi');
         }
         if (stop.name.length < 3) {
-            return message('Название остановки должно быть не менее 3 символов');
+            return message('Назва прыпынка павiнна быць больш за 3 сiмвалы');
         }
         try {
-            // console.log(stop.name);
-            // const existStops = await request('/api/stops', 'GET')
-            // const existStop = existStops.filter((e) => e.name.toLowerCase() === stop.name.toLowerCase());
-            // console.log(existStop);
-            // if (existStop.length > 0) {
-            //     M.updateTextFields();
-            //     return message('Остановка с таким названием уже существует');    
-            // }
             const { name, latitude, longitude } = stop;
             console.log(name, latitude, longitude);
             const data = await request('/api/stops', 'POST', { name, latitude, longitude });
@@ -98,7 +93,7 @@ export const AdminStopsPage = () => {
 
     const FindStopHandler = async () => {
         if (!stop.name) {
-            return message('Заполните поле');
+            return message('Запоўнiце назву прыпынка');
         }
         try {
             const foundStops = stops.filter(e => e.name.toLowerCase().includes(stop.name.toLowerCase()));
@@ -111,20 +106,25 @@ export const AdminStopsPage = () => {
         } catch (e) { }
     }
 
+    const ClearButtonHandler = async () => {
+        setFoundStops(null);
+        setStop({ name: '', latitude: '', longitude: '' });
+    }
+
     const AddStopForm = () => {
         return (
             <div className="col s12 container">
                 <div className="row">
                     <div className="input-field col s6">
                         <label>
-                            Название остановки:</label>
+                            Назва прыпынка:</label>
                         <input type="text" className="validate" name="name" value={stop.name} onChange={OnChangeHandler} />
                     </div>
                 </div>
                 <div className="row">
                     <button onClick={AddStopHandler} className="waves-effect waves-light btn-large">Дадаць</button>
                     <button onClick={FindStopHandler} className="waves-effect waves-light btn-large">Знайсцi</button>
-                    <button onClick={(e) => setFoundStops(null)} className="waves-effect waves-light btn-large">Ачысцiць</button>
+                    <button onClick={ClearButtonHandler} className="waves-effect waves-light btn-large">Ачысцiць</button>
                 </div>
             </div>
         )
@@ -168,6 +168,7 @@ export const AdminStopsPage = () => {
                                 <CustomPopup
                                     stop={selectedStop}
                                     closePopup={closePopup}
+                                    deleteButtonHandler={deleteButtonHandler}
                                 />}
                             {foundStops && foundStops.map(foundStop => {
                                     return (<CustomMarker

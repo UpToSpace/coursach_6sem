@@ -13,7 +13,7 @@ export const TicketsPage = () => {
   const getTickets = useCallback(async () => {
     const data = await request('/api/tickets', 'GET', null);
     setTickets(data);
-    console.dir(data);
+    //console.dir(data);
   }, [auth.token, request])
 
   useEffect(() => {
@@ -26,10 +26,10 @@ export const TicketsPage = () => {
   moment.locale('be');
 
   return (
-    <div>
+    <div className='container'>
       <h1>Вашы бiлеты</h1>
       <button className="waves-effect waves-light btn-large"><a href="/tickets/buy">Набыць бiлет</a></button>
-      <table className="highlight centered">
+      {tickets.length > 0 ? <table className="highlight">
         <thead>
           <tr>
             <th>Транспарт</th>
@@ -58,7 +58,7 @@ export const TicketsPage = () => {
           }
           )}
         </tbody>
-      </table>
+      </table> : <h5>У вас няма бiлетаў</h5>}
     </div>
   )
 }

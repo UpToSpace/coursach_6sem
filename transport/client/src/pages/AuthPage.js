@@ -23,35 +23,48 @@ export const AuthPage = () => {
         setForm({ ...form, [event.target.name]: event.target.value })
     }
 
+    const checkFields = (email, password) => {
+        if (email === '' || password === '') {
+            message('Заполнiце пустыя палi');
+            return false;
+        }
+        if (RegExp(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/).test(email) === false) {
+            message('Некарэктны email');
+            return false;
+        }
+        if (password.length < 6) {
+            message('Пароль павiнен быць ня менш за 6 сiмвалаў');
+            return false;
+        }
+        return true;
+    }
+
     const registerHandler = async () => {
         try {
             const { email, password } = form;
-            if (email === '' || password === '') {
-                message('Заполните все поля');
-                return;
+            if (checkFields(email, password)) {
+                const data = await request('/api/auth/register', 'POST', { ...form });
+                message(data.message);
             }
-            if (RegExp(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/).test(email) === false) {
-                message('Некорректный email');
-                return;
-            }
-            if (password.length < 6) {
-                message('Пароль должен быть не менее 6 символов');
-                return;
-            }
-            const data = await request('/api/auth/register', 'POST', { ...form });
-            message(data.message);
-        } catch (e) { }
+        } catch (e) { 
+            message(e.message);
+        }
     }
 
     const loginHandler = async () => {
         try {
-            const data = await request('/api/auth/login', 'POST', { ...form });
-            console.log(data);
-            auth.login(data.token, data.user);
-            auth.userRole = data.user.role;
-            auth.userId = data.user.id;
-            navigate('/');
-        } catch (e) { }
+            const { email, password } = form;
+            if (checkFields(email, password)) {
+                const data = await request('/api/auth/login', 'POST', { ...form });
+                console.log(data);
+                auth.login(data.token, data.user);
+                auth.userRole = data.user.role;
+                auth.userId = data.user.id;
+                navigate('/');
+            }
+        } catch (e) { 
+            message(e.message);
+        }
     }
 
     return (
@@ -59,7 +72,7 @@ export const AuthPage = () => {
             <div className="col s6 offset-s3">
                 <div className="card">
                     <div className="card-content dark-grey-text">
-                        <span className="card-title">Авторизация</span>
+                        <span className="card-title">Аўтарызацыя</span>
                         <div>
 
                             <div className="row">
@@ -74,7 +87,7 @@ export const AuthPage = () => {
                                         onChange={changeHandler} />
                                     <label
                                         htmlFor="email">
-                                        Введите email
+                                        Увядзіце email
                                     </label>
                                 </div>
                             </div>
@@ -91,7 +104,7 @@ export const AuthPage = () => {
                                         onChange={changeHandler} />
                                     <label
                                         htmlFor="password">
-                                        Введите пароль
+                                        Увядзіце пароль
                                     </label>
                                 </div>
                             </div>
@@ -102,13 +115,13 @@ export const AuthPage = () => {
                                 className="waves-effect waves-light btn-large"
                                 disabled={loading}
                                 onClick={loginHandler}>
-                                Войти
+                                Увайсці
                             </button>
                             <button
                                 className="waves-effect waves-light btn-large"
                                 disabled={loading}
                                 onClick={registerHandler}>
-                                Регистрация
+                                Рэгістрацыя
                             </button>
                         </div>
                     </div>

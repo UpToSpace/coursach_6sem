@@ -102,8 +102,8 @@ export const MapPage = () => {
 
     return (
         stops &&
-        <div>
-            <div class="line">
+        <div className="schedule">
+            <div className="line">
                 <ReactMapGL
                     {...viewState}
                     onMove={event => setViewState(event.viewState)}

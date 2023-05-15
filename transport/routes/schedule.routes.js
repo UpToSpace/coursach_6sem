@@ -59,4 +59,19 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
+// /api/schedule
+router.delete('/', auth, async (req, res) => {
+    try {
+        const { scheduleNumber, routeStops } = req.body;
+        routeStops.map(async (item) => {
+            const { _id } = item;
+            await Schedule.deleteMany({ scheduleNumber, routeStopId: _id });
+        });
+        res.status(201).json({ message: 'Расписание удалено' });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: 'Что-то пошло не так /api/schedule, попробуйте снова' });
+    }
+});
+
 module.exports = router;

@@ -6,6 +6,7 @@ import { Loader } from '../components/Loader';
 import { groupBy, dateToString, stringToDate } from '../components/functions/functions';
 import { DatePicker } from "react-materialize";
 import Confetti from 'react-confetti';
+import { options } from '../components/arrays';
 
 const Step1 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket }) => {
     useEffect(() => {
@@ -40,7 +41,7 @@ const Step1 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                         )
                     })}
                 </select>
-                <label>Выберите тип проездного</label>
+                <label>Выбярыце тып праезднога</label>
             </div>
         </>
     )
@@ -161,7 +162,7 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                             )
                         })}
                     </select>
-                    <label>Выберите вид транспорта</label>
+                    <label>Выбярыце вiд транспарту</label>
                 </div>
                 <div className="input-field col s12" >
                     <select name="tripCount" onChange={handleChange} value={ticketTypes[0].tripCount}>
@@ -171,12 +172,12 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                             )
                         })}
                     </select>
-                    <label>Выберите количество поездок</label>
+                    <label>Выбярыце колькасць паездак</label>
                 </div >
                 <div className="input-field col s12" readOnly>
                     <input name="duration" type="text" id="duration" onChange={handleChange} value={ticketTypes[0].duration} readOnly>
                     </input>
-                    <label htmlFor="duration">Количество суток</label>
+                    <label htmlFor="duration">Колькасць сутак</label>
                 </div >
             </>
         )
@@ -190,14 +191,14 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                         {/* {console.log(transportOptions)} */}
                         {printOptions(transportOptions)}
                     </select>
-                    <label>Выберите вид транспорта</label>
+                    <label>Выбярыце вiд транспарту</label>
                 </div>
                 <div className="input-field col s12" >
                     <select name="duration" onChange={handleChange} value={ticketTypes[0].duration}>
                         {console.log(durationOptions)}
                         {printOptions(durationOptions)}
                     </select>
-                    <label>Выберите количество суток</label>
+                    <label>Выбярыце колькасць сутак</label>
                 </div >
             </>
         )
@@ -205,9 +206,9 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
 
     return (
         <>
-            {ticket.ticketType.type === "На определенное количество поездок" ? ticketForTrips() : ticketForDays()}
+            {ticket.ticketType.type === options.type[0] ? ticketForTrips() : ticketForDays()}
 
-            <div className="input-field col s12">
+            <div className="input-field col s12 datepicker">
                 <DatePicker id="dateBegin" name="dateBegin" value={dateToString(ticket.dateBegin)} onChange={(newDate) => handleChange({
                     target: {
                         name: "dateBegin",
@@ -216,7 +217,7 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 })} />
                 <label
                     htmlFor="dateBegin">
-                    Выберите дату начала билета
+                    Выбярыце дату пачатка білета
                 </label>
             </div>
 
@@ -224,15 +225,15 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 <input name="dateEnd" id="dateEnd" type="text" value={dateToString(ticket.dateEnd)} readOnly />
                 <label
                     htmlFor="dateEnd">
-                    Дата окончания билета
+                    Дата заканчэння білета
                 </label>
             </div>
 
             <div className="input-field col s12">
-                <input name="price" id="price" type="text" value={ticketTypes[0].price} onChange={handleChange} readOnly />
+                <input name="price" id="price" type="text" value={ticketTypes[0].price+ " BYN"} onChange={handleChange} readOnly />
                 <label
                     htmlFor="price">
-                    Итоговая стоимость
+                    Цана
                 </label>
             </div>
         </>
@@ -250,15 +251,15 @@ const Step3 = ({ ticket, ticketTypes }) => {
             <>
                 <div className="input-field col s12">
                     <input type="text" value={ticket.ticketType.transport} readOnly />
-                    <label>Вид транспорта</label>
+                    <label>Вiд транспарту</label>
                 </div>
                 <div className="input-field col s12" >
                     <input type="text" value={ticket.ticketType.tripCount} readOnly />
-                    <label>Количество поездок</label>
+                    <label>Колькасць паездак</label>
                 </div >
                 <div className="input-field col s12" readOnly>
                     <input type="text" value={ticket.ticketType.duration} readOnly />
-                    <label htmlFor="duration">Количество суток</label>
+                    <label htmlFor="duration">Колькасць сутак</label>
                 </div >
             </>
         )
@@ -269,37 +270,37 @@ const Step3 = ({ ticket, ticketTypes }) => {
             <>
                 <div className="input-field col s12">
                     <input type="text" value={ticket.ticketType.transport} readOnly />
-                    <label>Вид транспорта</label>
+                    <label>Вiд транспарту</label>
                 </div>
                 <div className="input-field col s12" >
                     <input type="text" value={ticket.ticketType.duration} readOnly />
-                    <label>Количество суток</label>
+                    <label>Колькасць паездак</label>
                 </div >
             </>
         )
     }
     return (
         <>
-            {ticket.ticketType.type === "На определенное количество поездок" ? ticketForTrips() : ticketForDays()}
+            {ticket.ticketType.type === options.type[0] ? ticketForTrips() : ticketForDays()}
 
             <div className="input-field col s12">
                 <input type="text" value={dateToString(ticket.dateBegin)} readOnly />
                 <label>
-                    Дата начала билета
+                    Дата пачатка бiлета
                 </label>
             </div>
 
             <div className="input-field col s12">
                 <input type="text" value={dateToString(ticket.dateEnd)} readOnly />
                 <label>
-                    Дата окончания билета
+                    Дата заканчэння бiлета
                 </label>
             </div>
 
             <div className="input-field col s12">
-                <input type="text" value={ticket.ticketType.price} readOnly />
+                <input type="text" value={ticket.ticketType.price + " BYN"} readOnly />
                 <label>
-                    Итоговая стоимость
+                    Цана
                 </label>
             </div>
         </>
@@ -313,13 +314,13 @@ const Result = () => {
                 colors={['#FFEB3B', '#2196f3', '#4CAF50', '#f44336']} />
             <div className="card blue-grey darken-1">
                 <div className="card-content white-text">
-                    <span className="card-title">Поздравляем!</span>
-                    <p>Поздравляем с покупкой проездного билета!</p>
-                    <p>Желаем вам приятных поездок. Спасибо, что выбрали компанию Rover</p>
+                    <span className="card-title">Вiншуем!</span>
+                    <p>Вы набылi бiлет!</p>
+                    <p>Жадаем вам прыемных паездак. Дзякуем, што выбралі кампанію Rover</p>
                 </div>
                 <div className="card-action">
-                    <a href="/">На главную</a>
-                    <a href="/tickets">Мои билеты</a>
+                    <a href="/">На галоўную</a>
+                    <a href="/tickets">Мае бiлеты</a>
                 </div>
             </div>
         </>
@@ -333,7 +334,6 @@ export const BuyTicketPage = () => {
     today.setHours(0, 0, 0, 0);
     const [allTicketTypes, setAllTicketTypes] = useState([]); // all ticket types
     const [ticket, setTicket] = useState({ // current ticket 
-        owner: auth.userId,
         dateBegin: today,
         dateEnd: new Date(today.getFullYear() + 1, today.getMonth(), today.getDate())
     });
@@ -381,17 +381,17 @@ export const BuyTicketPage = () => {
     }
 
     return (
-        <div className="row" >
+        <div className="row container" >
             <div className="col s12 m6">
                 {step === 4 ?
                     Result()
                     : <>
-                        <div className="progress">
-                            <div className="determinate" style={{ width: (100 / 3) * step + "%" }} ></div>
+                        <div className="progress light-blue lighten-3">
+                            <div className="determinate light-blue darken-1" style={{ width: (100 / 3) * step + "%" }} ></div>
                         </div>
-                        <div className="card blue-grey darken-1">
+                        <div className="card blue-grey darken-2">
                             <div className="card-content white-text">
-                                <span className="card-title">Выберите проездной билет</span>
+                                <span className="card-title">Выбярыце праездны бiлет</span>
                                 <div>
                                     <div className="row">
                                         <div className="input-field col s12">
@@ -411,7 +411,7 @@ export const BuyTicketPage = () => {
                                     className="waves-effect waves-light btn-large"
                                     disabled={loading}
                                     onClick={step === 3 ? confirm : () => setStep(step + 1)}>
-                                    {step === 3 ? "Подтвердить" : "Далее"}
+                                    {step === 3 ? "Пацвердзіць" : "Далей"}
                                 </button>
                             </div>
                         </div>

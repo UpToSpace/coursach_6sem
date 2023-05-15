@@ -15,7 +15,7 @@ module.exports = (req, res, next) => {
         jwt.verify(token, config.get('jwtAccessSecret'));
         next();
     } catch (e) {
-        console.log("middlware " + e);
+        //console.log("middlware " + e);
         if (e instanceof jwt.TokenExpiredError) {
             return res.status(401).json({ message: e.message });
         }

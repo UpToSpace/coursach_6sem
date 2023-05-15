@@ -31,22 +31,23 @@ export const AdminSchedulePage = () => {
             setRouteStops(routeStops);
             setSchedule(data);
             M.updateTextFields()
-            console.log(data);
+            // console.log(data);
         } catch (e) { }
     }, [auth.token, request, transport]);
 
     const FindTransportHandler = async () => {
         if (transport.transportType === null) {
-            return message('Тип транспорта не выбран')
+            return message('Тып транспарту ня абраны')
         }
         if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
-            return message('Номер транспорта введен некорректно')
+            return message('Нумар транспартнага сродку некарэктны')
         }
         let transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
         if (!transportFromDB) {
-            return message('Транспорт не найден')
+            return message('Транспартнага сродку не існуе')
         }
-        getSchedule();
+        await getSchedule();
+        setNewSchedule([])
     }
 
     const handleChange = (event) => {
@@ -76,32 +77,51 @@ export const AdminSchedulePage = () => {
         console.log(newSchedule)
         console.log(routeStops.length)
         if (newSchedule.length !== routeStops.length) {
-            return message('Не все остановки заполнены')
+            return message('Не запоўненае расклад')
         }
         for (let i = 0; i < newSchedule.length; i++) {
             console.log(newSchedule[i])
             if (!(new RegExp(/^([01]\d|2[0-3]):([0-5]\d)$/).test(newSchedule[i].arrivalTime))) {
-                return message(`Время прибытия на остановку ${routeStops[i].stopId.name} введено некорректно`)
+                return message(`Час прыбыта на прыпынак ${routeStops[i].stopId.name} некарэктны`)
             }
         }
         console.log(schedule)
         const scheduleNumber = schedule.length === 0 ? 0 : schedule.sort(e => e.scheduleNumber)[schedule.length - 1].scheduleNumber + 1;
         console.log(scheduleNumber)
-        const data = await request('/api/schedule', 'POST', { schedule: newSchedule, scheduleNumber: scheduleNumber }, {
-            Authorization: `Bearer ${auth.token}`
-        });
+        const data = await request('/api/schedule', 'POST', { schedule: newSchedule, scheduleNumber: scheduleNumber });
         console.log(data)
-        getSchedule();
+        setNewSchedule([]);
+        await getSchedule();
+    }
+
+    const DeleteScheduleHandler = async (scheduleNumber, routeStops) => {
+        if (window.confirm('Вы упэўнены, што хлчаце выдалiць расклад?')) {
+            const data = await request('/api/schedule', 'DELETE', { scheduleNumber: scheduleNumber, routeStops: routeStops });
+            await getSchedule();
+        }
     }
 
     const scheduleTable = (schedule) => {
+        const filteredSchedule = schedule.reduce((result, item) => {
+            if (!result.some((e) => e.scheduleNumber === item.scheduleNumber)) {
+                result.push(item);
+            }
+            return result;
+        }, []);
         return (
             <>
                 <table>
                     <tbody>
-                        {
-                            routeStops.sort(e => e.stopOrder).map((item, index) => {
-                                return (
+                        <tr><td></td><td></td>{filteredSchedule.map((item, index) => {
+                            return (
+                                <>
+                                    <th key={index}><button onClick={(e) => DeleteScheduleHandler(item.scheduleNumber, routeStops)} className="waves-effect waves-light btn-small">Выдалiць</button></th>
+                                </>
+                            )
+                        })}</tr>
+                        {routeStops.sort(e => e.stopOrder).map((item, index) => {
+                            return (
+                                <>
                                     <tr key={index}>
                                         <th>{item.stopId.name}</th>
                                         <td>
@@ -112,24 +132,28 @@ export const AdminSchedulePage = () => {
                                         {/* {console.log(schedule)}
                                         {console.log(item)}
                                         {console.log(schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber))} */}
+                                        {console.log(filteredSchedule)}
                                         {schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber).map((item, index) => {
                                             return (
-                                                <td key={index}>{item.arrivalTime}</td>
+                                                <>
+                                                    <td key={index}>{item.arrivalTime}</td>
+                                                </>
                                             )
                                         })}
                                     </tr>
-                                )
-                            })
+                                </>
+                            )
+                        })
                         }
                     </tbody>
                 </table>
-                <button onClick={AddScheduleHandler} className="waves-effect waves-light btn-small">Добавить</button>\
+                <button onClick={AddScheduleHandler} className="waves-effect waves-light btn-small">Дадаць</button>\
             </>
         )
     }
     return (
-        <div className="container" style={{"marginBottom": "50px"}}>
-            <div style={selectOnFocus ? {"marginBottom": "150px"} : undefined}>
+        <div className="container" style={{ "marginBottom": "50px" }}>
+            <div style={selectOnFocus ? { "marginBottom": "150px" } : undefined}>
                 <Select
                     value={transport.transport}
                     onChange={(transport) => handleChange({
@@ -149,7 +173,7 @@ export const AdminSchedulePage = () => {
                 <label>Номер</label>
                 <input placeholder="" name="number" type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
             </div>
-            <button onClick={FindTransportHandler} className="waves-effect waves-light btn-small">Найти</button>
+            <button onClick={FindTransportHandler} className="waves-effect waves-light btn-small">Знайсцi</button>
             {schedule && scheduleTable(schedule)}
         </div>
     )

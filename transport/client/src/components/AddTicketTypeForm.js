@@ -44,7 +44,7 @@ export const AddTicketTypeForm = ({readOnly, onClickHandler, options, setNewTick
         <>
             <form>
                 <div className="row">
-                    <label>Выберите тип проездного</label>
+                    <label>Выбярыце тып бiлета</label>
                     <select name="type" id="type" onChange={handleChange} defaultValue={newTicketType.type} disabled={readOnly}>
                         {options.type.map((option, index) => {
                             return (
@@ -70,17 +70,17 @@ export const AddTicketTypeForm = ({readOnly, onClickHandler, options, setNewTick
                 )}
 
                 {newTicketType.type === options.type[0] && <div className="input-field col s6">
-                    <label>Количество поездок</label>
+                    <label>Колькасць паездак</label>
                     <input placeholder="" name="tripCount" disabled={readOnly} type="number" defaultValue={newTicketType.tripCount} className="validate" onChange={handleChange} />
                 </div>}
 
                 <div className="input-field col s6">
-                    <label>Количество суток</label>
+                    <label>Колькасць сутак</label>
                     <input placeholder="" name="duration" disabled={readOnly} type="number" defaultValue={newTicketType.duration} className="validate" onChange={handleChange} />
                 </div>
 
                 <div className="input-field col s6">
-                    <label>Стоимость</label>
+                    <label>Цана</label>
                     <input placeholder="" name="price" type="text" defaultValue={newTicketType.price} className="validate" onChange={handleChange} />
                 </div>
 

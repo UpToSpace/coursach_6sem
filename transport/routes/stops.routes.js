@@ -44,6 +44,11 @@ router.get('/:id', auth, async (req, res) => {
 router.delete('/:id', auth, async (req, res) => {
     try {
         await Stop.deleteOne({ _id: req.params.id })
+        const routeStops = await RouteStop.find({ stopId: req.params.id });
+        await RouteStop.deleteMany({ stopId: req.params.id });
+        for (let i = 0; i < routeStops.length; i++) {
+            await Schedule.deleteMany({ routeStopId: routeStops[i]._id });
+        }
         res.json({ message: 'Прыпынак паспяхова выдалены' });
     } catch (e) {
         console.log(e);

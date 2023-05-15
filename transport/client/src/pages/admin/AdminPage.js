@@ -28,7 +28,7 @@ export const AdminPage = () => {
     }
 
     const removeUserHandler = async (user) => {
-        if (window.confirm('Вы уверены, что хотите удалить пользователя ' + user.email + '?')) {
+        if (window.confirm('Вы упэўнены, што хочаце выдалiць карыстальнiка ' + user.email + '?')) {
             try {
                 const data = await request('/api/user/' + user._id, 'DELETE', null);
                 message(data.message);
@@ -40,8 +40,8 @@ export const AdminPage = () => {
     }
 
     return (
-        <div>
-            <h1>Admin Page</h1>
+        <div className="container">
+            <h1>Адмiн, дзень добры!</h1>
             {users && <table>
                 <thead>
                     <tr>

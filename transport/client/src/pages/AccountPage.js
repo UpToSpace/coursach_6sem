@@ -27,7 +27,7 @@ export const AccountPage = () => {
     const getUser = useCallback(async () => {
         const data = await request('/api/user', 'GET', null);
         setUserEmail(data);
-        console.log(data);
+        //console.log(data);
     }, [auth.token, request])
 
     useEffect(() => {
@@ -40,17 +40,22 @@ export const AccountPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (newPassword.length < 6) {
+            message('Пароль павiнен быць ня менш за 6 сiмвалаў');
+            return;
+        }
         if (newPassword !== confirmPassword) {
             message('Паролi не супадаюць');
             return;
         }
         try {
-            const data = await request('/api/user', 'POST', { token: localStorage.getItem('token'), newPassword, oldPassword })
-            message(data.message);
+            await request('/api/user', 'POST', { token: localStorage.getItem('token'), newPassword, oldPassword })
+            message('Пароль зменены')
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
         } catch (e) {
+            message(e.message)
         }
     };
 
@@ -58,6 +63,7 @@ export const AccountPage = () => {
         <div className='container'>
             {userEmail && <div>
                 <h1>Акаунт</h1>
+                <a href="/" onClick={logoutHandler}>Выйсцi з акаунта</a>
                 <p>Пошта: {userEmail}</p>
                 <form onSubmit={handleSubmit}>
                     <h3>Змянiць пароль</h3>
@@ -89,7 +95,6 @@ export const AccountPage = () => {
                         />
                     </div>
                     <button className="waves-effect waves-light btn-large" type="submit">Змянiць пароль</button>
-                    <button className="waves-effect waves-light btn-large" style={{"right": "0"}}><a href="/" onClick={logoutHandler}>Выйсцi з акаунта</a></button>
                 </form>
             </div>}
         </div>

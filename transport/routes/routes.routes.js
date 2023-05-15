@@ -41,12 +41,28 @@ router.post('/', auth, async (req, res) => {
             await routeStop.save();
             routeStops.push(routeStop);
         }
-        console.log(routeStops)
+        //console.log(routeStops)
         const transportDB = await Transport.findOne({ _id: transport._id });
         transportDB.routeStops = routeStops;
         await transportDB.save();
-        console.log(transportDB);
+        //console.log(transportDB);
         res.status(201).json({ message: 'Маршрут создан' });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова' });
+    }
+});
+
+router.put('/', auth, async (req, res) => {
+    try {
+        const { transport } = req.body;
+        //console.log({ transport });
+        const routeStops = await RouteStop.find({ transportId: transport._id })
+        await RouteStop.deleteMany({ transportId: transport._id });
+        routeStops.map(async (routeStop) => {
+            await Schedule.deleteMany({ routeStopId: routeStop._id });
+        });
+        res.status(201).json({ message: 'Маршрут удален' });
     } catch (e) {
         console.log(e);
         res.status(500).json({ message: 'Что-то пошло не так /api/stops stops.routes.js, попробуйте снова' });
@@ -56,8 +72,12 @@ router.post('/', auth, async (req, res) => {
 router.delete('/', auth, async (req, res) => {
     try {
         const { transport } = req.body;
-        console.log({ transport });
+        //console.log({ transport });
+        const routeStops = await RouteStop.find({ transportId: transport._id })
         await RouteStop.deleteMany({ transportId: transport._id });
+        routeStops.map(async (routeStop) => {
+            await Schedule.deleteMany({ routeStopId: routeStop._id });
+        });
         await Transport.deleteOne({ _id: transport._id });
         res.status(201).json({ message: 'Маршрут удален' });
     } catch (e) {

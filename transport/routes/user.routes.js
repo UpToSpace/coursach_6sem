@@ -1,6 +1,7 @@
 const {Router} = require('express');
 const config = require('config');
 const User = require('../models/User');
+const Ticket = require('../models/Ticket');
 const router = Router();
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken")
@@ -8,7 +9,7 @@ const { check, validationResult } = require('express-validator');
 const auth = require('../middleware/auth.middleware');
 
 // /api/user
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, config.get('jwtAccessSecret'));
@@ -32,11 +33,7 @@ router.get('/all', auth, async (req, res) => {
 });
 
 // /api/user
-router.post('/',
-[
-    check('email', 'Некорректный email').isEmail(), 
-    check('password', 'Минимальная длина пароля составляет 6 символов').isLength({ min: 6 })
-],
+router.post('/', auth,
  async (req, res) => {
     try {
         const { token, newPassword, oldPassword } = req.body;
@@ -59,7 +56,7 @@ router.post('/',
 })
 
 // /api/user
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
         const decoded = jwt.verify(req.headers.authorization.split(' ')[1], config.get('jwtAccessSecret'));
@@ -68,6 +65,7 @@ router.delete('/:id', async (req, res) => {
             return res.status(400).json({ message: 'Нельзя удалить самого себя' });
         }
         await User.deleteOne({_id: id})
+        await Ticket.deleteMany({owner: id})
         res.json({ message: "Пользователь удален"});
     } catch (e) {
         console.log(e)

@@ -36,7 +36,9 @@ router.get('/:id', auth, async (req, res) => {
 // /api/tickets
 router.post('/', auth, async (req, res) => {
     try {
-        const ticket = new Ticket({...req.body});
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, config.get('jwtAccessSecret'));
+        const ticket = new Ticket({...req.body, owner: decoded.id});
         await ticket.save();
         res.status(201).json({ticket});
     } catch (e) {

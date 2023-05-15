@@ -7,11 +7,12 @@ const config = require('config');
 const TokenService = require('../services/token.service');
 const MailService = require('../services/mail.service');
 const auth = require('../middleware/auth.middleware');
+const admin = require('../middleware/admin.middleware');
 
 const router = Router();
 
 // /api/auth/users
-router.get('/users', auth, async (req, res) => {
+router.get('/users', admin, async (req, res) => {
     try {
         const users = await User.find({});
         res.json(users);
@@ -29,7 +30,7 @@ router.post(
 
             const candidate = await User.findOne({ email: email.toLowerCase() });
             if (candidate) {
-                return res.status(400).json({ message: 'Этот пользователь уже зарегистрирован' });
+                return res.status(400).json({ message: 'Гэты карыстальнiк ужо зарэгiстраваны' });
             }
 
             const hashedPassword = await bcrypt.hash(password, 12);
@@ -57,16 +58,16 @@ router.post(
             const { email, password } = req.body;
             const user = await User.findOne({ email: email.toLowerCase() });
             if (!user) {
-                return res.status(400).json({ message: 'Пользователь не найден' });
+                return res.status(400).json({ message: 'Карыстальнiк не знойдзены' });
             }
 
             if(!user.isActivated) {
-                return res.status(400).json({ message: 'Перейдите по ссылке в письме на почте' });
+                return res.status(400).json({ message: 'Праверце пошту, каб актываваць акаунт' });
             }
 
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(400).json({ message: 'Неправильный пароль, попробуйте еще раз' });
+                return res.status(400).json({ message: 'Няправiльны пароль, паспрабуйце зноў' });
             }
 
             const tokens = TokenService.generateTokens({ id: user._id });
@@ -88,7 +89,7 @@ router.post('/logout', async (req, res) => {
         user.refreshToken = '';
         await user.save();
         res.clearCookie('refreshToken');
-        return res.json({ message: 'Вы успешно вышли из системы' });
+        return res.json({ message: 'Вы вышлі з акаунта' });
     } catch (e) {
         console.log(e);
         res.status(500).json({ message: 'Что-то пошло не так' });
@@ -129,7 +130,7 @@ router.get('/activate/:link', async (req, res) => {
         const activationLink = req.params.link;
         const user = await User.findOne({ activationLink });
         if (!user) {
-            return res.status(400).json({ message: 'Некорректная ссылка активации' });
+            return res.status(400).json({ message: 'Няправiльная спасылка актывацыi' });
         }
         user.isActivated = true;
         await user.save();

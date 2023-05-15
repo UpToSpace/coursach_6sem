@@ -16,8 +16,9 @@ export const AdminTicketTypesPage = () => {
 
     const getTicketTypes = useCallback(async () => {
         const data = await request('/api/tickets/types');
-        setTicketTypes(data);
-        console.log(data);
+        const sortedData = data.sort(e => e.type)
+        setTicketTypes(sortedData);
+        //console.log(data);
     }, [auth.token, request])
 
     useEffect(() => {
@@ -42,17 +43,17 @@ export const AdminTicketTypesPage = () => {
         // console.log('click');
         const tripCount = newTicketType.type === options.type[0] ? newTicketType.tripCount : -1;
         if (!(new RegExp(/^\d+\.?\d*$/).test(newTicketType.price))) {
-            message('Введите корректную цену');
+            message('Увядзіце карэктную цану');
             return;
         }
         if (newTicketType.transport.length === 0 || !newTicketType.duration || !newTicketType.price ||
             !tripCount) {
-            message('Заполните все поля');
+            message('Запоўніце ўсе палі');
             return;
         }
         if (+newTicketType.duration <= 0 || +newTicketType.price <= 0 ||
             newTicketType.type === options.type[0] && +newTicketType.tripCount <= 0) {
-            message('Введите корректные данные');
+            message('Увядзіце карэктныя значэнні');
             return;
         }
         try {
@@ -65,15 +66,15 @@ export const AdminTicketTypesPage = () => {
                     ticketType.duration === +newTicketType.duration);
             }
             if (ticketType) {
-                message('Такой тип проездного уже существует');
+                message('Такі тып білета ўжо існуе');
                 return;
             }
             let data;
             if (newTicketType.type === options.type[0]) { // Если тип проездного на определенное количество поездок
-            data = await request('/api/tickets/types', 'POST', { ...newTicketType, transport: newTicketType.transport.sort().join('-') });
-        } else {
-            data = await request('/api/tickets/types', 'POST', { ...newTicketType, transport: newTicketType.transport.sort().join('-'), tripCount: -1 });
-        }
+                data = await request('/api/tickets/types', 'POST', { ...newTicketType, transport: newTicketType.transport.sort().join('-') });
+            } else {
+                data = await request('/api/tickets/types', 'POST', { ...newTicketType, transport: newTicketType.transport.sort().join('-'), tripCount: -1 });
+            }
             // console.log({ ...newTicketType, transport: newTicketType.transport.sort().join('-'), tripCount: tripCount });
             console.log(data);
             setNewTicketType({
@@ -90,7 +91,7 @@ export const AdminTicketTypesPage = () => {
 
     const DeleteTicketTypeHandler = async (id) => {
         console.log(id);
-        if (window.confirm('Удалить тип проездного?')) {
+        if (window.confirm('Выдаліць тып білета?')) {
             try {
                 const data = await request(`/api/tickets/types/${id}`, 'DELETE');
                 console.log(data);
@@ -101,27 +102,36 @@ export const AdminTicketTypesPage = () => {
 
     return (
         <div className='container'>
-            {ticketTypes && AddTicketTypeForm({readOnly: false, onClickHandler: AddTicketTypeHandler, options, setNewTicketType, newTicketType, btnText: 'Добавить'})}
+            {ticketTypes && AddTicketTypeForm({ readOnly: false, onClickHandler: AddTicketTypeHandler, options, setNewTicketType, newTicketType, btnText: 'Дадаць' })}
             {ticketTypes &&
-                ticketTypes.map(ticketType =>
-                    <div className="row" key={ticketType._id}>
-                        <div className="col s6 m5">
-                            <div className="card blue-grey darken-1">
-                                <div className="card-content white-text">
-                                    <p>Тип билета: {ticketType.type}</p>
-                                    <p>Транспорт: {ticketType.transport}</p>
-                                    {ticketType.tripCount !== -1 && <p>Количество поездок: {ticketType.tripCount}</p>}
-                                    <p>Количество суток: {ticketType.duration}</p>
-                                    <p>Стоимость: {ticketType.price}</p>
-                                </div>
-                                <div className="card-action">
-                                    <a href={'/admin/tickets/' + ticketType._id}>Изменить стоимость</a>
-                                    <button onClick={(e) => DeleteTicketTypeHandler(ticketType._id)} className="waves-effect waves-light btn-small">Удалить</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                <table className="highlight">
+                    <thead>
+                        <tr>
+                            <th>Тып бiлета</th>
+                            <th>Транспарт</th>
+                            <th>Колькасць паездак</th>
+                            <th>Колькасць сутак</th>
+                            <th>Кошт</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {ticketTypes.map(ticketType =>
+                            <tr key={ticketType._id}>
+                                <td>{ticketType.type}</td>
+                                <td>{ticketType.transport}</td>
+                                {ticketType.tripCount !== -1 ? <td>{ticketType.tripCount}</td> : <td>-</td>}
+                                <td>{ticketType.duration}</td>
+                                <td>{ticketType.price}</td>
+                                <td><a href={'/admin/tickets/' + ticketType._id}>Змянiць</a></td>
+                                <td><button onClick={(e) => DeleteTicketTypeHandler(ticketType._id)} className="waves-effect waves-light btn-small">Выдалiць</button></td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            }
         </div>
     )
 }

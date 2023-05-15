@@ -42,7 +42,7 @@ export const POINT_LAYER = {
     },
 };
 
-export const CustomPopup = ({ stop, closePopup }) => {
+export const CustomPopup = ({ stop, closePopup, deleteButtonHandler }) => {
     return (
         <Popup
             latitude={stop.latitude}
@@ -53,6 +53,7 @@ export const CustomPopup = ({ stop, closePopup }) => {
             offsetTop={-30}
         >
             {stop.name}
+            {deleteButtonHandler && <div><button onClick={() => deleteButtonHandler(stop._id)}>Delete</button></div>}
         </Popup>
     )
 };
