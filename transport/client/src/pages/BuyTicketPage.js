@@ -334,6 +334,7 @@ export const BuyTicketPage = () => {
     today.setHours(0, 0, 0, 0);
     const [allTicketTypes, setAllTicketTypes] = useState([]); // all ticket types
     const [ticket, setTicket] = useState({ // current ticket 
+        userNotificated: false,
         dateBegin: today,
         dateEnd: new Date(today.getFullYear() + 1, today.getMonth(), today.getDate())
     });

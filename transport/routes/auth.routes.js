@@ -136,7 +136,7 @@ router.get('/userrole', auth, async (req, res) => {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, config.get('jwtAccessSecret'));
         const user = await User.findOne({ _id: decoded.id });
-        res.json({ role: user.role });
+        res.json({ role: user.role, id: user._id });
     } catch (e) {
         //console.log(e);
         res.status(500).json({ message: 'Что-то пошло не так' });

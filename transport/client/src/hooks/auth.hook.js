@@ -11,6 +11,7 @@ export const useAuth = () => {
 
     const login = useCallback((jwtToken, user) => {
         setToken(jwtToken);
+        setUserId(user._id)
         setUserRole(user.role);
         localStorage.setItem('token', jwtToken);
     }, []);
@@ -25,13 +26,14 @@ export const useAuth = () => {
 
     const getUserRole = useCallback(async (token) => {
         try {
-            const data = await request('/api/auth/userrole', 'GET', null);
-            //console.log('auth.hook.js: getUserRole: data.role = ', data.role)
-            setUserRole(data.role);
+            const data = await request('/api/auth/userrole');
+            //console.log('auth.hook.js: getUserRole: data.id = ', data.id)
+            setUserId(data.id);
+            setUserRole(data.role); 
         } catch (e) {
             console.log('auth.hook.js: getUserRole: e.message = ', e.message)
         }
-    }, [userRole]);
+    }, [userRole, userId]);
 
     useEffect(() => {
         const data = localStorage.getItem('token');
@@ -43,5 +45,5 @@ export const useAuth = () => {
         setReady(true)
     }, [getUserRole]);
 
-    return { login, logout, ready, userRole };
+    return { login, logout, ready, userRole, userId };
 }

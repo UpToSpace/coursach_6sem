@@ -4,7 +4,8 @@ const schema = new Schema({
     dateBegin: { type: Date, required: true },
     dateEnd: { type: Date, required: true },
     ticketType: { type: Types.ObjectId, ref: 'TicketType' },
-    owner: {type: Types.ObjectId, ref: 'User'}
+    owner: {type: Types.ObjectId, ref: 'User'},
+    userNotificated: {type: Boolean}
 });
 
 module.exports = model('Ticket', schema);

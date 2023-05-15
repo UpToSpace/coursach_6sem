@@ -47,4 +47,12 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
+router.put('/', auth, async (req, res) => {
+    try {
+        const ticket = req.body;
+        await Ticket.updateOne({_id: ticket._id}, {$set: {userNotificated: true}})
+    } catch (e) {
+        res.status(500).json({message: 'Что-то пошло не так ticket.routes.js /api/ticket PUT'});
+    }
+})
 module.exports = router;

@@ -75,25 +75,13 @@ async function start() {
 
         io.on("connection", (socket) => {
             console.log(`⚡: ${socket.id} user just connected!`);
-            socket.on("message", async (data) => {
-                const userId = jwt.verify(data, config.get('jwtAccessSecret')).id;
-                const user = await User.find({ _id: userId })
-                try {
-                    const tickets = await Ticket.find({ dateEnd: { $lte: new Date() }, owner: userId }).populate('ticketType');
-                    if (tickets.length > 0) {
-                        if (!clients.includes(user._id)) {
-                            clients.push(user._id)
-                            console.log(clients);
-                            socket.emit('message', JSON.stringify(tickets));
-                        }
-                    }
-                } catch (e) {
-                    if (e instanceof jwt.JsonWebTokenError) {
-                        console.log("error");
-                    }
-                    console.log(e);
+            setInterval(async () => {
+                const tickets = await Ticket.find({
+                    dateEnd: { $lte: new Date() }, userNotificated: false}).populate('ticketType');
+                if (tickets.length > 0) {
+                    socket.emit('message', JSON.stringify(tickets));
                 }
-            })
+            }, 5000)
             socket.on('disconnect', () => {
                 console.log('user disconnected');
             })
