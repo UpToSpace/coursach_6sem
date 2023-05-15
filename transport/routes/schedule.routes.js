@@ -3,6 +3,7 @@ const config = require('config');
 const Transport = require('../models/Transport');
 const Schedule = require('../models/Schedule');
 const auth = require('../middleware/auth.middleware');
+const admin = require('../middleware/admin.middleware');
 const router = Router();
 
 // /api/schedule
@@ -44,7 +45,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // /api/schedule
-router.post('/', auth, async (req, res) => {
+router.post('/', admin, async (req, res) => {
     try {
         const { schedule, scheduleNumber } = req.body;
         schedule.map(async (item) => {
@@ -60,7 +61,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // /api/schedule
-router.delete('/', auth, async (req, res) => {
+router.delete('/', admin, async (req, res) => {
     try {
         const { scheduleNumber, routeStops } = req.body;
         routeStops.map(async (item) => {

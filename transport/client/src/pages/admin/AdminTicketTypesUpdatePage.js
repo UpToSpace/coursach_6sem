@@ -15,9 +15,7 @@ export const AdminTicketTypesUpdatePage = () => {
     const [newTicketType, setNewTicketType] = useState();
 
     const getTicketType = useCallback(async () => {
-        const data = await request(`/api/tickets/types/${params.id}`, 'GET', null, {
-            Authorization: `Bearer ${auth.token}`
-        });
+        const data = await request(`/api/tickets/types/${params.id}`);
         data.transport = data.transport.split('-');
         setNewTicketType(data);
         console.log(data);
@@ -33,9 +31,7 @@ export const AdminTicketTypesUpdatePage = () => {
 
     const UpdateHandler = () => {
         try {
-            const data = request(`/api/tickets/types/${params.id}`, 'PUT', {...newTicketType}, {
-                Authorization: `Bearer ${auth.token}`
-            });
+            const data = request(`/api/tickets/types/${params.id}`, 'PUT', {...newTicketType});
             console.log(data);
             navigate('/admin/tickets');
         } catch (e) { }

@@ -148,7 +148,7 @@ export const AdminRoutesPage = () => {
                 setRoutes([])
                 return
             }
-            const routeStops = await request(`/api/routes?type=${transport.transportType}&number=${transport.number}`, 'GET', null);
+            const routeStops = await request(`/api/routes?type=${transport.transportType}&number=${transport.number}`);
             if (!routeStops) {
                 message('Маршрут не знойдзены')
                 setRoutes([])

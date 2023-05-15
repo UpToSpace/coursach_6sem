@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken")
 const { check, validationResult } = require('express-validator');
 const auth = require('../middleware/auth.middleware');
+const admin = require('../middleware/admin.middleware');
 
 // /api/user
 router.get('/', auth, async (req, res) => {
@@ -22,7 +23,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // /api/user/all
-router.get('/all', auth, async (req, res) => {
+router.get('/all', admin, async (req, res) => {
     try {
         const users = await User.find();
         res.json(users);
@@ -42,7 +43,7 @@ router.post('/', auth,
         const isMatch = await bcrypt.compare(oldPassword, user.password);
         console.log(isMatch)
         if (!isMatch) {
-            return res.status(400).json({ message: 'Неправильный пароль, попробуйте еще раз' });
+            return res.status(400).json({ message: 'Няправiльны пароль, паспрабуйце зноў' });
         }
         const hashedPassword = await bcrypt.hash(newPassword, 12);
         const data = await User.updateOne({_id: decoded.id}, {$set: {
@@ -56,17 +57,17 @@ router.post('/', auth,
 })
 
 // /api/user
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', admin, async (req, res) => {
     try {
         const { id } = req.params;
         const decoded = jwt.verify(req.headers.authorization.split(' ')[1], config.get('jwtAccessSecret'));
         const user = await User.findOne({_id: decoded.id})
         if (decoded.id === id) {
-            return res.status(400).json({ message: 'Нельзя удалить самого себя' });
+            return res.status(400).json({ message: 'Нельга выдалiць самога сябе' });
         }
         await User.deleteOne({_id: id})
         await Ticket.deleteMany({owner: id})
-        res.json({ message: "Пользователь удален"});
+        res.json({ message: "Карыстальнiк выдален"});
     } catch (e) {
         console.log(e)
         res.status(500).json({ message: 'Что-то пошло не так' });

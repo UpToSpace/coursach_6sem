@@ -3,6 +3,7 @@ const config = require('config');
 const Ticket = require('../models/Ticket');
 const User = require('../models/User')
 const auth = require('../middleware/auth.middleware');
+const admin = require('../middleware/admin.middleware');
 const router = Router();
 const jwt = require("jsonwebtoken")
 

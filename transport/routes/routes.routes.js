@@ -5,6 +5,7 @@ const Schedule = require('../models/Schedule');
 const RouteStop = require('../models/RouteStop');
 const Transport = require('../models/Transport');
 const auth = require('../middleware/auth.middleware');
+const admin = require('../middleware/admin.middleware');
 const router = Router();
 
 // /api/routes
@@ -30,7 +31,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 //api/routes
-router.post('/', auth, async (req, res) => {
+router.post('/', admin, async (req, res) => {
     try {
         const { stops, transport } = req.body;
         console.log(req.body);
@@ -53,7 +54,7 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-router.put('/', auth, async (req, res) => {
+router.put('/', admin, async (req, res) => {
     try {
         const { transport } = req.body;
         //console.log({ transport });
@@ -69,7 +70,7 @@ router.put('/', auth, async (req, res) => {
     }
 });
 
-router.delete('/', auth, async (req, res) => {
+router.delete('/', admin, async (req, res) => {
     try {
         const { transport } = req.body;
         //console.log({ transport });

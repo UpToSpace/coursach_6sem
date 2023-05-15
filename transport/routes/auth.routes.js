@@ -11,16 +11,6 @@ const admin = require('../middleware/admin.middleware');
 
 const router = Router();
 
-// /api/auth/users
-router.get('/users', admin, async (req, res) => {
-    try {
-        const users = await User.find({});
-        res.json(users);
-    } catch (e) {
-        res.status(500).json({ message: 'Что-то пошло не так' });
-    }
-});
-
 // /api/auth/register
 router.post(
     '/register',
@@ -53,8 +43,7 @@ router.post(
     '/login',
     async (req, res) => {
         try {
-            console.log(req.body);
-            
+            //console.log(req.body);
             const { email, password } = req.body;
             const user = await User.findOne({ email: email.toLowerCase() });
             if (!user) {
@@ -70,7 +59,7 @@ router.post(
                 return res.status(400).json({ message: 'Няправiльны пароль, паспрабуйце зноў' });
             }
 
-            const tokens = TokenService.generateTokens({ id: user._id });
+            const tokens = TokenService.generateTokens({ id: user._id, role: user.role });
             await TokenService.saveToken(user._id, tokens.refreshToken);
             res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true, sameSite: 'none' });
             res.json({ token: tokens.accessToken, user: {id: user.id, role: user.role} });
@@ -102,7 +91,7 @@ router.post('/refresh', async (req, res) => {
     try {
         const { refreshToken } = req.cookies;
         if (!refreshToken) {
-            return res.status(401).json({ message: 'Пользователь не авторизован' });
+            return res.status(401).json({ message: '' });
         }
         const userData = jwt.verify(refreshToken, config.get('jwtRefreshSecret'));
         console.log(userData)
@@ -110,7 +99,7 @@ router.post('/refresh', async (req, res) => {
         const users = await User.find({});
         if (!userData || !userFromDb) {
             console.log('refresh' + userData + userFromDb)
-            return res.status(401).json({ message: 'Пользователь не авторизован ....' });
+            return res.status(401).json({ message: 'Карыстальнiк не аўтыразаваны' });
         }
         const tokens = TokenService.generateTokens({ id: userFromDb._id });
         res.json({ token: tokens.accessToken });
@@ -119,7 +108,7 @@ router.post('/refresh', async (req, res) => {
             return res.status(401).json({ message: 'refresh jwt expired' });
         }
         console.log('refresh' + e);
-        res.status(401).json({ message: 'Пользователь не авторизован00' });
+        res.status(401).json({ message: 'Карыстальнiк не аўтыразаваны' });
     }
 });
 

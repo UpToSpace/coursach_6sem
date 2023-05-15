@@ -3,6 +3,7 @@ const config = require('config');
 const TicketType = require('../models/TicketType');
 const Ticket = require('../models/Ticket');
 const auth = require('../middleware/auth.middleware');
+const admin = require('../middleware/admin.middleware');
 const router = Router();
 
 // /api/tickets/types
@@ -27,7 +28,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // /api/tickets/types
-router.post('/', auth, async (req, res) => {
+router.post('/', admin, async (req, res) => {
     try {
         const { type, transport, tripCount, duration, price } = req.body;
         const ticketType = new TicketType({ type, transport, tripCount: +tripCount, duration: +duration, price: +price });
@@ -39,7 +40,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // /api/tickets/types/:id
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', admin, async (req, res) => {
     try {
         const { duration, tripCount, price } = req.body;
         const ticketType = await TicketType.findById(req.params.id);
@@ -55,7 +56,7 @@ router.put('/:id', auth, async (req, res) => {
     }
 });
 
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', admin, async (req, res) => {
     try {
         const ticketType = await TicketType.find({ _id: req.params.id });
         await Ticket.deleteMany({ ticketType: ticketType })

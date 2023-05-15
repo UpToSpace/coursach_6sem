@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
         const token = req.headers.authorization.split(' ')[1];
 
         if(!token) {
-            return res.status(401).json({message: 'Нет авторизации'});
+            return res.status(401).json({message: 'Карыстальнiк не аўтыразаваны'});
         }
         jwt.verify(token, config.get('jwtAccessSecret'));
         next();
@@ -19,6 +19,6 @@ module.exports = (req, res, next) => {
         if (e instanceof jwt.TokenExpiredError) {
             return res.status(401).json({ message: e.message });
         }
-        res.status(401).json({message: 'Нет авторизации'});
+        res.status(401).json({message: 'Карыстальнiк не аўтыразаваны'});
     }
 }

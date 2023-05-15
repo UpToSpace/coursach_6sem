@@ -11,13 +11,8 @@ export const MainPage = () => {
     }
 
     return (
-        <div style={{"backgroundImage": `url(${back})`,
-        "top": "0",
-        "height": "100%",
-        "backgroundSize": "cover",
-        "backgroundPosition": "center"}}>
+        <div>
             <h1>Дзень добры!</h1>
-            {/* <img src={bus} alt="bus" /> */}
         </div>
     )
 }

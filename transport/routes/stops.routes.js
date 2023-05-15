@@ -5,6 +5,7 @@ const Schedule = require('../models/Schedule');
 const RouteStop = require('../models/RouteStop');
 const Transport = require('../models/Transport');
 const auth = require('../middleware/auth.middleware');
+const admin = require('../middleware/admin.middleware');
 const router = Router();
 
 // //api/stops
@@ -18,7 +19,7 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
-router.post('/', auth, async (req, res) => {
+router.post('/', admin, async (req, res) => {
     try {
         const { name, latitude, longitude } = req.body;
         console.log(name, latitude, longitude);
@@ -41,7 +42,7 @@ router.get('/:id', auth, async (req, res) => {
     }
 });
 
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', admin, async (req, res) => {
     try {
         await Stop.deleteOne({ _id: req.params.id })
         const routeStops = await RouteStop.find({ stopId: req.params.id });

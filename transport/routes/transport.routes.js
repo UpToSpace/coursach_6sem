@@ -2,6 +2,7 @@ const { Router } = require('express');
 const config = require('config');
 const Transport = require('../models/Transport');
 const auth = require('../middleware/auth.middleware');
+const admin = require('../middleware/admin.middleware');
 const router = Router();
 
 // /api/transports
@@ -28,7 +29,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // /api/transports
-router.post('/', auth, async (req, res) => {
+router.post('/', admin, async (req, res) => {
     try {
         //console.log(req.body)
         const transportType = req.body.transport.transportType;

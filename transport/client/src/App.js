@@ -16,6 +16,7 @@ const socket = io.connect("https://localhost:5000");
 function App() {
   const { login, logout, userId, ready, userRole } = useAuth();
   const message = useMessage();
+  const flag = true;
   // console.log('App.js: userRole = ', userRole)
 
   const routes = useRoutes(userRole);
@@ -30,8 +31,9 @@ function App() {
     socket.on("message", (receivedMessage) => {
       console.log("Received message:", receivedMessage);
       const tickets = JSON.parse(receivedMessage);
-      console.log(tickets)
+      if (tickets && flag) {
       var messageText;
+      console.log(tickets)
       tickets.map((ticket) => {
         if (ticket.ticketType.type === options.type[0]) // На определенное количество поездок
         {
@@ -39,10 +41,17 @@ function App() {
         } else {
           messageText = "Бiлет на " + ticket.ticketType.transport + " на " + ticket.ticketType.duration + " суток закончился";
         }
+
         message(messageText);
       })
-      socket.disconnect();
-    });
+      flag = false;
+      socket.disconnect(() => console.log('user ' + socket.id + " disconnected"));
+    } 
+    else {
+      socket.disconnect(() => console.log('user ' + socket.id + " disconnected"));
+    }
+  }
+    )
   }
 
   // const ws = new WebSocket('ws://localhost:5001');
