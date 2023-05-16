@@ -109,11 +109,13 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
             }
             case "dateBegin": {
                 //console.log(e.target.value)
+                let date;
                 if (e.target.value < new Date()) {
-                    message("hhh");
-                    setTicket(ticket => ({ ...ticket, dateBegin: date, dateEnd: dateEndValue }));
+                    message("Вы ня можаце набыць білет на мінулую дату");
+                    date = new Date();
+                } else {
+                    date = e.target.value;
                 }
-                const date = e.target.value;
                 const dateEndValue = new Date(date);
                 dateEndValue.setDate(date.getDate() + +ticketTypes[0].duration);
                 //console.log(date);
@@ -214,13 +216,13 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
             {ticket.ticketType.type === options.type[0] ? ticketForTrips() : ticketForDays()}
 
             <div className="input-field col s12 datepicker">
-                <DatePicker id="dateBegin" name="dateBegin" value={dateToString(ticket.dateBegin)} 
-                onChange={(newDate) => handleChange({
-                    target: {
-                        name: "dateBegin",
-                        value: newDate
-                    }
-                })} />
+                <DatePicker id="dateBegin" name="dateBegin" value={dateToString(ticket.dateBegin)}
+                    onChange={(newDate) => handleChange({
+                        target: {
+                            name: "dateBegin",
+                            value: newDate
+                        }
+                    })} />
                 <label
                     htmlFor="dateBegin">
                     Выбярыце дату пачатка білета
@@ -236,7 +238,7 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
             </div>
 
             <div className="input-field col s12">
-                <input name="price" id="price" type="text" value={ticketTypes[0].price+ " BYN"} onChange={handleChange} readOnly />
+                <input name="price" id="price" type="text" value={ticketTypes[0].price + " BYN"} onChange={handleChange} readOnly />
                 <label
                     htmlFor="price">
                     Цана
