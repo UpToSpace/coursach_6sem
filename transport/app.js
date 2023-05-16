@@ -5,41 +5,14 @@ const https = require("https");
 const fs = require("fs");
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
 const Ticket = require('./models/Ticket');
-const User = require('./models/User');
 
 const app = express();
-const WSPORT = config.get('wsport') || 5002;
-var clients = [];
-// const wss = new WebSocket.Server({ port: WSPORT }, () => {
-//     console.log(`WS server started on port ${WSPORT}...`);
-// });
-
-
-// wss.on('connection', function connection(ws) { 
-//     ws.on('message', function incoming(message) {
-//         console.log(message.toString());
-//         clients.push({ id: message.toString(), ws: ws });
-//         wss.clients.forEach(async (client) => {
-//             // const tickets = await Ticket.find({ dateEnd: { $lte: new Date() } })
-//             // .populate('ticketType');
-//             const tickets = await Ticket.find({})
-//             if (client.readyState === ws.OPEN && tickets.length > 0) {
-//                 tickets.forEach(ticket => {
-//                     client[ticket.owner].send(JSON.stringify(ticket));
-//                 });
-//             }
-//         });
-//     });
-// });
-
 
 app.use(express.json({ extended: true }));
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 

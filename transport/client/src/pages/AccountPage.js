@@ -44,6 +44,10 @@ export const AccountPage = () => {
             message('Пароль павiнен быць ня менш за 6 сiмвалаў');
             return;
         }
+        if (newPassword.length > 12) {
+            message('Пароль павiнен быць ня больш за 12 сiмвалаў');
+            return;
+        }
         if (newPassword !== confirmPassword) {
             message('Паролi не супадаюць');
             return;
@@ -70,6 +74,7 @@ export const AccountPage = () => {
                     <div>
                         <label htmlFor="oldPassword">Стары пароль</label>
                         <input
+                            maxLength={12}
                             type="password"
                             id="oldPassword"
                             value={oldPassword}
@@ -79,6 +84,7 @@ export const AccountPage = () => {
                     <div>
                         <label htmlFor="newPassword">Новы пароль</label>
                         <input
+                            maxLength={12}
                             type="password"
                             id="newPassword"
                             value={newPassword}
@@ -88,6 +94,7 @@ export const AccountPage = () => {
                     <div>
                         <label htmlFor="confirmPassword">Падцвердзiць пароль</label>
                         <input
+                            maxLength={12}
                             type="password"
                             id="confirmPassword"
                             value={confirmPassword}

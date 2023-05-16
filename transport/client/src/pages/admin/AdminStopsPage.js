@@ -118,7 +118,7 @@ export const AdminStopsPage = () => {
                     <div className="input-field col s6">
                         <label>
                             Назва прыпынка:</label>
-                        <input type="text" className="validate" name="name" value={stop.name} onChange={OnChangeHandler} />
+                        <input type="text" className="validate" maxLength={30} name="name" value={stop.name} onChange={OnChangeHandler} />
                     </div>
                 </div>
                 <div className="row">

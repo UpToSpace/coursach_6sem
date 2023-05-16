@@ -2,7 +2,6 @@ import React from 'react';
 import M from 'materialize-css';
 
 export const AddTicketTypeForm = ({readOnly, onClickHandler, options, setNewTicketType, newTicketType, btnText}) => {
-
     const handleChange = (e) => {
         // console.log(newTicketType.type)
         // console.log(e.target.value)
@@ -42,7 +41,7 @@ export const AddTicketTypeForm = ({readOnly, onClickHandler, options, setNewTick
     M.FormSelect.init(document.querySelectorAll('select'), null);
     return (
         <>
-            <form>
+            <div>
                 <div className="row">
                     <label>Выбярыце тып бiлета</label>
                     <select name="type" id="type" onChange={handleChange} defaultValue={newTicketType.type} disabled={readOnly}>
@@ -71,21 +70,21 @@ export const AddTicketTypeForm = ({readOnly, onClickHandler, options, setNewTick
 
                 {newTicketType.type === options.type[0] && <div className="input-field col s6">
                     <label>Колькасць паездак</label>
-                    <input placeholder="" name="tripCount" disabled={readOnly} type="number" defaultValue={newTicketType.tripCount} className="validate" onChange={handleChange} />
+                    <input placeholder="" max={999} min={1} name="tripCount" disabled={readOnly} type="number" defaultValue={newTicketType.tripCount} className="validate" onChange={handleChange} />
                 </div>}
 
                 <div className="input-field col s6">
                     <label>Колькасць сутак</label>
-                    <input placeholder="" name="duration" disabled={readOnly} type="number" defaultValue={newTicketType.duration} className="validate" onChange={handleChange} />
+                    <input placeholder="" max={366} min={1} name="duration" disabled={readOnly} type="number" defaultValue={newTicketType.duration} className="validate" onChange={handleChange} />
                 </div>
-
+                
                 <div className="input-field col s6">
                     <label>Цана</label>
-                    <input placeholder="" name="price" type="text" defaultValue={newTicketType.price} className="validate" onChange={handleChange} />
+                    <input placeholder="" maxLength={5} name="price" type="text" defaultValue={newTicketType.price} className="validate" onChange={handleChange} />
                 </div>
 
                 <button onClick={onClickHandler} className="waves-effect waves-light btn-large">{btnText}</button>
-            </form>
+            </div>
         </>
     )
 }

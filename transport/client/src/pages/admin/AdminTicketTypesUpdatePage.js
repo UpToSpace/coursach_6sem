@@ -6,11 +6,13 @@ import { Loader } from '../../components/Loader';
 import { useNavigate } from "react-router-dom";
 import { AddTicketTypeForm } from '../../components/AddTicketTypeForm';
 import { options } from '../../components/arrays';
+import { useMessage } from '../../hooks/message.hook';
 
 export const AdminTicketTypesUpdatePage = () => {
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
     const params = useParams()
+    const message = useMessage()
     const navigate = useNavigate();
     const [newTicketType, setNewTicketType] = useState();
 
@@ -31,6 +33,14 @@ export const AdminTicketTypesUpdatePage = () => {
 
     const UpdateHandler = () => {
         try {
+            if (!(new RegExp(/^\d+\.?\d*$/).test(newTicketType.price)) || newTicketType.price === 0) {
+                message('Увядзіце карэктную цану');
+                return;
+            }
+            if (!newTicketType.price) {
+                message('Запоўніце ўсе палі');
+                return;
+            }
             const data = request(`/api/tickets/types/${params.id}`, 'PUT', {...newTicketType});
             console.log(data);
             navigate('/admin/tickets');
@@ -38,6 +48,6 @@ export const AdminTicketTypesUpdatePage = () => {
     }
 
     return (
-        newTicketType && AddTicketTypeForm({readOnly: true, onClickHandler: UpdateHandler, options, setNewTicketType, newTicketType, btnText: 'Изменить стоимость'})
+        newTicketType && <div className="container">{AddTicketTypeForm({readOnly: true, onClickHandler: UpdateHandler, options, setNewTicketType, newTicketType, btnText: 'Змяніць кошт'})}</div>
     )
 }

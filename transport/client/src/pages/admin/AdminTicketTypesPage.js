@@ -56,6 +56,14 @@ export const AdminTicketTypesPage = () => {
             message('Увядзіце карэктныя значэнні');
             return;
         }
+        if (+newTicketType.duration > 366) {
+            message("Колькасць сутак павінна быць ня больш за 366");
+            return;
+        }
+        if (+newTicketType.tripCount > 999) {
+            message("Колькасць паездак павінна быць ня больш за 999");
+            return;
+        }
         try {
             let ticketType;
             if (newTicketType.type === options.type[0]) { // Если тип проездного на определенное количество поездок

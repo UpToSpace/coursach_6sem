@@ -126,7 +126,7 @@ export const AdminSchedulePage = () => {
                                         <th>{item.stopId.name}</th>
                                         <td>
                                             <div style={{ width: "60px" }}>
-                                                <input placeholder="06:09" pattern="[0-2][0-9]:[0-5][0-9]" onChange={(e) => scheduleHandleChange(e, item)} type="text" className="validate" />
+                                                <input placeholder="06:09" pattern="[0-2][0-9]:[0-5][0-9]" maxLength={5} onChange={(e) => scheduleHandleChange(e, item)} type="text" className="validate" />
                                             </div>
                                         </td>
                                         {/* {console.log(schedule)}
@@ -147,7 +147,7 @@ export const AdminSchedulePage = () => {
                         }
                     </tbody>
                 </table>
-                <button onClick={AddScheduleHandler} className="waves-effect waves-light btn-small">Дадаць</button>\
+                <button onClick={AddScheduleHandler} className="waves-effect waves-light btn-small">Дадаць</button>
             </>
         )
     }
@@ -171,7 +171,7 @@ export const AdminSchedulePage = () => {
             </div>
             <div className="input-field col s12">
                 <label>Номер</label>
-                <input placeholder="" name="number" type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
+                <input placeholder="" name="number"  maxLength={5} type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
             </div>
             <button onClick={FindTransportHandler} className="waves-effect waves-light btn-small">Знайсцi</button>
             {schedule && scheduleTable(schedule)}

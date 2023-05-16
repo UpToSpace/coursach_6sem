@@ -77,6 +77,9 @@ export const AdminRoutesPage = () => {
                 }
             }
         } else {
+            if (routeStops.length === 18) {
+                return message("Вы можаце дадаць толькі 18 прыпынкаў")
+            }
             setRouteStops((prev) => [...prev, stop])
             if (routeStops.length > 0) {
                 fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${[...routeStops, stop].map((stop) => `${stop.longitude},${stop.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
@@ -117,7 +120,7 @@ export const AdminRoutesPage = () => {
                 </div>
                 <div className="input-field col s12">
                     <label>Нумар</label>
-                    <input placeholder="" name="number" type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
+                    <input placeholder="" name="number"  maxLength={5} type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
                 </div>
                 <button onClick={AddRouteHandler} className="waves-effect waves-light btn-small">Дадаць</button>
                 <button onClick={DeleteRouteHandler} className="waves-effect waves-light btn-small">Выдалiць</button>

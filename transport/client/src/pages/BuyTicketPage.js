@@ -7,6 +7,7 @@ import { groupBy, dateToString, stringToDate } from '../components/functions/fun
 import { DatePicker } from "react-materialize";
 import Confetti from 'react-confetti';
 import { options } from '../components/arrays';
+import { useMessage } from '../hooks/message.hook';
 
 const Step1 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket }) => {
     useEffect(() => {
@@ -48,7 +49,7 @@ const Step1 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
 }
 
 const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket }) => {
-
+    const message = useMessage()
     const [transportOptions, setTransportOptions] = useState(groupBy(allTicketTypes.filter(e => e.type ===
         ticketTypes[0].type), ticketType => ticketType.transport).keys)
     const [durationOptions, setDurationOptions] = useState(groupBy(allTicketTypes.filter(e => e.type ===
@@ -107,12 +108,16 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 break;
             }
             case "dateBegin": {
-                console.log(e.target.value)
+                //console.log(e.target.value)
+                if (e.target.value < new Date()) {
+                    message("hhh");
+                    setTicket(ticket => ({ ...ticket, dateBegin: date, dateEnd: dateEndValue }));
+                }
                 const date = e.target.value;
                 const dateEndValue = new Date(date);
                 dateEndValue.setDate(date.getDate() + +ticketTypes[0].duration);
-                console.log(date);
-                console.log(dateEndValue);      
+                //console.log(date);
+                //console.log(dateEndValue);      
                 setTicket(ticket => ({ ...ticket, dateBegin: date, dateEnd: dateEndValue }));
                 const dateEnd = document.getElementById('dateEnd');
                 dateEnd.value = dateToString(dateEndValue);
@@ -209,7 +214,8 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
             {ticket.ticketType.type === options.type[0] ? ticketForTrips() : ticketForDays()}
 
             <div className="input-field col s12 datepicker">
-                <DatePicker id="dateBegin" name="dateBegin" value={dateToString(ticket.dateBegin)} onChange={(newDate) => handleChange({
+                <DatePicker id="dateBegin" name="dateBegin" value={dateToString(ticket.dateBegin)} 
+                onChange={(newDate) => handleChange({
                     target: {
                         name: "dateBegin",
                         value: newDate

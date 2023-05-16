@@ -78,7 +78,7 @@ export const AuthPage = () => {
                             <div className="row">
                                 <div className="input-field col s12">
                                     <input
-                                        //placeholder='Введите email'
+                                        maxLength={30}
                                         id="email"
                                         type="email"
                                         name="email"
@@ -95,7 +95,7 @@ export const AuthPage = () => {
                             <div className="row">
                                 <div className="input-field col s12">
                                     <input
-                                        //placeholder='Введите пароль'
+                                        maxLength={12}
                                         id="password"
                                         type="password"
                                         name="password"
