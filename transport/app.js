@@ -12,7 +12,7 @@ const app = express();
 
 app.use(express.json({ extended: true }));
 app.use(cors());
-app.use(bodyParser.json()); 
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -26,6 +26,7 @@ app.use('/api/schedule', require('./routes/schedule.routes'));
 app.use('/api/user', require('./routes/user.routes'))
 
 const PORT = config.get('port') || 5000;
+const allClients = [];
 async function start() {
     try {
         await mongoose.connect(config.get('mongoUri'), {
@@ -47,16 +48,40 @@ async function start() {
         });
 
         io.on("connection", (socket) => {
-            console.log(`⚡: ${socket.id} user just connected!`);
+            //console.log(`⚡: ${socket.id} user just connected!`);
+            socket.on("subscribe", (data) => {
+                const userId = data.userId;
+                const existingUserIdIndex = allClients.findIndex(e => e.userId === userId);
+                if (existingUserIdIndex === -1) {
+                    allClients.push({ userId: userId, socketId: socket });
+                    console.log(`user ${userId} on socket ${socket.id} subscribed!`);
+                } else {
+                    allClients[existingUserIdIndex].socketId = socket;
+                    console.log(`user ${userId} on socket ${socket.id} subscribed!`);
+                }
+            });
+
             setInterval(async () => {
                 const tickets = await Ticket.find({
-                    dateEnd: { $lte: new Date() }, userNotificated: false}).populate('ticketType');
+                    dateEnd: { $lte: new Date() }, userNotificated: false
+                }).populate('ticketType');
+                //console.log(allClients)
                 if (tickets.length > 0) {
-                    socket.emit('message', JSON.stringify(tickets));
+                    tickets.forEach(ticket => {
+                        const client = allClients.find(e => e.userId === ticket.owner.valueOf())?.socketId;
+                        if (client) {
+                            client.emit('message', JSON.stringify(ticket));
+                        }
+                    })
                 }
-            }, 5000)
+            }, 10000)
+
             socket.on('disconnect', () => {
-                console.log('user disconnected');
+                const index = allClients.findIndex(e => e.socketId === socket.id);
+                if (index !== -1) {
+                    allClients.splice(index, 1);
+                }
+                console.log(`user ${socket.id} disconnected!`);
             })
         });
 
