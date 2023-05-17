@@ -22,7 +22,7 @@ router.get('/', auth, async (req, res) => {
 router.post('/', admin, async (req, res) => {
     try {
         const { name, latitude, longitude } = req.body;
-        console.log(name, latitude, longitude);
+        //console.log(name, latitude, longitude);
         const stop = new Stop({ name, latitude: +latitude, longitude: +longitude });
         await stop.save();
         res.status(201).json({ stop });

@@ -29,23 +29,23 @@ export const TicketPage = () => {
     }
 
     return (
-        ticket && <div>
+        ticket && <div className='container'>
             <div class="row">
                 <div class="col s12 m6">
                     <div class="card blue-grey darken-1">
                         <div class="card-content white-text">
                             <span class="card-title">Проездной</span>
-                            <p>Тип билета: {ticket.ticketType.type}</p>
-                            <p>Транспорт: {ticket.ticketType.transport}</p>
-                            {ticket.ticketType.tripCount !== -1 && <p>Количество поездок: {ticket.ticketType.tripCount}</p>}
-                            <p>Количество суток: {ticket.ticketType.duration}</p>
-                            <p>Стоимость: {ticket.ticketType.price}</p>
-                            <p>Дата начала: {moment(ticket.dateBegin).format('LLLL')}</p>
-                            <p>Дата окончания: {moment(ticket.dateEnd).format('LLLL')}</p>
+                            <p>Тып білета: {ticket.ticketType.type}</p>
+                            <p>Транспарт: {ticket.ticketType.transport}</p>
+                            {ticket.ticketType.tripCount !== -1 && <p>Колькасць паездак: {ticket.ticketType.tripCount}</p>}
+                            <p>Колькасць сутак: {ticket.ticketType.duration}</p>
+                            <p>Цана: {ticket.ticketType.price}</p>
+                            <p>Дата пачатку: {moment(ticket.dateBegin).format('LLLL')}</p>
+                            <p>Дата заканчэння: {moment(ticket.dateEnd).format('LLLL')}</p>
                         </div>
                         <div class="card-action">
                             <a href="/tickets">Назад</a>
-                            <a href="/">На главную</a>
+                            <a href="/">На галоўную</a>
                         </div>
                     </div>
                 </div>

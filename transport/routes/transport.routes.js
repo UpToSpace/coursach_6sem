@@ -18,7 +18,7 @@ router.get('/', auth, async (req, res) => {
             });
             res.json(transports);
         } else {
-            console.log(req.query.type, req.query.number)
+            //console.log(req.query.type, req.query.number)
             const transport = await Transport.findOne({ type: req.query.type, number: req.query.number });
             res.json(transport);
         }

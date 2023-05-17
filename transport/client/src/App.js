@@ -37,12 +37,13 @@ function App() {
           messageText = "Бiлет на " + receivedTicket.ticketType.transport + " на " + receivedTicket.ticketType.duration + " сутак скончыўся";
         }
 
-        if (!confirmationNeeded && window.confirm(messageText)) {
+        if (!confirmationNeeded) {
           confirmationNeeded = true;
+          message(messageText)
         }
 
         if (confirmationNeeded) {
-          request('/api/tickets', 'PUT', receivedTicket);
+          (async () => await request('/api/tickets', 'PUT', receivedTicket))();
         }
       })
     }

@@ -31,8 +31,7 @@ async function start() {
     try {
         await mongoose.connect(config.get('mongoUri'), {
             useNewUrlParser: true,
-            useUnifiedTopology: true,
-            //useCreateIndex: true
+            useUnifiedTopology: true
         });
         const httpsServer = https.createServer(
             {
@@ -54,10 +53,10 @@ async function start() {
                 const existingUserIdIndex = allClients.findIndex(e => e.userId === userId);
                 if (existingUserIdIndex === -1) {
                     allClients.push({ userId: userId, socketId: socket });
-                    console.log(`user ${userId} on socket ${socket.id} subscribed!`);
+                    //console.log(`user ${userId} on socket ${socket.id} subscribed!`);
                 } else {
                     allClients[existingUserIdIndex].socketId = socket;
-                    console.log(`user ${userId} on socket ${socket.id} subscribed!`);
+                    //console.log(`user ${userId} on socket ${socket.id} subscribed!`);
                 }
             });
 
@@ -81,7 +80,7 @@ async function start() {
                 if (index !== -1) {
                     allClients.splice(index, 1);
                 }
-                console.log(`user ${socket.id} disconnected!`);
+                //console.log(`user ${socket.id} disconnected!`);
             })
         });
 

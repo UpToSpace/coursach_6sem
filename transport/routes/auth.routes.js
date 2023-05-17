@@ -94,11 +94,11 @@ router.post('/refresh', async (req, res) => {
             return res.status(401).json({ message: '' });
         }
         const userData = jwt.verify(refreshToken, config.get('jwtRefreshSecret'));
-        console.log(userData)
+        //console.log(userData)
         const userFromDb = await User.findOne({ refreshToken });
         const users = await User.find({});
         if (!userData || !userFromDb) {
-            console.log('refresh' + userData + userFromDb)
+            //console.log('refresh' + userData + userFromDb)
             return res.status(401).json({ message: 'Карыстальнiк не аўтыразаваны' });
         }
         const tokens = TokenService.generateTokens({ id: userFromDb._id });

@@ -34,7 +34,7 @@ router.get('/', auth, async (req, res) => {
 router.post('/', admin, async (req, res) => {
     try {
         const { stops, transport } = req.body;
-        console.log(req.body);
+        //console.log(req.body);
         // console.log(transport);
         const routeStops = [];
         for (let i = 0; i < stops.length; i++) {

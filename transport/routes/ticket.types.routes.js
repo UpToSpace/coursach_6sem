@@ -44,11 +44,11 @@ router.put('/:id', admin, async (req, res) => {
     try {
         const { duration, tripCount, price } = req.body;
         const ticketType = await TicketType.findById(req.params.id);
-        console.log(ticketType);
+        //console.log(ticketType);
         ticketType.duration = duration;
         ticketType.tripCount = tripCount;
         ticketType.price = price;
-        console.log(ticketType);
+        //console.log(ticketType);
         await ticketType.save();
         res.json({ ticketType });
     } catch (e) {

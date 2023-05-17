@@ -75,7 +75,7 @@ export const MapPage = () => {
         console.log(schedule)
         return (
             <>
-                <table>
+                <table className="highlight">
                     <tbody>
                         {
                             routeStops && routeStops.sort(e => e.stopOrder).map((item, index) => {

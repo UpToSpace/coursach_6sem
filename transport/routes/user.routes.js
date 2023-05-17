@@ -41,7 +41,7 @@ router.post('/', auth,
         const decoded = jwt.verify(token, config.get('jwtAccessSecret'));
         const user = await User.findOne({_id: decoded.id})
         const isMatch = await bcrypt.compare(oldPassword, user.password);
-        console.log(isMatch)
+        //console.log(isMatch)
         if (!isMatch) {
             return res.status(400).json({ message: 'Няправiльны пароль, паспрабуйце зноў' });
         }

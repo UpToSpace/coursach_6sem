@@ -53,7 +53,7 @@ export const CustomPopup = ({ stop, closePopup, deleteButtonHandler }) => {
             offsetTop={-30}
         >
             {stop.name}
-            {deleteButtonHandler && <div><button onClick={() => deleteButtonHandler(stop._id)}>Delete</button></div>}
+            {deleteButtonHandler && <div><button onClick={() => deleteButtonHandler(stop._id)}>Выдаліць</button></div>}
         </Popup>
     )
 };

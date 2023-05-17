@@ -8,16 +8,10 @@ export const AuthPage = () => {
     const auth = useContext(AuthContext);
     const navigate = useNavigate();
     const message = useMessage();
-    const { loading, error, request, clearError, errors } = useHttp();
+    const { loading, request } = useHttp();
     const [form, setForm] = useState({
         email: '', password: ''
     });
-
-    useEffect(() => {
-        //console.log('Error', error);
-        message(error);
-        clearError();
-    }, [error, message, clearError]);
 
     const changeHandler = event => {
         setForm({ ...form, [event.target.name]: event.target.value })
@@ -25,7 +19,7 @@ export const AuthPage = () => {
 
     const checkFields = (email, password) => {
         if (email === '' || password === '') {
-            message('Заполнiце пустыя палi');
+            message('Запоўнiце пустыя палi');
             return false;
         }
         if (RegExp(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/).test(email) === false) {

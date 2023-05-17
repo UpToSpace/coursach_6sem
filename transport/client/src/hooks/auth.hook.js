@@ -32,6 +32,7 @@ export const useAuth = () => {
             setUserRole(data.role); 
         } catch (e) {
             console.log('auth.hook.js: getUserRole: e.message = ', e.message)
+            setUserRole(null)
         }
     }, [userRole, userId]);
 

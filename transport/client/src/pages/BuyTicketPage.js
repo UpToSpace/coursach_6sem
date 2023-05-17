@@ -113,6 +113,7 @@ const Step2 = ({ setTicketTypes, ticketTypes, allTicketTypes, ticket, setTicket 
                 if (e.target.value < new Date()) {
                     message("Вы ня можаце набыць білет на мінулую дату");
                     date = new Date();
+                    date.setHours(0, 0, 0, 0);
                 } else {
                     date = e.target.value;
                 }
