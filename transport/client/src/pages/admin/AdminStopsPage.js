@@ -30,7 +30,7 @@ export const AdminStopsPage = () => {
         longitude: CENTER[0],
         zoom: ZOOM
     });
-    const navigate = useNavigate();
+    const [addStopHandler, setAddStopHandler] = useState(false);
     const [stop, setStop] = useState({
         name: '',
         latitude: '',
@@ -40,7 +40,7 @@ export const AdminStopsPage = () => {
     const getStops = useCallback(async () => {
         const data = await request('/api/stops', 'GET', null);
         setStops(data);
-        console.log(data);
+        //console.log(data);
     }, [auth.token, request])
 
     useEffect(() => {
@@ -74,21 +74,26 @@ export const AdminStopsPage = () => {
     };
 
     const AddStopHandler = async () => {
-        if (!stop.name || !stop.latitude || !stop.longitude) {
-            return message('Запоўнiце ўсе палi');
+        setAddStopHandler(true);
+        if (addStopHandler) {
+            if (!stop.name || !stop.latitude || !stop.longitude) {
+                return message('Запоўнiце ўсе палi');
+            }
+            if (stop.name.length < 3) {
+                return message('Назва прыпынка павiнна быць больш за 3 сiмвалы');
+            }
+            try {
+                const { name, latitude, longitude } = stop;
+                console.log(name, latitude, longitude);
+                const data = await request('/api/stops', 'POST', { name, latitude, longitude });
+                message('Прыпынак паспяхова дададзены ' + name);
+                await getStops();
+                setStop({ name: '', latitude: '', longitude: '' });
+                //navigate('/admin');
+            } catch (e) { }
+        } else {
+            message('Выбярыце месцазнаходжанне прыпынка');
         }
-        if (stop.name.length < 3) {
-            return message('Назва прыпынка павiнна быць больш за 3 сiмвалы');
-        }
-        try {
-            const { name, latitude, longitude } = stop;
-            console.log(name, latitude, longitude);
-            const data = await request('/api/stops', 'POST', { name, latitude, longitude });
-            message('Прыпынак паспяхова дададзены ' + name);
-            await getStops();
-            setStop({ name: '', latitude: '', longitude: '' });
-            //navigate('/admin');
-        } catch (e) { }
     }
 
     const FindStopHandler = async () => {
@@ -97,7 +102,8 @@ export const AdminStopsPage = () => {
         }
         try {
             const foundStops = stops.filter(e => e.name.toLowerCase().includes(stop.name.toLowerCase()));
-            if (!foundStops) {
+            if (foundStops.length === 0) {
+                setFoundStops(null);
                 return message('Прыпынкi не знойдзены');
             }
             console.log(stops)
@@ -108,6 +114,11 @@ export const AdminStopsPage = () => {
 
     const ClearButtonHandler = async () => {
         setFoundStops(null);
+        setStop({ name: '', latitude: '', longitude: '' });
+    }
+
+    const HideButtonHandler = () => {
+        setAddStopHandler(!addStopHandler);
         setStop({ name: '', latitude: '', longitude: '' });
     }
 
@@ -125,6 +136,7 @@ export const AdminStopsPage = () => {
                     <button onClick={AddStopHandler} className="waves-effect waves-light btn-large">Дадаць</button>
                     <button onClick={FindStopHandler} className="waves-effect waves-light btn-large">Знайсцi</button>
                     <button onClick={ClearButtonHandler} className="waves-effect waves-light btn-large">Ачысцiць</button>
+                    {addStopHandler && <button onClick={HideButtonHandler} className="waves-effect waves-light btn-large">Схаваць</button>}
                 </div>
             </div>
         )
@@ -140,10 +152,10 @@ export const AdminStopsPage = () => {
             {stops &&
                 <div>
                     <div className="line">
-                        <ReactMapGL
+                        <ReactMapGL // a map component
                             {...viewState}
                             onMove={event => setViewState(event.viewState)}
-                            onClick={MapClickHandler}
+                            onClick={addStopHandler && MapClickHandler}
                             style={{ width: "100%", height: 600 }}
                             mapboxAccessToken={MAP_TOKEN}
                             mapStyle="mapbox://styles/mapbox/streets-v9"
@@ -155,12 +167,13 @@ export const AdminStopsPage = () => {
                                 trackUserLocation={true}
                                 auto={false}
                             />
-                            stops && {stops.map(stop => {
+                            {stops.map(stop => {
                                 return (
                                     <CustomMarker
                                         key={stop._id}
                                         stop={stop}
                                         openPopup={openPopup}
+                                        height={viewState.zoom + "px"}
                                     />
                                 )
                             })}
@@ -171,22 +184,25 @@ export const AdminStopsPage = () => {
                                     deleteButtonHandler={deleteButtonHandler}
                                 />}
                             {foundStops && foundStops.map(foundStop => {
-                                    return (<CustomMarker
-                                        key={foundStop._id}
-                                        stop={foundStop}
-                                        openPopup={openPopup}
-                                        icon={flagIcon}
-                                        height={ZOOM * 2 + "px"}
-                                    />)
-                                })}
+                                return (<CustomMarker
+                                    key={foundStop._id}
+                                    stop={foundStop}
+                                    openPopup={openPopup}
+                                    icon={flagIcon}
+                                    height={ZOOM * 2 + "px"}
+                                />)
+                            })}
                             {stop && (
-                                <Source id="track" type="geojson" data={{
-                                    type: 'Feature',
-                                    geometry: {
-                                        type: 'Point',
-                                        coordinates: [stop.longitude, stop.latitude]
-                                    }
-                                }}>
+                                <Source
+                                    id="track"
+                                    type="geojson"
+                                    data={{
+                                        type: 'Feature',
+                                        geometry: {
+                                            type: 'Point',
+                                            coordinates: [stop.longitude, stop.latitude]
+                                        }
+                                    }}>
                                     <Layer {...POINT_LAYER} />
                                 </Source>
                             )}
