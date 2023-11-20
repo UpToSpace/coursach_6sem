@@ -60,6 +60,8 @@ router.post('/', admin, async (req, res) => {
     }
 });
 
+// TODO: /api/schedule - update
+
 // /api/schedule
 router.delete('/', admin, async (req, res) => {
     try {

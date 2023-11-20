@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Marker, Popup } from 'react-map-gl';
 import busIcon from "../styles/images/bus-icon.svg"
+import c from 'config';
 
-export const MAP_TOKEN = "pk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2RwNHJ3MTAwdXUzc256bHMwc2dpOWwifQ.v4F89QHCuyottjdKLOFfKg";
+export const MAP_TOKEN = "pk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNscDNvem45aDE2N2Iya3Jwazgxc3NteWUifQ.xvM2I6pvFQKJXwghFCGAVA";
 export const SECRET_TOKEN = "sk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2tsaWVpMTBkdzQzZHFxOW53M2hoanAifQ.v_wnapRnZGiB1Xof48SmPw"
 export const CENTER = [27.567444, 53.893009];
 export const ZOOM = 11;
@@ -63,7 +64,7 @@ export const CustomMarker = ({ stop, openPopup, icon, height }) => {
         <Marker
             longitude={stop.longitude}
             latitude={stop.latitude}>
-            <div className="marker" onClick={() => openPopup(stop)}>
+            <div className="marker" onClick={() => openPopup ?? openPopup(stop)}>
                 <img src={icon ?? busIcon} alt="marker" height={height ?? ZOOM + "px"} />
             </div>
         </Marker>

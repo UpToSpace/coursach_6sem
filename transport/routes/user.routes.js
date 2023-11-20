@@ -1,11 +1,9 @@
 const {Router} = require('express');
 const config = require('config');
 const User = require('../models/User');
-const Ticket = require('../models/Ticket');
 const router = Router();
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken")
-const { check, validationResult } = require('express-validator');
 const auth = require('../middleware/auth.middleware');
 const admin = require('../middleware/admin.middleware');
 
@@ -19,7 +17,7 @@ router.get('/', auth, async (req, res) => {
     } catch (e) {
         console.log(e)
         res.status(500).json({ message: 'Что-то пошло не так' });
-    }
+    } 
 });
 
 // /api/user/all

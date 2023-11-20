@@ -8,10 +8,8 @@ import { AuthContext } from "./context/AuthContext";
 import { Loader } from "./components/Loader";
 import { useHttp } from "./hooks/http.hook";
 import { options } from "./components/arrays";
-import io from "socket.io-client";
 import { useMessage } from "./hooks/message.hook";
 
-const socket = io.connect("https://localhost:5000");
 
 function App() {
   const { login, logout, userId, ready, userRole } = useAuth();
@@ -21,33 +19,6 @@ function App() {
   // console.log('App.js: userRole = ', userRole)
 
   const routes = useRoutes(userRole);
-
-  useEffect(() => {
-    if (userId !== undefined && userId !== null) {
-      socket.emit("subscribe", { userId: userId });
-      socket.on("message", (receivedMessage) => {
-        const receivedTicket = JSON.parse(receivedMessage);
-        console.log('received message ' + receivedTicket)
-        var messageText;
-        var confirmationNeeded = false;
-
-        if (receivedTicket.ticketType.type === options.type[0]) {
-          messageText = "Бiлет на " + receivedTicket.ticketType.transport + " на " + receivedTicket.ticketType.tripCount + " колькасць паездак скончыўся";
-        } else {
-          messageText = "Бiлет на " + receivedTicket.ticketType.transport + " на " + receivedTicket.ticketType.duration + " сутак скончыўся";
-        }
-
-        if (!confirmationNeeded) {
-          confirmationNeeded = true;
-          message(messageText)
-        }
-
-        if (confirmationNeeded) {
-          (async () => await request('/api/tickets', 'PUT', receivedTicket))();
-        }
-      })
-    }
-  }, [request, userId, socket]);
 
   if (!ready || userRole === undefined) {
     return <Loader />

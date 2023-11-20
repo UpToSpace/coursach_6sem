@@ -67,6 +67,7 @@ export const AdminStopsPage = () => {
 
     const openPopup = (stop) => {
         setSelectedStop(stop)
+        console.log(stop);
     }
 
     const OnChangeHandler = (event) => {
@@ -144,6 +145,7 @@ export const AdminStopsPage = () => {
 
     const MapClickHandler = (event) => {
         setStop({ ...stop, latitude: event.lngLat.lat, longitude: event.lngLat.lng });
+        console.log(stop);
     }
 
     return (
@@ -189,7 +191,7 @@ export const AdminStopsPage = () => {
                                     stop={foundStop}
                                     openPopup={openPopup}
                                     icon={flagIcon}
-                                    height={ZOOM * 2 + "px"}
+                                    height={viewState.zoom * 2 + "px"}
                                 />)
                             })}
                             {stop && (

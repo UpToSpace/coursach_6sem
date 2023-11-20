@@ -3,6 +3,7 @@ import { useHttp } from '../../hooks/http.hook';
 import { useMessage } from '../../hooks/message.hook';
 import { AuthContext } from '../../context/AuthContext';
 import { Loader } from '../../components/Loader';
+import flagIcon from "../../styles/images/flag.svg"
 import Map, { Marker, Popup, Source } from 'react-map-gl';
 import ReactMapGL, {
     FullscreenControl,
@@ -36,6 +37,7 @@ export const AdminRoutesPage = () => {
         zoom: ZOOM
     });
     const [selectOnFocus, setSelectOnFocus] = useState(false)
+    const [addRouteHandler, setAddRouteHandler] = useState(false);
 
     const getStops = useCallback(async () => {
         const data = await request('/api/stops');
@@ -120,11 +122,12 @@ export const AdminRoutesPage = () => {
                 </div>
                 <div className="input-field col s12">
                     <label>Нумар</label>
-                    <input placeholder="" name="number"  maxLength={5} type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
+                    <input placeholder="" name="number" maxLength={5} type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
                 </div>
-                <button onClick={AddRouteHandler} className="waves-effect waves-light btn-small">Дадаць</button>
+                <button onClick={AddRouteHandler} className="waves-effect waves-light btn-small">Дадаць маршрут</button>
                 <button onClick={DeleteRouteHandler} className="waves-effect waves-light btn-small">Выдалiць</button>
                 <button onClick={ShowRouteHandler} className="waves-effect waves-light btn-small">Паглядзець</button>
+                {addRouteHandler && <button onClick={() => setAddRouteHandler(false)} className="waves-effect waves-light btn-small">Адмянiць</button>}
             </div>
         )
     }
@@ -152,6 +155,7 @@ export const AdminRoutesPage = () => {
                 return
             }
             const routeStops = await request(`/api/routes?type=${transport.transportType}&number=${transport.number}`);
+            console.log(routeStops)
             if (!routeStops) {
                 message('Маршрут не знойдзены')
                 setRoutes([])
@@ -191,37 +195,41 @@ export const AdminRoutesPage = () => {
     }
 
     const AddRouteHandler = async () => {
-        try {
-            //console.log({ stops: routeStops, transport: transport })
-            if (!CheckForm()) {
-                return
-            }
-            if (routeStops.length < 2) {
-                return message('Маршрут не можа быць менш за 2 прыпынка')
-            }
-            var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
-            if (transportFromDB) {
-                if (window.confirm('Маршрут для транспарту з такiм нумарам ужо створан. Жадаеце змянiць яго?')) {
-                    const data = await request(`/api/routes`, 'PUT', { transport: transportFromDB })
-                    console.log(data);
-                } else {
-                    return;
+        if (addRouteHandler) {
+            try {
+                //console.log({ stops: routeStops, transport: transport })
+                if (!CheckForm()) {
+                    return
                 }
-            } else {
-                const data = await request(`/api/transports`, 'POST', { transport: transport });
-                transportFromDB = data.transport;
-            }
-            console.log(transportFromDB)
-            const data = await request('/api/routes', 'POST', { stops: routeStops, transport: transportFromDB });
-            console.log(data);
-            message('Маршрут добавлен')
-            setRouteStops([]);
-            setRoutes([]);
-            setTransport({
-                transportType: null,
-                number: null
-            })
-        } catch (e) { }
+                if (routeStops.length < 2) {
+                    return message('Маршрут не можа быць менш за 2 прыпынка')
+                }
+                var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
+                if (transportFromDB) {
+                    if (window.confirm('Маршрут для транспарту з такiм нумарам ужо створан. Жадаеце змянiць яго?')) {
+                        const data = await request(`/api/routes`, 'PUT', { transport: transportFromDB })
+                        console.log(data);
+                    } else {
+                        return;
+                    }
+                } else {
+                    const data = await request(`/api/transports`, 'POST', { transport: transport });
+                    transportFromDB = data.transport;
+                }
+                console.log(transportFromDB)
+                const data = await request('/api/routes', 'POST', { stops: routeStops, transport: transportFromDB });
+                console.log(data);
+                message('Маршрут добавлен')
+                setRouteStops([]);
+                setRoutes([]);
+                setTransport({
+                    transportType: null,
+                    number: null
+                })
+            } catch (e) { }
+        } else {
+            setAddRouteHandler(true)
+        }
     }
 
     return (
@@ -255,7 +263,15 @@ export const AdminRoutesPage = () => {
                         stop={selectedStop}
                         closePopup={closePopup}
                     />}
-
+                {/* {routeStops && routeStops.map(newRouteStop => {
+                    return (<CustomMarker
+                        key={newRouteStop.stopId._id}
+                        stop={newRouteStop.stopId}
+                        openPopup={null}
+                        icon={flagIcon}
+                        height={viewState.zoom * 2 + "px"}
+                    />)
+                })} */}
                 {routes && (
                     <Source id="track" type="geojson" data={{
                         type: 'Feature',
