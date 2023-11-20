@@ -1,7 +1,7 @@
 {
     "port": 5000,
     "wsport": 5001,
-    "mongoUri": "mongodb+srv://valerie:Vv1542139@cluster0.tqrbojf.mongodb.net/?retryWrites=true&w=majority",
+    "mongoUri": "mongodb://localhost:27017",
     "jwtAccessSecret": "transport secret",
     "jwtRefreshSecret": "transport refresh secret",
     "baseUrl": "https://localhost:5000",

@@ -1,7 +1,6 @@
 const {Router} = require('express');
 const config = require('config');
 const User = require('../models/User');
-const Ticket = require('../models/Ticket');
 const router = Router();
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken")
@@ -66,7 +65,6 @@ router.delete('/:id', admin, async (req, res) => {
             return res.status(400).json({ message: 'Нельга выдалiць самога сябе' });
         }
         await User.deleteOne({_id: id})
-        await Ticket.deleteMany({owner: id})
         res.json({ message: "Карыстальнiк выдален"});
     } catch (e) {
         console.log(e)

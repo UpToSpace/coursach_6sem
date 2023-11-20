@@ -19,13 +19,11 @@ export const Navbar = () => {
                             <li><a href="/admin/stops">Прыпынкi</a></li>
                             <li><a href="/admin/routes">Маршруты</a></li>
                             <li><a href="/admin/schedule">Расклад</a></li>
-                            <li><a href="/admin/tickets">Бiлеты</a></li>
                             <li><a href="/account">Акаунт</a></li>
                         </ul>
                         : userRole === roles[1] ? // user
                             <ul id="nav-mobile" className="right hide-on-med-and-down">
                                 <li><a href="/map">Расклад</a></li>
-                                <li><a href="/tickets">Бiлеты</a></li>
                                 <li><a href="/account">Акаунт</a></li>
                             </ul>
                             : null}
