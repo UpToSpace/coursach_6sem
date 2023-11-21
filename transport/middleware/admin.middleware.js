@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const User = require('../models/User');
-const { asyncMiddleware } = require('middleware-async');
 
 module.exports = (req, res, next) => {
     if (req.method === 'OPTIONS') {
@@ -15,6 +14,7 @@ module.exports = (req, res, next) => {
             return res.status(401).json({ message: 'Карыстальнiк не аўтыразаваны' });
         }
         const decoded = jwt.verify(token, config.get('jwtAccessSecret'));
+        //console.log(decoded)
         if (decoded.role !== 'admin') {
             return res.status(403).json({ message: 'Няма доступу' });
         }

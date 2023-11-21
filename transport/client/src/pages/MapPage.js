@@ -14,6 +14,7 @@ import {
     ROUTE_LAYER, CENTER, ZOOM
 } from '../components/MapComponents';
 import { TransportTable } from '../components/TransportTable';
+import { SelectedStopInfo } from '../components/SelectedStopInfo';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
@@ -145,6 +146,10 @@ export const MapPage = () => {
                         </Source>
                     )}
                 </ReactMapGL>
+                {selectedStop !== null &&
+                    <SelectedStopInfo
+                        stop={selectedStop}
+                    />}
                 {transports && TransportTable({
                     transports, selectedTransportType, setSelectedTransportType, setSelectedTransport,
                     setRoutes, getSchedule, setRouteStops, setSchedule

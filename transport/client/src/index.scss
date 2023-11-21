@@ -130,3 +130,32 @@ h5 {
 .schedule {
     margin-bottom: 500px; // TODO 
 }
+
+.selectedstopinfo {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 20px;
+    text-align: right;
+
+    .stop-name {
+        color: #333;
+    }
+
+    .transport-buttons {
+        margin-top: 10px;
+
+        .transport-button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #45a049;
+            }
+        }
+    }
+}

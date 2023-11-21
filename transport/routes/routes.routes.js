@@ -30,6 +30,8 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
+// /api/routes
+
 //api/routes
 router.post('/', admin, async (req, res) => {
     try {

@@ -24,6 +24,8 @@ export const useHttp = () => {
             });
             const data = await response.json();
 
+            //console.log(data);
+
             if (!response.ok) {
                 if (response.status === 401 && data.message === 'jwt expired') {
                     const dataRefresh = await request('/api/auth/refresh', 'POST', null);

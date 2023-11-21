@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const config = require('config');
 const Transport = require('../models/Transport');
+const RouteStop = require('../models/RouteStop');
 const auth = require('../middleware/auth.middleware');
 const admin = require('../middleware/admin.middleware');
 const router = Router();
@@ -25,6 +26,18 @@ router.get('/', auth, async (req, res) => {
     } catch (e) {
         console.log(e);
         res.status(500).json({ message: 'Что-то пошло не так /api/transport, попробуйте снова' });
+    }
+});
+
+// /api/transports/:stopId
+router.get('/:stopId', auth, async (req, res) => {
+    try {
+        const StopRouteStops = await RouteStop.find({ stopId: req.params.stopId });
+        const transports = await Transport.find({routeStops: { $in: StopRouteStops.map((item) => item._id) }});
+        res.json(transports);
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: 'Что-то пошло не так /api/transport/:id, попробуйте снова' });
     }
 });
 

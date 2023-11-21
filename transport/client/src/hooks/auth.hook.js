@@ -27,7 +27,7 @@ export const useAuth = () => {
     const getUserRole = useCallback(async (token) => {
         try {
             const data = await request('/api/auth/userrole');
-            //console.log('auth.hook.js: getUserRole: data.id = ', data.id)
+            //console.log('auth.hook.js: getUserRole: data.role = ', data.role)
             setUserId(data.id);
             setUserRole(data.role); 
         } catch (e) {
