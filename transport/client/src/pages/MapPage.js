@@ -133,7 +133,7 @@ export const MapPage = () => {
                         trackUserLocation={true}
                         auto={false}
                     />
-                    stops && {stops.map(stop => {
+                    {stops.map(stop => {
                         return (
                             <CustomMarker
                                 key={stop._id}
@@ -148,7 +148,7 @@ export const MapPage = () => {
                             closePopup={closePopup}
                         />}
 
-                    {routes && (
+                    {(routes || selectedStop !== null) && (
                         <Source id="track" type="geojson" data={{
                             type: 'Feature',
                             geometry: {
@@ -170,8 +170,8 @@ export const MapPage = () => {
                     setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop
                 })}
             </div>
-            {routeStops && <h5>Расклад</h5>}
-            {routeStops && ScheduleTable()}
+            {(routeStops || selectedStop !== null) && <h5>Расклад</h5>}
+            {(routeStops || selectedStop !== null) && ScheduleTable()}
         </div >
     )
 }
