@@ -3,6 +3,7 @@ import { useHttp } from '../hooks/http.hook';
 import { AuthContext } from '../context/AuthContext';
 import { Loader } from '../components/Loader';
 import Map, { Marker, Popup, Source } from 'react-map-gl';
+import flagIcon from "../styles/images/flag.svg"
 import ReactMapGL, {
     FullscreenControl,
     GeolocateControl,
@@ -15,10 +16,12 @@ import {
 } from '../components/MapComponents';
 import { TransportTable } from '../components/TransportTable';
 import { SelectedStopInfo } from '../components/SelectedStopInfo';
+import { useMessage } from '../hooks/message.hook';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
+    const message = useMessage();
     const [stops, setStops] = useState();
     const [routes, setRoutes] = useState(); // routes for selected transport
     const [selectedStop, setSelectedStop] = useState(null);
@@ -32,6 +35,13 @@ export const MapPage = () => {
     const [selectedTransport, setSelectedTransport] = useState(null);
     const [schedule, setSchedule] = useState([]);
     const [routeStops, setRouteStops] = useState();
+    const [stop, setStop] = useState({
+        name: '',
+        latitude: '',
+        longitude: ''
+    });
+    const [addStopHandler, setAddStopHandler] = useState(false);
+    const [foundStops, setFoundStops] = useState(null);
 
     const getTransports = useCallback(async () => {
         const data = await request('/api/transports', 'GET', null);
@@ -71,6 +81,20 @@ export const MapPage = () => {
         setSelectedStop(stop)
     }
 
+    const OnChangeHandler = (event) => {
+        setStop({ ...stop, [event.target.name]: event.target.value });
+    };
+
+    const ClearButtonHandler = async () => {
+        setFoundStops(null);
+        setStop({ name: '', latitude: '', longitude: '' });
+    }
+
+    const HideButtonHandler = () => {
+        setAddStopHandler(!addStopHandler);
+        setStop({ name: '', latitude: '', longitude: '' });
+    }
+
     const showTransportRoute = async (transport, stop) => {
         setSelectedTransport(transport)
         console.log(transport)
@@ -83,6 +107,41 @@ export const MapPage = () => {
             .catch((error) => console.error(error));
         await getSchedule(transport)
         setSelectedStop(stop)
+    }
+
+    const AddStopForm = () => {
+        return (
+            <div className="col s12 container">
+                <div className="row">
+                    <div className="input-field col s6">
+                        <label>
+                            Назва прыпынка:</label>
+                        <input type="text" className="validate" maxLength={30} name="name" value={stop.name} onChange={OnChangeHandler} />
+                    </div>
+                </div>
+                <div className="row">
+                    <button onClick={FindStopHandler} className="waves-effect waves-light btn-large">Знайсцi</button>
+                    <button onClick={ClearButtonHandler} className="waves-effect waves-light btn-large">Ачысцiць</button>
+                    {addStopHandler && <button onClick={HideButtonHandler} className="waves-effect waves-light btn-large">Схаваць</button>}
+                </div>
+            </div>
+        )
+    }
+
+    const FindStopHandler = async () => {
+        if (!stop.name) {
+            return message('Запоўнiце назву прыпынка');
+        }
+        try {
+            const foundStops = stops.filter(e => e.name.toLowerCase().includes(stop.name.toLowerCase()));
+            if (foundStops.length === 0) {
+                setFoundStops(null);
+                return message('Прыпынкi не знойдзены');
+            }
+            console.log(stops)
+            console.log(foundStops)
+            setFoundStops(foundStops);
+        } catch (e) { }
     }
 
     const ScheduleTable = () => {
@@ -118,6 +177,7 @@ export const MapPage = () => {
     return (
         stops &&
         <div className="schedule">
+            {AddStopForm()}
             <div className="line">
                 <ReactMapGL
                     {...viewState}
@@ -133,6 +193,15 @@ export const MapPage = () => {
                         trackUserLocation={true}
                         auto={false}
                     />
+                    {foundStops && foundStops.map(foundStop => {
+                        return (<CustomMarker
+                            key={foundStop._id}
+                            stop={foundStop}
+                            openPopup={openPopup}
+                            icon={flagIcon}
+                            height={ZOOM * 2 + "px"}
+                        />)
+                    })}
                     {stops.map(stop => {
                         return (
                             <CustomMarker
