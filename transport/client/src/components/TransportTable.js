@@ -13,12 +13,12 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
     }
 
     return (
-        <div className="row" style={{"width": "45%"}}>
+        <div className="row">
             <div className="col s10">
                 <ul className="tabs">
                     {transportTypes.map((type, index) => {
                         return (
-                            <li key={index} className={selectedTransportType === type ? "tab col s3 selected" : "tab col s3"}>
+                            <li key={index} className={selectedTransportType === type ? "tab col s4 selected" : "tab col s4"}>
                                 <a onClick={(e) => tabHandleClick(type)}>{type}</a></li>
                         )
                     })
@@ -26,7 +26,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                 </ul>
             </div>
             {selectedTransportType &&
-                <table>
+                <table className='transport-table'>
                     <thead>
                         <tr>
                             <th>Нумар</th>
@@ -43,7 +43,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                                 <td>{transport.number}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[0].stopId.name}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
-                                <td><button className="btn waves-effect waves-light" onClick={() => showTransportRoute(transport, selectedStop)}>Паглядзець маршрут</button></td>
+                                <td><button className="btn-small waves-effect waves-light" onClick={() => showTransportRoute(transport, selectedStop)}>Паглядзець маршрут</button></td>
                             </tr>
                         })}
                     </tbody>
