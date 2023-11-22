@@ -122,7 +122,7 @@ export const MapPage = () => {
                 <ReactMapGL
                     {...viewState}
                     onMove={event => setViewState(event.viewState)}
-                    style={{ width: "50%", height: 600 }}
+                    style={{ width: "55%", height: 500 }}
                     mapboxAccessToken={MAP_TOKEN}
                     mapStyle="mapbox://styles/mapbox/streets-v9"
                 >
@@ -170,8 +170,8 @@ export const MapPage = () => {
                     setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop
                 })}
             </div>
-            {(routeStops || selectedStop !== null) && <h5>Расклад</h5>}
-            {(routeStops || selectedStop !== null) && ScheduleTable()}
+            {routeStops && <h5>Расклад</h5>}
+            {routeStops && ScheduleTable()}
         </div >
     )
 }

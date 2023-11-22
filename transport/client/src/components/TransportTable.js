@@ -13,7 +13,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
     }
 
     return (
-        <div className="row" style={{"width": "50%"}}>
+        <div className="row" style={{"width": "45%"}}>
             <div className="col s10">
                 <ul className="tabs">
                     {transportTypes.map((type, index) => {
