@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useHttp } from '../hooks/http.hook';
 
-export const SelectedStopInfo = ({ stop }) => {
+export const SelectedStopInfo = ({ stop, showTransportRoute }) => {
     const { loading, request } = useHttp();
     const [transportList, setTransportList] = useState([]);
 
@@ -26,7 +26,7 @@ export const SelectedStopInfo = ({ stop }) => {
             <h5 className="stop-name">{stop.name}</h5>
             <div className="transport-buttons">
                 {transportList.map((transport, index) => (
-                    <button key={index} className="transport-button">
+                    <button key={index} className="transport-button" onClick={() => showTransportRoute(transport, stop)}>
                         {transport.number}
                     </button>
                 ))}

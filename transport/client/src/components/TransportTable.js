@@ -2,27 +2,14 @@ import { transportTypes } from './arrays'
 import { useState } from 'react'
 import { MAP_TOKEN } from './MapComponents'
 
-export const TransportTable = ({ transports, selectedTransportType, setSelectedTransportType, setSelectedTransport, setRoutes, 
-    getSchedule, setRouteStops, setSchedule }) => {
+export const TransportTable = ({ transports, selectedTransportType, setSelectedTransportType, setRoutes, 
+    setRouteStops, setSchedule, showTransportRoute, selectedStop }) => {
     const tabHandleClick = (type) => {
         console.log(transports)
         setSelectedTransportType(type)
         setRouteStops(null);
         setSchedule(null);
         setRoutes(null);
-    }
-
-    const transportHandleClick = async (transport) => {
-        setSelectedTransport(transport)
-        console.log(transport)
-        fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${transport.routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
-        .then((res) => res.json())
-        .then((data) => {
-            console.log(data)
-            setRoutes(data.routes[0].geometry.coordinates);
-        })
-        .catch((error) => console.error(error));
-        await getSchedule(transport)
     }
 
     return (
@@ -56,7 +43,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                                 <td>{transport.number}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[0].stopId.name}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
-                                <td><button className="btn waves-effect waves-light" onClick={() => transportHandleClick(transport)}>Паглядзець маршрут</button></td>
+                                <td><button className="btn waves-effect waves-light" onClick={() => showTransportRoute(transport, selectedStop)}>Паглядзець маршрут</button></td>
                             </tr>
                         })}
                     </tbody>

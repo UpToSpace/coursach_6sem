@@ -33,7 +33,13 @@ router.get('/', auth, async (req, res) => {
 router.get('/:stopId', auth, async (req, res) => {
     try {
         const StopRouteStops = await RouteStop.find({ stopId: req.params.stopId });
-        const transports = await Transport.find({routeStops: { $in: StopRouteStops.map((item) => item._id) }});
+        const transports = await Transport.find({ routeStops: { $in: StopRouteStops.map((item) => item._id) } }).populate({
+            path: 'routeStops',
+            populate: {
+                path: 'stopId',
+                model: 'Stop'
+            }
+        });
         res.json(transports);
     } catch (e) {
         console.log(e);

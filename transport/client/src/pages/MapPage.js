@@ -71,6 +71,20 @@ export const MapPage = () => {
         setSelectedStop(stop)
     }
 
+    const showTransportRoute = async (transport, stop) => {
+        setSelectedTransport(transport)
+        console.log(transport)
+        fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${transport.routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
+            .then((res) => res.json())
+            .then((data) => {
+                console.log(data)
+                setRoutes(data.routes[0].geometry.coordinates);
+            })
+            .catch((error) => console.error(error));
+        await getSchedule(transport)
+        setSelectedStop(stop)
+    }
+
     const ScheduleTable = () => {
         console.log(routeStops)
         console.log(schedule)
@@ -149,10 +163,11 @@ export const MapPage = () => {
                 {selectedStop !== null &&
                     <SelectedStopInfo
                         stop={selectedStop}
+                        showTransportRoute={showTransportRoute}
                     />}
                 {transports && TransportTable({
-                    transports, selectedTransportType, setSelectedTransportType, setSelectedTransport,
-                    setRoutes, getSchedule, setRouteStops, setSchedule
+                    transports, selectedTransportType, setSelectedTransportType,
+                    setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop
                 })}
             </div>
             {routeStops && <h5>Расклад</h5>}
