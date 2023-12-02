@@ -38,19 +38,36 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                     </thead>
 
                     <tbody>
-                        {transports.filter(e => e.type === selectedTransportType).map((transport, index) => {
-                            //console.log(transport)
-                            return <tr key={index} onClick={() => showTransportRoute(transport, selectedStop)}>
-                                <td>{transport.number}</td>
-                                <td>{transport.routeStops.sort(e => e.stopOrder)[0].stopId.name}</td>
-                                <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
-                                <td>
-                                    <div className="marker" onClick={() => addToFavourite(transport)}>
-                                        <img src={favourites.filter(item => item.transportId === transport._id).length === 0 ? heart : fullheart} alt="marker" height="25px" />
-                                    </div>
-                                </td>
-                            </tr>
-                        })}
+                        {transports
+                            .filter((e) => e.type === selectedTransportType && favourites.some((item) => item.transportId === e._id))
+                            .sort((a, b) => a.number.localeCompare(b.number))
+                            .map((transport, index) => (
+                                <tr key={index} onClick={() => showTransportRoute(transport, selectedStop)}>
+                                    <td>{transport.number}</td>
+                                    <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[0].stopId.name}</td>
+                                    <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
+                                    <td>
+                                        <div className="marker" onClick={() => addToFavourite(transport)}>
+                                            <img src={fullheart} alt="marker" height="25px" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        {transports
+                            .filter((e) => e.type === selectedTransportType && !favourites.some((item) => item.transportId === e._id))
+                            .sort((a, b) => a.number.localeCompare(b.number))
+                            .map((transport, index) => (
+                                <tr key={index} onClick={() => showTransportRoute(transport, selectedStop)}>
+                                    <td>{transport.number}</td>
+                                    <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[0].stopId.name}</td>
+                                    <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
+                                    <td>
+                                        <div className="marker" onClick={() => addToFavourite(transport)}>
+                                            <img src={favourites.some((item) => item.transportId === transport._id) ? fullheart : heart} alt="marker" height="25px" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
             }
