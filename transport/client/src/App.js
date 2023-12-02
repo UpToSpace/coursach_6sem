@@ -9,6 +9,7 @@ import { Loader } from "./components/Loader";
 import { useHttp } from "./hooks/http.hook";
 import { options } from "./components/arrays";
 import { useMessage } from "./hooks/message.hook";
+import { ErrorBoundary } from './pages/errorpages/ErrorBoundary';
 
 
 function App() {
@@ -26,12 +27,14 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ userId, login, logout, userRole }}>
-      <Router>
-        {userRole && <Navbar />}
-        <div style={{ "width": "100%", "margin": "auto" }}>
-          {routes}
-        </div>
-      </Router>
+      <ErrorBoundary> 
+        <Router>
+          {userRole && <Navbar />}
+          <div style={{ "width": "100%", "margin": "auto" }}>
+            {routes}
+          </div>
+        </Router>
+      </ErrorBoundary>
     </AuthContext.Provider>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
-import { useHttp } from '../hooks/http.hook';
-import { Loader } from '../components/Loader';
-import bus from '../styles/images/statuscodes/404.png'
+import { useHttp } from '../../hooks/http.hook';
+import { Loader } from '../../components/Loader';
+import bus from '../../styles/images/statuscodes/404.png'
 
 export const NotFoundPage = () => {
     const { loading } = useHttp();

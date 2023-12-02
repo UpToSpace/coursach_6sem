@@ -2,10 +2,14 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useHttp } from '../hooks/http.hook';
 import { transportTypes } from './arrays';
+import { findClosestTimes } from './../components/functions';
+import { set } from 'mongoose';
 
 export const SelectedStopInfo = ({ stop, showTransportRoute }) => {
     const { loading, request } = useHttp();
     const [transportList, setTransportList] = useState(null);
+    const [minutesUntilClosestTime, setMinutesUntilClosestTime] = useState(null);
+    const [minutesUntilNextTime, setMinutesUntilNextTime] = useState(null);
 
     useEffect(() => {
         const getTransports = async () => {
@@ -38,12 +42,12 @@ export const SelectedStopInfo = ({ stop, showTransportRoute }) => {
 
                     <tbody>
                         {transportList && transportList.map((transport, index) => {
-                            console.log(transport)
+                            //console.log(transport)
                             return <tr key={index} onClick={() => showTransportRoute(transport, stop)} >
                                 <td>{transport.type[0] + transport.number}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
-                                <td>{}</td>
-                                <td></td>
+                                <td>{transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule.length !== 0 ? findClosestTimes(transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule).minutesUntilClosestTime : '-'}</td>
+                                <td>{transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule.length !== 0 ? findClosestTimes(transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule).minutesUntilNextTime : '-'}</td>
                             </tr>
                         })}
                     </tbody>

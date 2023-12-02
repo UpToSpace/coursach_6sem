@@ -3,7 +3,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { AuthPage } from "./pages/AuthPage";
 import { MainPage } from "./pages/MainPage";
 import { MapPage } from "./pages/MapPage";
-import { NotFoundPage } from "./pages/NotFoundPage";
+import { NotFoundPage } from "./pages/errorpages/NotFoundPage";
 import { AdminStopsPage } from "./pages/admin/AdminStopsPage";
 import { AdminRoutesPage } from "./pages/admin/AdminRoutesPage";
 import { AdminPage } from "./pages/admin/AdminPage";
