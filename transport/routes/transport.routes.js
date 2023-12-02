@@ -35,7 +35,7 @@ router.get('/:stopId', auth, async (req, res) => {
     try {
         const StopRouteStops = await RouteStop.find({ stopId: req.params.stopId });
         const schedule = await Schedule.find({ routeStopId: { $in: StopRouteStops.map((item) => item._id) } });
-        console.log(schedule.length)
+        //console.log(schedule.length)
         const transports = await Transport.find({ routeStops: { $in: StopRouteStops.map((item) => item._id) } }).populate({
             path: 'routeStops',
             populate: {

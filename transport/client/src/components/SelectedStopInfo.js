@@ -3,20 +3,18 @@ import { useState, useEffect } from 'react';
 import { useHttp } from '../hooks/http.hook';
 import { transportTypes } from './arrays';
 import { findClosestTimes } from './../components/functions';
-import { set } from 'mongoose';
 
 export const SelectedStopInfo = ({ stop, showTransportRoute }) => {
     const { loading, request } = useHttp();
     const [transportList, setTransportList] = useState(null);
-    const [minutesUntilClosestTime, setMinutesUntilClosestTime] = useState(null);
-    const [minutesUntilNextTime, setMinutesUntilNextTime] = useState(null);
+    const [minutes, setMinutes] = useState([]);
 
     useEffect(() => {
         const getTransports = async () => {
             try {
                 const data = await request(`/api/transports/${stop._id}`, 'GET', null);
                 setTransportList(data);
-                console.log(data);
+                //console.log(data);
             } catch (error) {
                 console.error('Error fetching transport data:', error);
             }
@@ -43,12 +41,14 @@ export const SelectedStopInfo = ({ stop, showTransportRoute }) => {
                     <tbody>
                         {transportList && transportList.map((transport, index) => {
                             //console.log(transport)
-                            return <tr key={index} onClick={() => showTransportRoute(transport, stop)} >
-                                <td>{transport.type[0] + transport.number}</td>
-                                <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
-                                <td>{transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule.length !== 0 ? findClosestTimes(transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule).minutesUntilClosestTime : '-'}</td>
-                                <td>{transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule.length !== 0 ? findClosestTimes(transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule).minutesUntilNextTime : '-'}</td>
-                            </tr>
+                            if (transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0] !== undefined) {
+                                return <tr key={index} onClick={() => showTransportRoute(transport, stop)} >
+                                    <td>{transport.type[0] + transport.number}</td>
+                                    <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
+                                    <td>{transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0]?.schedule.length !== 0 ? findClosestTimes(transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule).minutesUntilClosestTime : '-'}</td>
+                                    <td>{transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0]?.schedule.length !== 0 ? findClosestTimes(transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0].schedule).minutesUntilNextTime : '-'}</td>
+                                </tr>
+                            }
                         })}
                     </tbody>
                 </table>
