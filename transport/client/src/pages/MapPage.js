@@ -42,6 +42,7 @@ export const MapPage = () => {
     });
     const [addStopHandler, setAddStopHandler] = useState(false);
     const [foundStops, setFoundStops] = useState(null);
+    const [favourites, setFavourites] = useState(null);
 
     const getTransports = useCallback(async () => {
         const data = await request('/api/transports', 'GET', null);
@@ -64,10 +65,17 @@ export const MapPage = () => {
         console.log(routeStops);
     }
 
+    const getFavourites = useCallback(async () => {
+        const data = await request('/api/favourites/' + auth.userId, 'GET', null);
+        setFavourites(data);
+        console.log(data);
+    }, [auth.token, request])
+
     useEffect(() => {
         getStops();
         getTransports();
-    }, [getStops, getTransports])
+        getFavourites();
+    }, [getStops, getTransports, getFavourites])
 
     if (loading) {
         return <Loader />
@@ -174,6 +182,21 @@ export const MapPage = () => {
         )
     }
 
+    const addToFavourite = async (transport) => {
+        try {
+            const favourite = favourites.filter(item => item.transportId === transport._id)[0];
+            console.log(favourite)
+            if (favourite === undefined) {
+                const data = await request('/api/favourites', 'POST', { userId: auth.userId, transportId: transport._id });
+                message(data.message);
+            } else {
+                const data = await request('/api/favourites/' + favourite._id, 'DELETE');
+                message(data.message);
+            }
+            getFavourites();
+        } catch (e) { }
+    }
+
     return (
         stops &&
         <div className="schedule">
@@ -236,7 +259,7 @@ export const MapPage = () => {
                     />}
                 {transports && TransportTable({
                     transports, selectedTransportType, setSelectedTransportType,
-                    setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop
+                    setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite
                 })}
             </div>
             {routeStops && <h5>Расклад</h5>}

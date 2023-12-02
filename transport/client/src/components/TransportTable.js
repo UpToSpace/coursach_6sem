@@ -1,9 +1,10 @@
 import { transportTypes } from './arrays'
 import { useState } from 'react'
-import { MAP_TOKEN } from './MapComponents'
+import heart from '../styles/images/heart.png'
+import fullheart from '../styles/images/fullheart.png'
 
-export const TransportTable = ({ transports, selectedTransportType, setSelectedTransportType, setRoutes, 
-    setRouteStops, setSchedule, showTransportRoute, selectedStop }) => {
+export const TransportTable = ({ transports, selectedTransportType, setSelectedTransportType, setRoutes,
+    setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite }) => {
     const tabHandleClick = (type) => {
         console.log(transports)
         setSelectedTransportType(type)
@@ -26,7 +27,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                 </ul>
             </div>
             {selectedTransportType &&
-                <table className='transport-table'>
+                <table className='transport-table highlight'>
                     <thead>
                         <tr>
                             <th>Нумар</th>
@@ -38,12 +39,16 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
 
                     <tbody>
                         {transports.filter(e => e.type === selectedTransportType).map((transport, index) => {
-                            console.log(transport)
-                            return <tr key={index}>
+                            //console.log(transport)
+                            return <tr key={index} onClick={() => showTransportRoute(transport, selectedStop)}>
                                 <td>{transport.number}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[0].stopId.name}</td>
                                 <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
-                                <td><button className="btn-small waves-effect waves-light" onClick={() => showTransportRoute(transport, selectedStop)}>Паглядзець маршрут</button></td>
+                                <td>
+                                    <div className="marker" onClick={() => addToFavourite(transport)}>
+                                        <img src={favourites.filter(item => item.transportId === transport._id).length === 0 ? heart : fullheart} alt="marker" height="25px" />
+                                    </div>
+                                </td>
                             </tr>
                         })}
                     </tbody>

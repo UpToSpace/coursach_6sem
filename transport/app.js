@@ -21,6 +21,7 @@ app.use('/api/routes', require('./routes/routes.routes'));
 app.use('/api/transports', require('./routes/transport.routes'));
 app.use('/api/schedule', require('./routes/schedule.routes'));
 app.use('/api/user', require('./routes/user.routes'))
+app.use('/api/favourites', require('./routes/favourites.routes'))
 
 const PORT = config.get('port') || 5000;
 
