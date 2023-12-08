@@ -20,7 +20,7 @@ router.post('/', auth, async (req, res) => {
     try {
         const { userId, transportId } = req.body;
         const favourite = new Favourite({ userId, transportId });
-        console.log(favourite);
+        //console.log(favourite);
         await favourite.save();
         res.status(201).json({ message: 'Избранное создано' });
     } catch (e) {

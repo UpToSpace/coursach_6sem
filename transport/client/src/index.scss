@@ -3,7 +3,7 @@ $blue: #00cad3;
 $green: #a3e339;
 $lightgreen: rgb(149, 210, 51);
 $pink: #ff5466;
-$gray: #a4a4a4;
+$gray: #e1e1e1;
 $white: #fff;
 
 @import "~materialize-css/dist/css/materialize.min.css";
@@ -105,6 +105,7 @@ nav {
         margin: 0px;
         padding: 5px;
     }
+
     tr {
         cursor: pointer;
     }
@@ -157,4 +158,22 @@ h5 {
             cursor: pointer;
         }
     }
+}
+
+.favourite {
+    background-color: rgba($pink, 0.4);
+}
+
+.favourite:hover {
+    background-color: rgba($pink, 0.6);
+    transition: 0.5s;
+}
+
+.not-favourite {
+    background-color: $white;
+}
+
+.not-favourite:hover {
+    background-color: $gray;
+    transition: 0.5s;
 }

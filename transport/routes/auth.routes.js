@@ -75,8 +75,10 @@ router.post('/logout', async (req, res) => {
     try {
         const { refreshToken } = req.cookies;
         const user = await User.findOne({ refreshToken });
-        user.refreshToken = '';
-        await user.save();
+        if (user) {
+            user.refreshToken = '';
+            await user.save();
+        }
         res.clearCookie('refreshToken');
         return res.json({ message: 'Вы вышлі з акаунта' });
     } catch (e) {

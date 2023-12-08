@@ -20,10 +20,13 @@ export function findClosestTimes(arrivalTimes) {
 
     // The first element is the closest time, and the second is the next time
     const closestTime = arrivalTimes[0].arrivalTime;
-    const nextTime = arrivalTimes[1].arrivalTime;
+    const nextTime = arrivalTimes[1] !== undefined ? arrivalTimes[1].arrivalTime : null;
 
     // Calculate the difference in minutes
     const minutesUntilClosestTime = Math.abs(convertToMinutes(closestTime) - currentTimeInMinutes);
+    if (nextTime === null) {
+        return { minutesUntilClosestTime, minutesUntilNextTime: null };
+    }
     const minutesUntilNextTime = Math.abs(convertToMinutes(nextTime) - currentTimeInMinutes);
 
     return { minutesUntilClosestTime, minutesUntilNextTime };

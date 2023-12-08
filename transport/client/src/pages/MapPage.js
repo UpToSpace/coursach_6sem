@@ -17,6 +17,7 @@ import {
 import { TransportTable } from '../components/TransportTable';
 import { SelectedStopInfo } from '../components/SelectedStopInfo';
 import { useMessage } from '../hooks/message.hook';
+import { transportTypes } from '../components/arrays';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
@@ -31,7 +32,7 @@ export const MapPage = () => {
         zoom: ZOOM
     });
     const [transports, setTransports] = useState();
-    const [selectedTransportType, setSelectedTransportType] = useState(null);
+    const [selectedTransportType, setSelectedTransportType] = useState(transportTypes[0]);
     const [selectedTransport, setSelectedTransport] = useState(null);
     const [schedule, setSchedule] = useState([]);
     const [routeStops, setRouteStops] = useState();
@@ -105,7 +106,8 @@ export const MapPage = () => {
 
     const showTransportRoute = async (transport, stop) => {
         setSelectedTransport(transport)
-        console.log(transport)
+        //console.log(transport)
+        setSelectedTransportType(transport.type)
         fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${transport.routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
             .then((res) => res.json())
             .then((data) => {
@@ -256,6 +258,7 @@ export const MapPage = () => {
                     <SelectedStopInfo
                         stop={selectedStop}
                         showTransportRoute={showTransportRoute}
+                        favourites={favourites}
                     />}
                 {transports && TransportTable({
                     transports, selectedTransportType, setSelectedTransportType,

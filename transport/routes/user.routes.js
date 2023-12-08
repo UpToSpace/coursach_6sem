@@ -1,12 +1,14 @@
 const {Router} = require('express');
 const config = require('config');
 const User = require('../models/User');
+const Favourite = require('../models/Favourite');
 const router = Router();
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken")
 const { check, validationResult } = require('express-validator');
 const auth = require('../middleware/auth.middleware');
 const admin = require('../middleware/admin.middleware');
+const session = require('express-session');
 
 // /api/user
 router.get('/', auth, async (req, res) => {
@@ -57,18 +59,26 @@ router.post('/', auth,
 
 // /api/user
 router.delete('/:id', admin, async (req, res) => {
+    //const session = await mongoose.startSession();
     try {
         const { id } = req.params;
         const decoded = jwt.verify(req.headers.authorization.split(' ')[1], config.get('jwtAccessSecret'));
         const user = await User.findOne({_id: decoded.id})
         if (decoded.id === id) {
+            //session.endSession();
             return res.status(400).json({ message: 'Нельга выдалiць самога сябе' });
         }
-        await User.deleteOne({_id: id})
+        // session.startTransaction();
+        // await Favourite.deleteMany({userId: id}, {session: session})
+        // await User.deleteOne({_id: id}, {session: session})
+        // await session.commitTransaction();
         res.json({ message: "Карыстальнiк выдален"});
     } catch (e) {
+        //session.abortTransaction();
         console.log(e)
         res.status(500).json({ message: 'Что-то пошло не так' });
+    } finally {
+        //session.endSession();
     }
 })
 
