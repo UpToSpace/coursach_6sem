@@ -47,8 +47,8 @@ const AdminSchedule = ({ transport }) => {
 
 
     const AddScheduleHandler = async () => {
-        console.log(newSchedule)
-        console.log(routeStops.length)
+        //console.log(newSchedule)
+        //console.log(routeStops.length)
         if (newSchedule.length !== routeStops.length) {
             return message('Не запоўненае расклад')
         }
@@ -105,7 +105,7 @@ const AdminSchedule = ({ transport }) => {
                                         {/* {console.log(schedule)}
                                         {console.log(item)}
                                         {console.log(schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber))} */}
-                                        {console.log(filteredSchedule)}
+                                        {/* {console.log(filteredSchedule)} */}
                                         {schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber).map((item, index) => {
                                             return (
                                                 <>

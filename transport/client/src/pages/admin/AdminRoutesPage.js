@@ -20,6 +20,7 @@ import Select from 'react-select';
 import { AdminSchedule } from '../../components/admin/AdminSchedule';
 import flag from "../../styles/images/redflag.svg"
 import { set } from 'mongoose';
+import { reactSelectStyles } from '../../styles/styles';
 
 export const AdminRoutesPage = () => {
     const { loading, request, error } = useHttp();
@@ -153,10 +154,9 @@ export const AdminRoutesPage = () => {
 
     const ShowOrDeleteForm = () => {
         return (
-            <div>
+            <div className='showordelete-form'>
                 <Select
-                    className="basic-single"
-                    classNamePrefix="select"
+                    styles={reactSelectStyles}
                     defaultValue={{ value: transport.transportType, label: transport.transportType }}
                     onChange={(transport) => handleChange({
                         target: {
@@ -168,7 +168,6 @@ export const AdminRoutesPage = () => {
                         return { value: type, label: type }
                     })}
                     menuPortalTarget={document.body}
-                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
                 />
                 <Select
                     className="basic-single"
@@ -195,7 +194,7 @@ export const AdminRoutesPage = () => {
 
     const AddForm = () => {
         return (
-            <div>
+            <div className='add-form'>
                 <Select
                     className="basic-single"
                     classNamePrefix="select"

@@ -71,7 +71,7 @@ router.get('/:stopId', auth, async (req, res) => {
 // /api/transports/types/:type
 router.get('/types/:type', auth, async (req, res) => {
     try {
-        const numbers = await Transport.find({ type: decodeURI(req.params.type) }, { number: 1, _id: 0 });
+        const numbers = await Transport.find({ type: decodeURI(req.params.type) }, { number: 1, _id: 0 }, { sort: { number: 1 } });
         //console.log(numbers)
         res.json(numbers);
     } catch (e) {

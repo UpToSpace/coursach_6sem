@@ -4,7 +4,8 @@ import heart from '../styles/images/heart.png'
 import fullheart from '../styles/images/fullheart.png'
 
 export const TransportTable = ({ transports, selectedTransportType, setSelectedTransportType, setRoutes,
-    setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite }) => {
+    setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite,
+    setSelectedTransport, selectedTransport }) => {
     const tabHandleClick = (type) => {
         console.log(transports)
         setSelectedTransportType(type)
@@ -40,9 +41,10 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                     <tbody>
                         {transports
                             .filter((e) => e.type === selectedTransportType && favourites.some((item) => item.transportId === e._id))
-                            .sort((a, b) => a.number.localeCompare(b.number))
+                            .sort((a, b) => +a.number > +b.number)
                             .map((transport, index) => (
-                                <tr key={index} onClick={() => showTransportRoute(transport, selectedStop)} className='favourite'>
+                                <tr key={index} onClick={() => { showTransportRoute(transport, selectedStop); setSelectedTransport(transport) }}
+                                    className={selectedTransport === transport ? 'chosen favourite' : 'favourite'}>
                                     <td>{transport.number}</td>
                                     <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[0].stopId.name}</td>
                                     <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
@@ -55,9 +57,10 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                             ))}
                         {transports
                             .filter((e) => e.type === selectedTransportType && !favourites.some((item) => item.transportId === e._id))
-                            .sort((a, b) => a.number.localeCompare(b.number))
+                            .sort((a, b) => +a.number > +b.number)
                             .map((transport, index) => (
-                                <tr key={index} onClick={() => showTransportRoute(transport, selectedStop)} className='not-favourite'>
+                                <tr key={index} onClick={() => {showTransportRoute(transport, selectedStop); setSelectedTransport(transport)}} 
+                                    className={ selectedTransport === transport ? 'not-favourite chosen' : 'not-favourite'}>
                                     <td>{transport.number}</td>
                                     <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[0].stopId.name}</td>
                                     <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>

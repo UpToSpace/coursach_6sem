@@ -4,6 +4,9 @@ import { AuthContext } from '../context/AuthContext';
 import { Loader } from '../components/Loader';
 import Map, { Marker, Popup, Source } from 'react-map-gl';
 import flagIcon from "../styles/images/flag.svg"
+import redflagIcon from "../styles/images/redflag.svg"
+import searchIcon from "../styles/images/search.svg"
+import cancelIcon from "../styles/images/cancel.svg"
 import ReactMapGL, {
     FullscreenControl,
     GeolocateControl,
@@ -44,6 +47,7 @@ export const MapPage = () => {
     const [addStopHandler, setAddStopHandler] = useState(false);
     const [foundStops, setFoundStops] = useState(null);
     const [favourites, setFavourites] = useState(null);
+    const [nearestStops, setNearestStops] = useState(null);
 
     const getTransports = useCallback(async () => {
         const data = await request('/api/transports', 'GET', null);
@@ -128,10 +132,8 @@ export const MapPage = () => {
                             Назва прыпынка:</label>
                         <input type="text" className="validate" maxLength={30} name="name" value={stop.name} onChange={OnChangeHandler} />
                     </div>
-                </div>
-                <div className="row">
-                    <button onClick={FindStopHandler} className="waves-effect waves-light btn-large">Знайсцi</button>
-                    <button onClick={ClearButtonHandler} className="waves-effect waves-light btn-large">Ачысцiць</button>
+                    <img src={searchIcon} onClick={FindStopHandler} className='icon-button'/>
+                    <img src={cancelIcon} onClick={ClearButtonHandler} className='icon-button' />
                     {addStopHandler && <button onClick={HideButtonHandler} className="waves-effect waves-light btn-large">Схаваць</button>}
                 </div>
             </div>
@@ -199,6 +201,42 @@ export const MapPage = () => {
         } catch (e) { }
     }
 
+    const FindNearestStopsHandler = (e) => {
+        const R = 6371; // Earth radius in kilometers
+
+        // Calculate distances to all stops
+        const distances = stops.map(stop => {
+            const lat1 = e.coords.latitude; // User latitude
+            const lon1 = e.coords.longitude; // User longitude
+            const lat2 = stop.latitude;
+            const lon2 = stop.longitude;
+
+            const dLat = degToRad(lat2 - lat1);
+            const dLon = degToRad(lon2 - lon1);
+
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(degToRad(lat1)) * Math.cos(degToRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            const distance = R * c; // Distance in kilometers
+            return { stop, distance };
+        });
+
+        // Sort distances in ascending order
+        distances.sort((a, b) => a.distance - b.distance);
+
+        // Get the three nearest stops
+        const nearestStops = distances.slice(0, 3).map(item => item.stop);
+
+        setNearestStops(nearestStops);
+    }
+
+    function degToRad(deg) {
+        return deg * (Math.PI / 180);
+    }
+
     return (
         stops &&
         <div className="schedule">
@@ -209,7 +247,7 @@ export const MapPage = () => {
                     onMove={event => setViewState(event.viewState)}
                     style={{ width: "55%", height: 500 }}
                     mapboxAccessToken={MAP_TOKEN}
-                    mapStyle="mapbox://styles/mapbox/streets-v9"
+                    mapStyle="mapbox://styles/mapbox/streets-v9"   
                 >
                     <FullscreenControl style={fullscreenControlStyle} />
                     <GeolocateControl
@@ -217,6 +255,7 @@ export const MapPage = () => {
                         positionOptions={{ enableHighAccuracy: true }}
                         trackUserLocation={true}
                         auto={false}
+                        onGeolocate={FindNearestStopsHandler}
                     />
                     {foundStops && foundStops.map(foundStop => {
                         return (<CustomMarker
@@ -233,6 +272,17 @@ export const MapPage = () => {
                                 key={stop._id}
                                 stop={stop}
                                 openPopup={openPopup}
+                            />
+                        )
+                    })}
+                    {nearestStops && nearestStops.map(stop => {
+                        return (
+                            <CustomMarker
+                                key={stop._id}
+                                stop={stop}
+                                openPopup={openPopup}
+                                icon={redflagIcon}
+                                height={ZOOM * 2 + "px"}
                             />
                         )
                     })}
@@ -262,7 +312,8 @@ export const MapPage = () => {
                     />}
                 {transports && TransportTable({
                     transports, selectedTransportType, setSelectedTransportType,
-                    setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite
+                    setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite, 
+                    setSelectedTransport, selectedTransport
                 })}
             </div>
             {routeStops && <h5>Расклад</h5>}

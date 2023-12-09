@@ -1,7 +1,6 @@
 import React from 'react';
 import { useHttp } from '../hooks/http.hook';
 import { Loader } from '../components/Loader';
-import back from '../styles/images/back.jpg'
 
 export const MainPage = () => {
     const { loading } = useHttp();

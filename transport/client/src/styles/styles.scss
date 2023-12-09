@@ -12,14 +12,14 @@ $white: #fff;
 @font-face {
     font-family: "Nunito";
     src: local("Nunito"),
-        url("./styles/fonts/Nunito/static/Nunito-Regular.ttf") format("truetype");
+        url("./fonts/Nunito/static/Nunito-Regular.ttf") format("truetype");
     font-weight: normal;
 }
 
 @font-face {
     font-family: "BrunoAceSC";
     src: local("BrunoAceSC"),
-        url("./styles/fonts/Bruno_Ace_SC/BrunoAceSC-Regular.ttf") format("truetype");
+        url("./fonts/Bruno_Ace_SC/BrunoAceSC-Regular.ttf") format("truetype");
     font-weight: normal;
 }
 
@@ -31,6 +31,14 @@ $white: #fff;
 html,
 body {
     height: 100%;
+}
+
+.main-container {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: auto
 }
 
 .brand-logo {
@@ -177,4 +185,42 @@ h5 {
 .not-favourite:hover {
     background-color: $gray;
     transition: 0.5s;
+}
+
+.chosen {
+    background-color: $blue;
+    color: $white;
+}
+
+.add-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+
+    input {
+        margin-bottom: 0;
+    }
+}
+
+.showordelete-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+
+    input {
+        margin-bottom: 0;
+    }
+}
+
+.icon-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 0px;
+    margin: 5px;
+    margin-top: 30px;
+    height: 20px;
 }

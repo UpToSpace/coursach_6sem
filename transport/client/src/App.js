@@ -30,7 +30,7 @@ function App() {
       <ErrorBoundary> 
         <Router>
           {userRole && <Navbar />}
-          <div style={{ "width": "100%", "margin": "auto" }}>
+          <div className='main-container'>
             {routes}
           </div>
         </Router>
