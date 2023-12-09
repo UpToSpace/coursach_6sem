@@ -1,28 +1,17 @@
-import React, { useCallback, useContext, useEffect, useState} from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useHttp } from '../../hooks/http.hook';
 import { AuthContext } from '../../context/AuthContext';
-import { Loader } from '../../components/Loader';
-import { transportTypes } from "../../components/arrays"
+import { Loader } from '../Loader';
 import M from 'materialize-css';
-import Select from 'react-select';
 import { useMessage } from "../../hooks/message.hook";
 
-export const AdminSchedulePage = () => {
+const AdminSchedule = ({ transport }) => {
     const { loading, request, error } = useHttp();
     const message = useMessage()
     const auth = useContext(AuthContext);
-    const [transport, setTransport] = useState({
-        transportType: null,
-        number: null
-    });
     const [schedule, setSchedule] = useState(null);
     const [routeStops, setRouteStops] = useState();
     const [newSchedule, setNewSchedule] = useState([]);
-    const [selectOnFocus, setSelectOnFocus] = useState(false)
-
-    useEffect(() => {
-        M.updateTextFields()
-    }, [])
 
     const getSchedule = useCallback(async () => {
         try {
@@ -35,25 +24,9 @@ export const AdminSchedulePage = () => {
         } catch (e) { }
     }, [auth.token, request, transport]);
 
-    const FindTransportHandler = async () => {
-        if (transport.transportType === null) {
-            return message('Тып транспарту ня абраны')
-        }
-        if (transport.number === null || !(new RegExp(/^\d{1,3}[сэдав]?$/).test(transport.number))) {
-            return message('Нумар транспартнага сродку некарэктны')
-        }
-        let transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
-        if (!transportFromDB) {
-            return message('Транспартнага сродку не існуе')
-        }
-        await getSchedule();
-        setNewSchedule([])
-    }
-
-    const handleChange = (event) => {
-        event.target.name === "transportType" ? setTransport({ ...transport, [event.target.name]: event.target.value.value }) :
-            setTransport({ ...transport, [event.target.name]: event.target.value });
-    }
+    useEffect(() => {
+        getSchedule();
+    }, [getSchedule]);
 
     if (loading) {
         return <Loader />
@@ -152,29 +125,10 @@ export const AdminSchedulePage = () => {
         )
     }
     return (
-        <div className="container" style={{ "marginBottom": "50px" }}>
-            <div style={selectOnFocus ? { "marginBottom": "150px" } : undefined}>
-                <Select
-                    value={transport.transport}
-                    onChange={(transport) => handleChange({
-                        target: {
-                            name: "transportType",
-                            value: transport
-                        }
-                    })}
-                    onMenuOpen={() => setSelectOnFocus(true)}
-                    onMenuClose={() => setSelectOnFocus(false)}
-                    options={transportTypes.map((type, index) => {
-                        return { value: type, label: type }
-                    })}
-                />
-            </div>
-            <div className="input-field col s12">
-                <label>Номер</label>
-                <input placeholder="" name="number"  maxLength={5} type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
-            </div>
-            <button onClick={FindTransportHandler} className="waves-effect waves-light btn-small">Знайсцi</button>
+        <>
             {schedule && scheduleTable(schedule)}
-        </div>
+        </>
     )
 }
+
+export { AdminSchedule };

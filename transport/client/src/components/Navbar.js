@@ -18,7 +18,6 @@ export const Navbar = () => {
                             <li><a href="/admin">Адмiн</a></li>
                             <li><a href="/admin/stops">Прыпынкi</a></li>
                             <li><a href="/admin/routes">Маршруты</a></li>
-                            <li><a href="/admin/schedule">Расклад</a></li>
                             <li><a href="/account">Акаунт</a></li>
                         </ul>
                         : userRole === roles[1] ? // user

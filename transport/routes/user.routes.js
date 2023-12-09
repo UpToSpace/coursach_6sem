@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken")
 const { check, validationResult } = require('express-validator');
 const auth = require('../middleware/auth.middleware');
 const admin = require('../middleware/admin.middleware');
-const session = require('express-session');
+const mongoose = require('mongoose');
 
 // /api/user
 router.get('/', auth, async (req, res) => {
@@ -68,11 +68,11 @@ router.delete('/:id', admin, async (req, res) => {
             //session.endSession();
             return res.status(400).json({ message: 'Нельга выдалiць самога сябе' });
         }
-        // session.startTransaction();
-        // await Favourite.deleteMany({userId: id}, {session: session})
-        // await User.deleteOne({_id: id}, {session: session})
-        // await session.commitTransaction();
-        res.json({ message: "Карыстальнiк выдален"});
+        //session.startTransaction();
+        await Favourite.deleteMany({userId: id})
+        await User.deleteOne({_id: id})
+        //await session.commitTransaction();
+        res.json({ message: "Карыстальнiк выдалены паспяхова"});
     } catch (e) {
         //session.abortTransaction();
         console.log(e)

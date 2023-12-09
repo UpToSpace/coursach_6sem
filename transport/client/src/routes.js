@@ -7,7 +7,6 @@ import { NotFoundPage } from "./pages/errorpages/NotFoundPage";
 import { AdminStopsPage } from "./pages/admin/AdminStopsPage";
 import { AdminRoutesPage } from "./pages/admin/AdminRoutesPage";
 import { AdminPage } from "./pages/admin/AdminPage";
-import { AdminSchedulePage } from "./pages/admin/AdminSchedulePage";
 import { AccountPage } from "./pages/AccountPage";
 import { roles } from "./components/arrays";
 
@@ -19,7 +18,6 @@ export const useRoutes = (userRole) => {
                 <Route path="/admin" exact element={<AdminPage />} />
                 <Route path="/admin/stops" exact element={<AdminStopsPage />} />
                 <Route path="/admin/routes" exact element={<AdminRoutesPage />} />
-                <Route path="/admin/schedule" exact element={<AdminSchedulePage />} />
                 <Route path="/map" element={<MapPage />} />
                 <Route path="/" exact element={<MainPage />} />
                 <Route path="*" element={<NotFoundPage />} />

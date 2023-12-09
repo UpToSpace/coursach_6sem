@@ -63,7 +63,7 @@ export const CustomMarker = ({ stop, openPopup, icon, height }) => {
         <Marker
             longitude={stop.longitude}
             latitude={stop.latitude}>
-            <div className="marker" onClick={() => openPopup(stop)}>
+            <div className="marker" onClick={() => openPopup ? openPopup(stop) : null}>
                 <img src={icon ?? busIcon} alt="marker" height={height ?? ZOOM + "px"} />
             </div>
         </Marker>

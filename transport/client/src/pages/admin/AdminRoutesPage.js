@@ -17,6 +17,9 @@ import {
 import { transportTypes } from "../../components/arrays"
 import M from 'materialize-css';
 import Select from 'react-select';
+import { AdminSchedule } from '../../components/admin/AdminSchedule';
+import flag from "../../styles/images/redflag.svg"
+import { set } from 'mongoose';
 
 export const AdminRoutesPage = () => {
     const { loading, request, error } = useHttp();
@@ -26,8 +29,8 @@ export const AdminRoutesPage = () => {
     const [routes, setRoutes] = useState([]);
     const [routeStops, setRouteStops] = useState([]);
     const [transport, setTransport] = useState({
-        transportType: null,
-        number: null
+        transportType: transportTypes[0],
+        number: 1
     });
     const [selectedStop, setSelectedStop] = useState(null);
     const [viewState, setViewState] = useState({
@@ -35,16 +38,19 @@ export const AdminRoutesPage = () => {
         longitude: CENTER[0],
         zoom: ZOOM
     });
-    const [selectOnFocus, setSelectOnFocus] = useState(false)
+    const [transportNumbers, setTransportNumbers] = useState([]);
+    const [showAddForm, setShowAddForm] = useState(false);
 
     const getStops = useCallback(async () => {
         const data = await request('/api/stops');
         setStops(data);
-        //console.log(data);
+        const numbers = await request('/api/transports/types/' + transportTypes[0]);
+        setTransportNumbers(numbers);
     }, [auth.token, request])
 
     useEffect(() => {
         getStops();
+        ShowRouteHandler(transport)
         M.updateTextFields()
     }, [getStops])
 
@@ -57,14 +63,34 @@ export const AdminRoutesPage = () => {
     };
 
     const openPopup = (stop) => {
+        console.log(showAddForm)
         setSelectedStop(stop)
-        if (routeStops.includes(stop)) {
-            if (routeStops[routeStops.length - 1] !== stop) {
-                return message('Вы можаце выдалiць толькi апошнi прыпынак маршрута')
+        if (showAddForm) {
+            if (routeStops.includes(stop)) {
+                if (routeStops[routeStops.length - 1] !== stop) {
+                    return message('Вы можаце выдалiць толькi апошнi прыпынак маршрута')
+                } else {
+                    setRouteStops((prev) => prev.filter((item) => item !== stop))
+                    if (routeStops.length > 2) {
+                        fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${routeStops.filter((item) => item !== stop).map((stop) => `${stop.longitude},${stop.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
+                            .then((res) => res.json())
+                            .then((data) => {
+                                console.log([...routeStops, stop])
+                                console.log(data)
+                                setRoutes(data.routes[0].geometry.coordinates);
+                            })
+                            .catch((error) => console.error(error));
+                    } else {
+                        setRoutes([])
+                    }
+                }
             } else {
-                setRouteStops((prev) => prev.filter((item) => item !== stop))
-                if (routeStops.length > 2) {
-                    fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${routeStops.filter((item) => item !== stop).map((stop) => `${stop.longitude},${stop.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
+                if (routeStops.length === 18) {
+                    return message("Вы можаце дадаць толькі 18 прыпынкаў")
+                }
+                setRouteStops((prev) => [...prev, stop])
+                if (routeStops.length > 0) {
+                    fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${[...routeStops, stop].map((stop) => `${stop.longitude},${stop.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
                         .then((res) => res.json())
                         .then((data) => {
                             console.log([...routeStops, stop])
@@ -72,59 +98,126 @@ export const AdminRoutesPage = () => {
                             setRoutes(data.routes[0].geometry.coordinates);
                         })
                         .catch((error) => console.error(error));
-                } else {
-                    setRoutes([])
                 }
-            }
-        } else {
-            if (routeStops.length === 18) {
-                return message("Вы можаце дадаць толькі 18 прыпынкаў")
-            }
-            setRouteStops((prev) => [...prev, stop])
-            if (routeStops.length > 0) {
-                fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${[...routeStops, stop].map((stop) => `${stop.longitude},${stop.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
-                    .then((res) => res.json())
-                    .then((data) => {
-                        console.log([...routeStops, stop])
-                        console.log(data)
-                        setRoutes(data.routes[0].geometry.coordinates);
-                    })
-                    .catch((error) => console.error(error));
             }
         }
     }
 
-    const handleChange = (event) => {
-        event.target.name === "transportType" ? setTransport({ ...transport, [event.target.name]: event.target.value.value }) :
-            setTransport({ ...transport, [event.target.name]: event.target.value });
+    const handleChange = async (event) => {
+        switch (event.target.name) {
+            case "transportType":
+                const numbers = await request('/api/transports/types/' + event.target.value.value);
+                //console.log(numbers)
+                setTransportNumbers(numbers);
+                setTransport({ transportType: event.target.value.value, number: numbers[0].number })
+                ShowRouteHandler({ transportType: event.target.value.value, number: numbers[0].number });
+                break;
+            case "number":
+                setTransport({ ...transport, [event.target.name]: event.target.value.value })
+                ShowRouteHandler({ transportType: transport.transportType, number: event.target.value.value });
+                break;
+            default:
+                break;
+        }
+    }
+
+    const addFormHandleChange = async (event) => {
+        switch (event.target.name) {
+            case "transportType":
+                setTransport({ ...transport, [event.target.name]: event.target.value.value })
+                break;
+            case "number":
+                setTransport({ ...transport, [event.target.name]: event.target.value });
+                break;
+            default:
+                break;
+        }
+    }
+
+    const ShowAddFormHandler = () => {
+        setShowAddForm(true); 
+        message('Выбярыце транспарт i прыпынкi для маршрута');
+        setRouteStops([]);
+        setRoutes([]);
+    }
+
+    const CancelButtonHandler = () => {
+        const defaultTransport = {
+            transportType: transportTypes[0],
+            number: 1
+        };
+        setTransport(defaultTransport)
+        setShowAddForm(false); 
+        ShowRouteHandler(defaultTransport)
+    }
+
+    const ShowOrDeleteForm = () => {
+        return (
+            <div>
+                <Select
+                    className="basic-single"
+                    classNamePrefix="select"
+                    defaultValue={{ value: transport.transportType, label: transport.transportType }}
+                    onChange={(transport) => handleChange({
+                        target: {
+                            name: "transportType",
+                            value: transport
+                        }
+                    })}
+                    options={transportTypes.map((type, index) => {
+                        return { value: type, label: type }
+                    })}
+                    menuPortalTarget={document.body}
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                />
+                <Select
+                    className="basic-single"
+                    classNamePrefix="select"
+                    defaultValue={{ value: transport.number, label: transport.number }}
+                    onChange={(transport) => handleChange({
+                        target: {
+                            name: "number",
+                            value: transport
+                        }
+                    })}
+                    options={transportNumbers.map((number, index) => {
+                        return { value: number.number, label: number.number }
+                    })}
+                    menuPortalTarget={document.body}
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                />
+                <button onClick={DeleteRouteHandler} className="waves-effect waves-light btn-small">Выдалiць</button>
+                <button onClick={() => ShowRouteHandler(transport)} className="waves-effect waves-light btn-small">Паглядзець</button>
+                <button onClick={ShowAddFormHandler} className="waves-effect waves-light btn-small">Форма дадання</button>
+            </div>
+        )
     }
 
     const AddForm = () => {
         return (
             <div>
-                <div style={selectOnFocus ? { "marginBottom": "150px" } : undefined}>
-                    <Select
-                        value={transport.transport}
-                        onChange={(transport) => handleChange({
-                            target: {
-                                name: "transportType",
-                                value: transport
-                            }
-                        })}
-                        options={transportTypes.map((type, index) => {
-                            return { value: type, label: type }
-                        })}
-                        onMenuOpen={() => setSelectOnFocus(true)}
-                        onMenuClose={() => setSelectOnFocus(false)}
-                    />
-                </div>
+                <Select
+                    className="basic-single"
+                    classNamePrefix="select"
+                    defaultValue={{ value: transport.transportType, label: transport.transportType }}
+                    onChange={(transport) => addFormHandleChange({
+                        target: {
+                            name: "transportType",
+                            value: transport
+                        }
+                    })}
+                    options={transportTypes.map((type, index) => {
+                        return { value: type, label: type }
+                    })}
+                    menuPortalTarget={document.body}
+                    styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                />
                 <div className="input-field col s12">
-                    <label>Нумар</label>
-                    <input placeholder="" name="number"  maxLength={5} type="text" defaultValue={transport.number} className="validate" onChange={handleChange} />
+                    <label>Номер</label>
+                    <input placeholder="1" name="number" maxLength={5} type="text" className="validate" onChange={addFormHandleChange} />
                 </div>
                 <button onClick={AddRouteHandler} className="waves-effect waves-light btn-small">Дадаць</button>
-                <button onClick={DeleteRouteHandler} className="waves-effect waves-light btn-small">Выдалiць</button>
-                <button onClick={ShowRouteHandler} className="waves-effect waves-light btn-small">Паглядзець</button>
+                <button onClick={CancelButtonHandler} className="waves-effect waves-light btn-small">Адмянiць</button>
             </div>
         )
     }
@@ -140,11 +233,9 @@ export const AdminRoutesPage = () => {
         }
         return true
     }
-    const ShowRouteHandler = async () => {
+
+    const ShowRouteHandler = async (transport) => {
         try {
-            if (!CheckForm()) {
-                return
-            }
             var transportFromDB = await request(`/api/transports?type=${transport.transportType}&number=${transport.number}`);
             if (!transportFromDB) {
                 message('Транспарт не знойдзены')
@@ -218,8 +309,8 @@ export const AdminRoutesPage = () => {
             setRouteStops([]);
             setRoutes([]);
             setTransport({
-                transportType: null,
-                number: null
+                transportType: transportTypes[0],
+                number: 1
             })
         } catch (e) { }
     }
@@ -250,6 +341,17 @@ export const AdminRoutesPage = () => {
                         />
                     )
                 })}
+                routeStops && {routeStops.map(stop => {
+                    return (
+                        <CustomMarker
+                            key={stop._id}
+                            stop={stop}
+                            icon={flag}
+                            height={ZOOM * 2 + "px"}
+                            openPopup={openPopup}
+                        />
+                    )
+                })}
                 {selectedStop !== null &&
                     <CustomPopup
                         stop={selectedStop}
@@ -269,7 +371,8 @@ export const AdminRoutesPage = () => {
                     </Source>
                 )}
             </ReactMapGL>
-            {AddForm()}
+            {showAddForm ? AddForm() : ShowOrDeleteForm()}
+            {!showAddForm && <AdminSchedule transport={transport} />}
         </div>
     )
 }
