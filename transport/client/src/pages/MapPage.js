@@ -203,7 +203,7 @@ export const MapPage = () => {
 
     const FindNearestStopsHandler = (e) => {
         const R = 6371; // Earth radius in kilometers
-
+        const stopAmount = 5;
         // Calculate distances to all stops
         const distances = stops.map(stop => {
             const lat1 = e.coords.latitude; // User latitude
@@ -228,7 +228,7 @@ export const MapPage = () => {
         distances.sort((a, b) => a.distance - b.distance);
 
         // Get the three nearest stops
-        const nearestStops = distances.slice(0, 3).map(item => item.stop);
+        const nearestStops = distances.slice(0, stopAmount).map(item => item.stop);
 
         setNearestStops(nearestStops);
     }
@@ -309,6 +309,8 @@ export const MapPage = () => {
                         stop={selectedStop}
                         showTransportRoute={showTransportRoute}
                         favourites={favourites}
+                        selectedTransport={selectedTransport}
+                        setSelectedTransport={setSelectedTransport}
                     />}
                 {transports && TransportTable({
                     transports, selectedTransportType, setSelectedTransportType,
@@ -316,7 +318,7 @@ export const MapPage = () => {
                     setSelectedTransport, selectedTransport
                 })}
             </div>
-            {routeStops && <h5>Расклад</h5>}
+                {routeStops && <h5>Расклад на {selectedTransport.number} {selectedTransport.type}</h5>}
             {routeStops && ScheduleTable()}
         </div >
     )

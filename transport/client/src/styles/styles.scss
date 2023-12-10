@@ -1,10 +1,10 @@
-$yellow: #f5c610;
-$blue: #00cad3;
-$green: #a3e339;
-$lightgreen: rgb(149, 210, 51);
-$red: #C21807;
-$pink: #ff5466;
-$gray: #e1e1e1;
+$yellow: #ffc107; // amber
+$blue: #01579b; // light-blue darken-4
+$green: #1b5e20; // green darken-4
+$lightgreen: #00c853; // green accent-4
+$red: #d50000; // red accent-4
+$pink: #ff4081; // pink accent-2
+$gray: #eeeeee; // grey lighten-3
 $white: #fff;
 
 @import "~materialize-css/dist/css/materialize.min.css";
@@ -32,6 +32,19 @@ html,
 body {
     height: 100%;
 }
+
+input:focus {
+    border-bottom: 1px solid $green !important;
+    box-shadow: 0 1px 0 0 $green !important;
+}
+
+label.active {
+    color: $green !important;
+}
+
+a {
+    color: $blue;
+} 
 
 .main-container {
     min-height: 100%;
@@ -122,6 +135,11 @@ nav {
 
 h5 {
     text-align: center;
+}
+
+.login-form {
+    width: 450px;
+    margin: auto;
 }
 
 .container {

@@ -44,7 +44,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                             .sort((a, b) => +a.number > +b.number)
                             .map((transport, index) => (
                                 <tr key={index} onClick={() => { showTransportRoute(transport, selectedStop); setSelectedTransport(transport) }}
-                                    className={selectedTransport === transport ? 'chosen favourite' : 'favourite'}>
+                                    className={selectedTransport && selectedTransport._id === transport._id ? 'chosen favourite' : 'favourite'}>
                                     <td>{transport.number}</td>
                                     <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[0].stopId.name}</td>
                                     <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
@@ -60,7 +60,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                             .sort((a, b) => +a.number > +b.number)
                             .map((transport, index) => (
                                 <tr key={index} onClick={() => {showTransportRoute(transport, selectedStop); setSelectedTransport(transport)}} 
-                                    className={ selectedTransport === transport ? 'not-favourite chosen' : 'not-favourite'}>
+                                    className={selectedTransport && selectedTransport._id === transport._id ? 'not-favourite chosen' : 'not-favourite'}>
                                     <td>{transport.number}</td>
                                     <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[0].stopId.name}</td>
                                     <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>

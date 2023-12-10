@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useHttp } from '../hooks/http.hook';
 import { findClosestTimes } from './../components/functions';
 
-export const SelectedStopInfo = ({ stop, showTransportRoute, favourites }) => {
+export const SelectedStopInfo = ({ stop, showTransportRoute, favourites, selectedTransport, setSelectedTransport }) => {
     const { loading, request } = useHttp();
     const [transportList, setTransportList] = useState(null);
 
@@ -39,12 +39,13 @@ export const SelectedStopInfo = ({ stop, showTransportRoute, favourites }) => {
                     <tbody>
                         {transportList && transportList
                             .filter((e) => favourites.some((item) => item.transportId === e._id))
-                            .sort((a, b) => a.number.localeCompare(b.number))
+                            .sort((a, b) => +a.number > +b.number)
                             .map((transport, index) => {
                             //console.log(transport)
                             const currentStopRouteStops = transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0];
                             if (currentStopRouteStops !== undefined) {
-                                return <tr key={index} onClick={() => showTransportRoute(transport, stop)} className='not-favourite'>
+                                return <tr key={index} onClick={() => { showTransportRoute(transport, stop); setSelectedTransport(transport) } } 
+                                    className={selectedTransport && selectedTransport._id === transport._id ? 'chosen favourite' : 'favourite'}>
                                     <td>{transport.type[0] + transport.number}</td>
                                     <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
                                     <td>{(currentStopRouteStops?.schedule.length !== 0 && findClosestTimes(currentStopRouteStops.schedule).minutesUntilClosestTime) || '-'}</td>
@@ -54,12 +55,14 @@ export const SelectedStopInfo = ({ stop, showTransportRoute, favourites }) => {
                         })}
                         {transportList && transportList
                             .filter((e) => !favourites.some((item) => item.transportId === e._id))
-                            .sort((a, b) => a.number.localeCompare(b.number))
+                            .sort((a, b) => +a.number > +b.number)
                             .map((transport, index) => {
                                 //console.log(transport)
+                                //console.log(selectedTransport)
                                 const currentStopRouteStops = transport.routeStops.filter(routeStop => routeStop.stopId._id === stop._id)[0];
                                 if (currentStopRouteStops !== undefined) {
-                                    return <tr key={index} onClick={() => showTransportRoute(transport, stop)} className='not-favourite'>
+                                    return <tr key={index} onClick={() => { showTransportRoute(transport, stop); setSelectedTransport(transport) }} 
+                                        className={selectedTransport && selectedTransport._id === transport._id ? 'not-favourite chosen' : 'not-favourite'}>
                                         <td>{transport.type[0] + transport.number}</td>
                                         <td>{transport.routeStops.sort(e => e.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
                                         <td>{(currentStopRouteStops?.schedule.length !== 0 && findClosestTimes(currentStopRouteStops.schedule).minutesUntilClosestTime) || '-'}</td>
