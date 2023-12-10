@@ -145,4 +145,36 @@ router.get('/userrole', auth, async (req, res) => {
     }
 });
 
+// /api/auth/reset
+router.post('/reset', async (req, res) => {
+    try {
+        const email = req.body.email;
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            return res.status(400).json({ message: 'Карыстальнiк не знойдзены' });
+        }
+        const resetLink = uuid.v4();
+        await MailService.sendResetMail(email, `${config.get('clientUrl')}/reset?resetLink=${resetLink}`);
+        user.activationLink = resetLink;
+        await user.save();
+        res.json({ message: 'Праверце пошту' });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: 'Что-то пошло не так' });
+    }
+});
+
+// /api/auth/reset/:link
+router.post('/reset/:link', async (req, res) => {
+    const resetLink = req.params.link;
+    const password = req.body.password;
+    const user = await User.findOne({ activationLink: resetLink });
+    if (!user) {
+        return res.status(400).json({ message: 'Няправiльная спасылка актывацыi' });
+    }
+    user.password = bcrypt.hashSync(password, 12);
+    await user.save();
+    res.json({ message: 'Пароль зменены' })
+});
+
 module.exports = router;

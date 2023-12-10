@@ -28,6 +28,22 @@ class MailService {
                 `
         });
     }
+    async sendResetMail(to, link) {
+        await this.transporter.sendMail({
+            from: config.get('smtpUser'),
+            to,
+            subject: `Сброс пароля на ${config.get('baseUrl')}`,
+            text: '',
+            html:
+                `
+                <div>
+                    <h1>Для сброса пароля перейдите по ссылке</h1>
+                    <a href="${link}">${link}</a>
+                    <p>Если вы не запрашивали сброс пароля, то просто проигнорируйте это письмо</p>
+                </div>
+                `
+        });
+    }
 }
 
 module.exports = new MailService();

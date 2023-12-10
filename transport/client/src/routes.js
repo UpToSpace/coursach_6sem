@@ -9,6 +9,7 @@ import { AdminRoutesPage } from "./pages/admin/AdminRoutesPage";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { AccountPage } from "./pages/AccountPage";
 import { roles } from "./components/arrays";
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 
 export const useRoutes = (userRole) => {
     if (userRole === roles[0]) { // admin
@@ -38,6 +39,7 @@ export const useRoutes = (userRole) => {
 
     return (
         <Routes>
+            <Route path="/reset" element={<ResetPasswordPage />} />
             <Route path="*" exact element={
                 <AuthPage />
             } />

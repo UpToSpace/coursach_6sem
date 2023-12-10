@@ -61,6 +61,19 @@ export const AuthPage = () => {
         }
     }
 
+    const resetHandler = async () => {
+        if (form.email === '') {
+            message('Запоўнiце поле пошты');
+            return;
+        }
+        try {
+            const data = await request('/api/auth/reset', 'POST', { email: form.email });
+            message(data.message);
+        } catch (e) { 
+            message(e.message);
+        }
+    }
+
     return (
         <div className="login-form">
             <div className="col s6 offset-s3">
@@ -102,8 +115,10 @@ export const AuthPage = () => {
                                     </label>
                                 </div>
                             </div>
-
                         </div>
+
+                        <a onClick={resetHandler} className='reset-link'>Забылі пароль?</a>
+
                         <div className="card-action">
                             <button
                                 className="waves-effect waves-light btn-large"

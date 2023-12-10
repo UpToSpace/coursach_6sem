@@ -256,6 +256,7 @@ export const MapPage = () => {
                         trackUserLocation={true}
                         auto={false}
                         onGeolocate={FindNearestStopsHandler}
+                        onTrackUserLocationEnd={() => setNearestStops([])}
                     />
                     {foundStops && foundStops.map(foundStop => {
                         return (<CustomMarker
