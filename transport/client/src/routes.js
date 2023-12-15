@@ -19,7 +19,6 @@ export const useRoutes = (userRole) => {
                 <Route path="/admin" exact element={<AdminPage />} />
                 <Route path="/admin/stops" exact element={<AdminStopsPage />} />
                 <Route path="/admin/routes" exact element={<AdminRoutesPage />} />
-                <Route path="/map" element={<MapPage />} />
                 <Route path="/" exact element={<MainPage />} />
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
@@ -43,9 +42,6 @@ export const useRoutes = (userRole) => {
             <Route path="*" exact element={
                 <AuthPage />
             } />
-            {/* <Route path="*" element={
-                <Navigate to="/" />
-            } /> */}
         </Routes>
     );
 }

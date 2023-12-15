@@ -96,15 +96,16 @@ export const MapPage = () => {
 
     const OnChangeHandler = (event) => {
         setStop({ ...stop, [event.target.name]: event.target.value });
+        const foundStops = stops.filter(e => e.name.toLowerCase().includes(event.target.value.toLowerCase()));
+        if (foundStops.length === 0 || event.target.value === '') {
+            setFoundStops(null);
+            return;
+        }
+        setFoundStops(foundStops);
     };
 
     const ClearButtonHandler = async () => {
         setFoundStops(null);
-        setStop({ name: '', latitude: '', longitude: '' });
-    }
-
-    const HideButtonHandler = () => {
-        setAddStopHandler(!addStopHandler);
         setStop({ name: '', latitude: '', longitude: '' });
     }
 
@@ -132,28 +133,10 @@ export const MapPage = () => {
                             Назва прыпынка:</label>
                         <input type="text" className="validate" maxLength={30} name="name" value={stop.name} onChange={OnChangeHandler} />
                     </div>
-                    <img src={searchIcon} onClick={FindStopHandler} className='icon-button'/>
                     <img src={cancelIcon} onClick={ClearButtonHandler} className='icon-button' />
-                    {addStopHandler && <button onClick={HideButtonHandler} className="waves-effect waves-light btn-large">Схаваць</button>}
                 </div>
             </div>
         )
-    }
-
-    const FindStopHandler = async () => {
-        if (!stop.name) {
-            return message('Запоўнiце назву прыпынка');
-        }
-        try {
-            const foundStops = stops.filter(e => e.name.toLowerCase().includes(stop.name.toLowerCase()));
-            if (foundStops.length === 0) {
-                setFoundStops(null);
-                return message('Прыпынкi не знойдзены');
-            }
-            console.log(stops)
-            console.log(foundStops)
-            setFoundStops(foundStops);
-        } catch (e) { }
     }
 
     const ScheduleTable = () => {

@@ -17,6 +17,7 @@ import {
     MAP_TOKEN, geolocateControlStyle, fullscreenControlStyle, CustomMarker, CustomPopup,
     ROUTE_LAYER, CENTER, ZOOM, POINT_LAYER
 } from '../../components/MapComponents';
+import cancelIcon from "../../styles/images/cancel.svg"
 
 export const AdminStopsPage = () => {
     const { loading, request } = useHttp();
@@ -71,6 +72,12 @@ export const AdminStopsPage = () => {
 
     const OnChangeHandler = (event) => {
         setStop({ ...stop, [event.target.name]: event.target.value });
+        const foundStops = stops.filter(e => e.name.toLowerCase().includes(event.target.value.toLowerCase()));
+        if (foundStops.length === 0 || event.target.value === '') {
+            setFoundStops(null);
+            return;
+        }
+        setFoundStops(foundStops);
     };
 
     const AddStopHandler = async () => {
@@ -119,6 +126,7 @@ export const AdminStopsPage = () => {
 
     const HideButtonHandler = () => {
         setAddStopHandler(!addStopHandler);
+        setFoundStops(null);
         setStop({ name: '', latitude: '', longitude: '' });
     }
 
@@ -131,11 +139,8 @@ export const AdminStopsPage = () => {
                             Назва прыпынка:</label>
                         <input type="text" className="validate" maxLength={30} name="name" value={stop.name} onChange={OnChangeHandler} />
                     </div>
-                </div>
-                <div className="row">
+                    <img src={cancelIcon} onClick={ClearButtonHandler} className='icon-button' />
                     <button onClick={AddStopHandler} className="waves-effect waves-light btn-large">Дадаць</button>
-                    <button onClick={FindStopHandler} className="waves-effect waves-light btn-large">Знайсцi</button>
-                    <button onClick={ClearButtonHandler} className="waves-effect waves-light btn-large">Ачысцiць</button>
                     {addStopHandler && <button onClick={HideButtonHandler} className="waves-effect waves-light btn-large">Схаваць</button>}
                 </div>
             </div>

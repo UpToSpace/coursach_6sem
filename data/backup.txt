@@ -1,0 +1,2 @@
+cd D:\program files\mongoadmintools\bin>
+mongodump -u admin -p admin --authenticationDatabase admin -d transport
