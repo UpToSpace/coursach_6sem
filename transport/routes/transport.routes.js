@@ -107,11 +107,12 @@ router.get('/routes/stops', auth, async (req, res) => {
             );
 
             if (matchingEndObj) {
-                matchingObjects.push({ startObj, matchingEndObj });
+                //matchingObjects.push({ startObj, matchingEndObj });
+                matchingObjects.push(startObj);
             }
         });
 
-        //console.log(matchingObjects);
+        console.log(matchingObjects);
         if (matchingObjects.length === 0) {
             return res.status(404).json({ message: 'Маршрут не найден' });
         }
@@ -119,11 +120,12 @@ router.get('/routes/stops', auth, async (req, res) => {
         // find the transport with the closest arrival time
 
         // 1. get the schedules for the matching objects
-        const scheduleStart = await Schedule.find({ routeStopId: { $in: matchingObjects.map((item) => item.startObj._id) } });
-        const scheduleEnd = await Schedule.find({ routeStopId: { $in: matchingObjects.map((item) => item.matchingEndObj._id) } });
-        
+        const scheduleStart = await Schedule.find({ routeStopId: { $in: matchingObjects.map((item) => item._id) } });
 
-        const transport = await Transport.findOne({ _id: matchingObjects[0].startObj.transportId}).populate({
+        // TODO show nearest by schedule
+
+
+        const transport = await Transport.findOne({ _id: matchingObjects[0].transportId}).populate({
             path: 'routeStops',
             populate: {
                 path: 'stopId',

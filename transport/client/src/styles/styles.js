@@ -5,20 +5,22 @@ const colors = [
 export const reactSelectStyles = {
     option: (defaultStyles, state) => ({
         ...defaultStyles,
-        color: state.isSelected ? "#212529" : "#fff",
-        backgroundColor: state.isSelected ? "#a0a0a0" : "#212529",
+        // color: state.isSelected ? "#212529" : "#fff",
+        // backgroundColor: state.isSelected ? "#a0a0a0" : "#212529",
         "&:hover": {
-            color: "#212529",
-            backgroundColor: "#a0a0a0",
+            cursor: "pointer",
         },
     }),
 
     control: (defaultStyles) => ({
         ...defaultStyles,
-        backgroundColor: "#212529",
-        border: "none",
-        boxShadow: "none",
+        '&:hover': {
+            cursor: "pointer",
+        },
+        // backgroundColor: "#212529",
+        // border: "none",
+        // boxShadow: "none",
     }),
-    singleValue: (defaultStyles) => ({ ...defaultStyles, color: "#fff" }),
+    singleValue: (defaultStyles) => ({ ...defaultStyles, zIndex: "1000"}),
     menuPortal: base => ({ ...base, zIndex: 9999 })
 };

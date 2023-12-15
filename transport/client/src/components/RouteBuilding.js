@@ -4,6 +4,7 @@ import { useMessage } from '../hooks/message.hook';
 import { AuthContext } from '../context/AuthContext';
 import { Loader } from '../components/Loader';
 import Select from 'react-select';
+import { reactSelectStyles } from '../styles/styles';
 import { set } from 'mongoose';
 
 export const RouteBuilding = ({ stops, setSelectedTransport, showTransportRoute }) => {
@@ -12,12 +13,17 @@ export const RouteBuilding = ({ stops, setSelectedTransport, showTransportRoute 
     const auth = useContext(AuthContext);
     const message = useMessage();
     const [stopPoints, setStopPoints] = useState({ startStop: '', endStop: '' });
-    const [stopNames, setStopNames] = useState([]);
+    const [options, setOptions] = useState([])
 
     useEffect(() => {
         if (stops) {
-            const uniqueStops = Array.from(new Set(stops.map(type => type.name)))
-            setStopNames(uniqueStops);
+            const uniqueStops = Array.from(new Set(stops.map(type => type.name))).map(name => {
+                return {
+                    value: name,
+                    label: name
+                }
+            })
+            setOptions(uniqueStops);
         }
     }, [stops]);
 
@@ -41,37 +47,41 @@ export const RouteBuilding = ({ stops, setSelectedTransport, showTransportRoute 
     }
 
     const handleChange = async (event) => {
-        //console.log(stopPoints)
+        console.log(stopPoints)
         setStopPoints({ ...stopPoints, [event.target.name]: event.target.value.value });
     }
 
     return (
-        <>
+        <div className='chooseroute-form'>
             <Select
+                styles={reactSelectStyles}
                 onChange={(startStop) => handleChange({
                     target: {
                         name: "startStop",
                         value: startStop
                     }
                 })}
-                options={stopNames.map((type, index) => {
-                    return { value: type, label: type }
-                })}
+                options={options}
+                isOptionDisabled={(option) => option.value === stopPoints.endStop}
+                openMenuOnClick={false}
                 menuPortalTarget={document.body}
+                maxMenuHeight={"200px"}
             />
             <Select
+                styles={reactSelectStyles}
                 onChange={(endStop) => handleChange({
                     target: {
                         name: "endStop",
                         value: endStop
                     }
                 })}
-                options={stopNames.map((type, index) => {
-                    return { value: type, label: type }
-                })}
+                options={options}
+                openMenuOnClick={false}
+                isOptionDisabled={(option) => option.value === stopPoints.startStop}
                 menuPortalTarget={document.body}
+                maxMenuHeight={"200px"}
             />
             <button className="waves-effect waves-light btn-large" onClick={getTransportByStops}>Паказаць маршрут</button>
-        </>
+        </div>
     )
 }
