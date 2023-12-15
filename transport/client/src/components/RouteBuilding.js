@@ -6,12 +6,12 @@ import { Loader } from '../components/Loader';
 import Select from 'react-select';
 import { set } from 'mongoose';
 
-export const RouteBuilding = ({ stops, setSelectedTransport }) => {
+export const RouteBuilding = ({ stops, setSelectedTransport, showTransportRoute }) => {
 
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
     const message = useMessage();
-    const [stopPoints, setStopPoints] = useState(null);
+    const [stopPoints, setStopPoints] = useState({ startStop: '', endStop: '' });
     const [stopNames, setStopNames] = useState([]);
 
     useEffect(() => {
@@ -22,7 +22,7 @@ export const RouteBuilding = ({ stops, setSelectedTransport }) => {
     }, [stops]);
 
     const getTransportByStops = async () => {
-        if (!stopPoints || stopPoints.startStop === '' || stopPoints.endStop === '') {
+        if (stopPoints.startStop === '' || stopPoints.endStop === '') {
             message('Запоўнiце пустыя палi');
             return;
         }
@@ -33,6 +33,7 @@ export const RouteBuilding = ({ stops, setSelectedTransport }) => {
         try {
             const data = await request('/api/transports/routes/stops?startStop=' + stopPoints.startStop + '&endStop=' + stopPoints.endStop, 'GET', null);
             setSelectedTransport(data);
+            showTransportRoute(data, null);
             console.log(data);
         } catch (e) {
             message(e.message);
@@ -70,7 +71,7 @@ export const RouteBuilding = ({ stops, setSelectedTransport }) => {
                 })}
                 menuPortalTarget={document.body}
             />
-            <button onClick={getTransportByStops}>Построить маршрут</button>
+            <button className="waves-effect waves-light btn-large" onClick={getTransportByStops}>Паказаць маршрут</button>
         </>
     )
 }

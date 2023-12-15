@@ -116,6 +116,13 @@ router.get('/routes/stops', auth, async (req, res) => {
             return res.status(404).json({ message: 'Маршрут не найден' });
         }
 
+        // find the transport with the closest arrival time
+
+        // 1. get the schedules for the matching objects
+        const scheduleStart = await Schedule.find({ routeStopId: { $in: matchingObjects.map((item) => item.startObj._id) } });
+        const scheduleEnd = await Schedule.find({ routeStopId: { $in: matchingObjects.map((item) => item.matchingEndObj._id) } });
+        
+
         const transport = await Transport.findOne({ _id: matchingObjects[0].startObj.transportId}).populate({
             path: 'routeStops',
             populate: {

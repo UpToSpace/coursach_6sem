@@ -303,7 +303,7 @@ export const MapPage = () => {
                     setSelectedTransport, selectedTransport
                 })}
             </div>
-            {stops && <RouteBuilding stops={stops} setSelectedTransport={setSelectedTransport} />}
+            {stops && <RouteBuilding stops={stops} setSelectedTransport={setSelectedTransport} showTransportRoute={showTransportRoute}/>}
                 {routeStops && <h5>Расклад на {selectedTransport.number} {selectedTransport.type}</h5>}
             {routeStops && ScheduleTable()}
         </div >
