@@ -3,6 +3,7 @@ const config = require('config');
 const Transport = require('../models/Transport');
 const RouteStop = require('../models/RouteStop');
 const Schedule = require('../models/Schedule');
+const Stop = require('../models/Stop');
 const auth = require('../middleware/auth.middleware');
 const admin = require('../middleware/admin.middleware');
 const router = Router();
@@ -55,7 +56,7 @@ router.get('/:stopId', auth, async (req, res) => {
 
                 return { ...routeStop, schedule: routeStopSchedule };
             });
-            
+
             return {
                 ...transport,
                 routeStops: updatedRouteStops,
@@ -79,6 +80,57 @@ router.get('/types/:type', auth, async (req, res) => {
         res.status(500).json({ message: 'Что-то пошло не так /api/transport/:type, попробуйте снова' });
     }
 });
+
+// /api/transports/routes/stops
+router.get('/routes/stops', auth, async (req, res) => {
+    try {
+        const { startStop, endStop } = req.query;
+        //console.log(startStop, endStop);
+        const startStopDB = await Stop.find({ name: startStop }, { _id: 1 });
+        const endStopDB = await Stop.find({ name: endStop }, { _id: 1 });
+        //console.log(startStopDB, endStopDB);
+        const startStopIds = startStopDB.map((item) => item._id);
+        const endStopIds = endStopDB.map((item) => item._id);
+
+        //console.log('start ' + startStopIds[0]);
+        const routeStopsStart = await RouteStop.find({ stopId: { $in: startStopIds } });
+        const routeStopsEnd = await RouteStop.find({ stopId: { $in: endStopIds } });
+        // console.log(routeStopsStart);
+        // console.log(routeStopsEnd);
+
+        const matchingObjects = [];
+
+        routeStopsStart.forEach(startObj => {
+            const matchingEndObj = routeStopsEnd.find(endObj =>
+                endObj.transportId.toString() === startObj.transportId.toString() &&
+                endObj.stopOrder > startObj.stopOrder
+            );
+
+            if (matchingEndObj) {
+                matchingObjects.push({ startObj, matchingEndObj });
+            }
+        });
+
+        //console.log(matchingObjects);
+        if (matchingObjects.length === 0) {
+            return res.status(404).json({ message: 'Маршрут не найден' });
+        }
+
+        const transport = await Transport.findOne({ _id: matchingObjects[0].startObj.transportId}).populate({
+            path: 'routeStops',
+            populate: {
+                path: 'stopId',
+                model: 'Stop'
+            }
+        }).lean();
+        //console.log(transport)
+        res.json(transport);
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ message: 'Что-то пошло не так /api/transports/routes/stops, попробуйте снова' });
+    }
+}
+);
 
 // /api/transports
 router.post('/', admin, async (req, res) => {

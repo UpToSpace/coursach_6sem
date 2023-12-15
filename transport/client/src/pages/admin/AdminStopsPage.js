@@ -72,12 +72,14 @@ export const AdminStopsPage = () => {
 
     const OnChangeHandler = (event) => {
         setStop({ ...stop, [event.target.name]: event.target.value });
-        const foundStops = stops.filter(e => e.name.toLowerCase().includes(event.target.value.toLowerCase()));
-        if (foundStops.length === 0 || event.target.value === '') {
-            setFoundStops(null);
-            return;
+        if (!addStopHandler) {
+            const foundStops = stops.filter(e => e.name.toLowerCase().includes(event.target.value.toLowerCase()));
+            if (foundStops.length === 0 || event.target.value === '') {
+                setFoundStops(null);
+                return;
+            }
+            setFoundStops(foundStops);
         }
-        setFoundStops(foundStops);
     };
 
     const AddStopHandler = async () => {
@@ -101,22 +103,6 @@ export const AdminStopsPage = () => {
         } else {
             message('Выбярыце месцазнаходжанне прыпынка');
         }
-    }
-
-    const FindStopHandler = async () => {
-        if (!stop.name) {
-            return message('Запоўнiце назву прыпынка');
-        }
-        try {
-            const foundStops = stops.filter(e => e.name.toLowerCase().includes(stop.name.toLowerCase()));
-            if (foundStops.length === 0) {
-                setFoundStops(null);
-                return message('Прыпынкi не знойдзены');
-            }
-            console.log(stops)
-            console.log(foundStops)
-            setFoundStops(foundStops);
-        } catch (e) { }
     }
 
     const ClearButtonHandler = async () => {

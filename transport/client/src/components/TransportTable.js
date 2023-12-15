@@ -7,7 +7,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
     setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite,
     setSelectedTransport, selectedTransport }) => {
     const tabHandleClick = (type) => {
-        console.log(transports)
+        //console.log(transports)
         setSelectedTransportType(type)
         setRouteStops(null);
         setSchedule(null);

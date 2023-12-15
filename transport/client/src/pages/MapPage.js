@@ -21,6 +21,7 @@ import { TransportTable } from '../components/TransportTable';
 import { SelectedStopInfo } from '../components/SelectedStopInfo';
 import { useMessage } from '../hooks/message.hook';
 import { transportTypes } from '../components/arrays';
+import { RouteBuilding } from '../components/RouteBuilding';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
@@ -302,6 +303,7 @@ export const MapPage = () => {
                     setSelectedTransport, selectedTransport
                 })}
             </div>
+            {stops && <RouteBuilding stops={stops} setSelectedTransport={setSelectedTransport} />}
                 {routeStops && <h5>Расклад на {selectedTransport.number} {selectedTransport.type}</h5>}
             {routeStops && ScheduleTable()}
         </div >
