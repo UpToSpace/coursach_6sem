@@ -69,7 +69,7 @@ export const AccountPage = () => {
                 <h1>Акаунт</h1>
                 <a href="/" onClick={logoutHandler}>Выйсцi з акаунта</a>
                 <p>Пошта: {userEmail}</p>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className='changepassword-form' >
                     <h3>Змянiць пароль</h3>
                     <div>
                         <label htmlFor="oldPassword">Стары пароль</label>

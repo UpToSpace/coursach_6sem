@@ -6,6 +6,7 @@ const Schedule = require('../models/Schedule');
 const Stop = require('../models/Stop');
 const auth = require('../middleware/auth.middleware');
 const admin = require('../middleware/admin.middleware');
+const { convertArrivalTimeToMilliseconds } = require('../services/functions');
 const router = Router();
 
 // /api/transports
@@ -112,7 +113,7 @@ router.get('/routes/stops', auth, async (req, res) => {
             }
         });
 
-        console.log(matchingObjects);
+        //console.log(matchingObjects);
         if (matchingObjects.length === 0) {
             return res.status(404).json({ message: 'Маршрут не найден' });
         }
@@ -121,18 +122,30 @@ router.get('/routes/stops', auth, async (req, res) => {
 
         // 1. get the schedules for the matching objects
         const scheduleStart = await Schedule.find({ routeStopId: { $in: matchingObjects.map((item) => item._id) } });
+        console.log(scheduleStart);
+        if (scheduleStart.length === 0) {
+            return res.status(404).json({ message: 'Расписание не найдено' });
+        }
+        console.log(convertArrivalTimeToMilliseconds(scheduleStart[0].arrivalTime))
+        console.log(new Date().getTime())
+        const nearestScheduleStart = scheduleStart.filter((item) => convertArrivalTimeToMilliseconds(item.arrivalTime) > new Date().getTime())
+        .sort((a, b) => convertArrivalTimeToMilliseconds(a.arrivalTime) - convertArrivalTimeToMilliseconds(b.arrivalTime))[0];
+        console.log(nearestScheduleStart);
 
-        // TODO show nearest by schedule
+        if (!nearestScheduleStart) {
+            return res.status(404).json({ message: 'Расписание не найдено 2' });
+        }
 
+        const transportRouteStop = await RouteStop.findOne({ _id: nearestScheduleStart.routeStopId });
 
-        const transport = await Transport.findOne({ _id: matchingObjects[0].transportId}).populate({
+        const transport = await Transport.findOne({ _id: transportRouteStop.transportId}).populate({
             path: 'routeStops',
             populate: {
                 path: 'stopId',
                 model: 'Stop'
             }
         }).lean();
-        //console.log(transport)
+        console.log(transport)
         res.json(transport);
     } catch (e) {
         console.log(e);

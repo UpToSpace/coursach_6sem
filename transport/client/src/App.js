@@ -14,7 +14,6 @@ import { ErrorBoundary } from './pages/errorpages/ErrorBoundary';
 
 function App() {
   const { login, logout, userId, ready, userRole } = useAuth();
-  const flag = true;
   const message = useMessage();
   const { request } = useHttp();
   // console.log('App.js: userRole = ', userRole)
