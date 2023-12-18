@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useHttp } from '../hooks/http.hook';
 import { findClosestTimes } from './../components/functions';
 
-export const SelectedStopInfo = ({ stop, showTransportRoute, favourites, selectedTransport, setSelectedTransport }) => {
+export const SelectedStopInfo = ({ stop, showTransportRoute, favourites, selectedTransport, setSelectedTransport, showOnlyFavourites }) => {
     const { loading, request } = useHttp();
     const [transportList, setTransportList] = useState(null);
 
@@ -53,7 +53,7 @@ export const SelectedStopInfo = ({ stop, showTransportRoute, favourites, selecte
                                 </tr>
                             }
                         })}
-                        {transportList && transportList
+                        {!showOnlyFavourites && transportList && transportList
                             .filter((e) => !favourites.some((item) => item.transportId === e._id))
                             .sort((a, b) => +a.number > +b.number)
                             .map((transport, index) => {

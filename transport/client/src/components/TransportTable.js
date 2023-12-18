@@ -5,7 +5,7 @@ import fullheart from '../styles/images/fullheart.png'
 
 export const TransportTable = ({ transports, selectedTransportType, setSelectedTransportType, setRoutes,
     setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite,
-    setSelectedTransport, selectedTransport }) => {
+    setSelectedTransport, selectedTransport, showOnlyFavourites }) => {
     const tabHandleClick = (type) => {
         //console.log(transports)
         setSelectedTransportType(type)
@@ -58,7 +58,8 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                         {transports
                             .filter((e) => e.type === selectedTransportType && !favourites.some((item) => item.transportId === e._id))
                             .sort((a, b) => +a.number > +b.number)
-                            .map((transport, index) => (
+                            .map((transport, index) => {
+                                if (!showOnlyFavourites || selectedTransport?._id === transport._id) return (
                                 <tr key={index} onClick={() => {showTransportRoute(transport, selectedStop); setSelectedTransport(transport)}} 
                                     className={selectedTransport && selectedTransport._id === transport._id ? 'not-favourite chosen' : 'not-favourite'}>
                                     <td>{transport.number}</td>
@@ -70,7 +71,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            )})}
                     </tbody>
                 </table>
             }

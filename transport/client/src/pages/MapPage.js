@@ -22,6 +22,7 @@ import { SelectedStopInfo } from '../components/SelectedStopInfo';
 import { useMessage } from '../hooks/message.hook';
 import { transportTypes } from '../components/arrays';
 import { RouteBuilding } from '../components/RouteBuilding';
+import { set } from 'mongoose';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
@@ -49,6 +50,7 @@ export const MapPage = () => {
     const [foundStops, setFoundStops] = useState(null);
     const [favourites, setFavourites] = useState(null);
     const [nearestStops, setNearestStops] = useState(null);
+    const [showOnlyFavourites, setShowOnlyFavourites] = useState(false);
 
     const getTransports = useCallback(async () => {
         const data = await request('/api/transports', 'GET', null);
@@ -125,6 +127,16 @@ export const MapPage = () => {
         setSelectedStop(stop)
     }
 
+    const checkboxHandleChange = (event) => {
+        setShowOnlyFavourites(event.target.checked)
+        if (selectedTransport && favourites.filter(e => e.transportId === selectedTransport._id).length === 0) {
+            setRouteStops(null)
+            setSelectedTransportType(transportTypes[0])
+            setSelectedTransport(null)
+            setRoutes(null)
+        }
+    }
+
     const AddStopForm = () => {
         return (
             <div className="col s12 container">
@@ -135,6 +147,12 @@ export const MapPage = () => {
                         <input type="text" className="validate" maxLength={30} name="name" value={stop.name} onChange={OnChangeHandler} />
                     </div>
                     <img src={cancelIcon} onClick={ClearButtonHandler} className='icon-button' />
+                    <p>
+                        <label>
+                            <input type="checkbox" className="filled-in" onChange={checkboxHandleChange} checked={showOnlyFavourites} />
+                            <span>Толькi любiмыя</span>
+                        </label>
+                    </p>
                 </div>
             </div>
         )
@@ -155,11 +173,22 @@ export const MapPage = () => {
                                         {/* {console.log(schedule)}
                                         {console.log(item)}
                                         {console.log(schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber))} */}
-                                        {schedule.length !== 0 && schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber).map((item, index) => {
-                                            return (
-                                                <td key={index}>{item.arrivalTime}</td>
-                                            )
-                                        })}
+
+                                        {schedule.length !== 0 && schedule.filter(e => e.routeStopId._id === item._id)
+                                            .sort((a, b) => {
+                                                if (a.arrivalTime < b.arrivalTime) {
+                                                    return -1; // a should be sorted before b
+                                                } else if (a.arrivalTime > b.arrivalTime) {
+                                                    return 1; // b should be sorted before a
+                                                } else {
+                                                    return 0; // the order of a and b remains unchanged
+                                                }
+                                            })
+                                            .map((item, index) => {
+                                                return (
+                                                    <td key={index}>{item.arrivalTime}</td>
+                                                )
+                                            })}
                                     </tr>
                                 )
                             })
@@ -186,6 +215,7 @@ export const MapPage = () => {
     }
 
     const FindNearestStopsHandler = (e) => {
+        console.log(e)
         const R = 6371; // Earth radius in kilometers
         const stopAmount = 5;
         // Calculate distances to all stops
@@ -231,7 +261,7 @@ export const MapPage = () => {
                     onMove={event => setViewState(event.viewState)}
                     style={{ width: "55%", height: 500 }}
                     mapboxAccessToken={MAP_TOKEN}
-                    mapStyle="mapbox://styles/mapbox/streets-v9"   
+                    mapStyle="mapbox://styles/mapbox/streets-v9"
                 >
                     <FullscreenControl style={fullscreenControlStyle} />
                     <GeolocateControl
@@ -296,15 +326,16 @@ export const MapPage = () => {
                         favourites={favourites}
                         selectedTransport={selectedTransport}
                         setSelectedTransport={setSelectedTransport}
+                        showOnlyFavourites={showOnlyFavourites}
                     />}
                 {transports && TransportTable({
                     transports, selectedTransportType, setSelectedTransportType,
-                    setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite, 
-                    setSelectedTransport, selectedTransport
+                    setRoutes, setRouteStops, setSchedule, showTransportRoute, selectedStop, favourites, addToFavourite,
+                    setSelectedTransport, selectedTransport, showOnlyFavourites
                 })}
             </div>
-            {stops && <RouteBuilding stops={stops} setSelectedTransport={setSelectedTransport} showTransportRoute={showTransportRoute}/>}
-                {routeStops && <h5>Расклад на {selectedTransport.number} {selectedTransport.type}</h5>}
+            {stops && <RouteBuilding stops={stops} setSelectedTransport={setSelectedTransport} showTransportRoute={showTransportRoute} />}
+            {routeStops && <h5>Расклад на {selectedTransport.number} {selectedTransport.type}</h5>}
             {routeStops && ScheduleTable()}
         </div >
     )

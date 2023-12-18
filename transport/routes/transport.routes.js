@@ -147,6 +147,7 @@ router.get('/routes/stops', auth, async (req, res) => {
         }).lean();
         console.log(transport)
         res.json(transport);
+
     } catch (e) {
         console.log(e);
         res.status(500).json({ message: 'Что-то пошло не так /api/transports/routes/stops, попробуйте снова' });

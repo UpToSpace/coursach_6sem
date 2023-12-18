@@ -63,6 +63,28 @@ export const AdminRoutesPage = () => {
         setSelectedStop(null)
     };
 
+    const fetchDirectionsForStops = (stops) => {
+        const batchSize = 18; // Maximum number of stops per request
+        const numBatches = Math.ceil(stops.length / batchSize);
+
+        const requests = [];
+        for (let i = 0; i < numBatches; i++) {
+            const batch = stops.slice(i * batchSize, (i + 1) * batchSize);
+            const coordinates = batch.map((stop) => `${stop.longitude},${stop.latitude}`).join(';');
+            const request = fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${coordinates}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
+                .then((res) => res.json());
+            requests.push(request);
+        }
+
+        // Wait for all requests to finish
+        Promise.all(requests)
+            .then((responses) => {
+                const routes = responses.flatMap((data) => data.routes[0].geometry.coordinates);
+                setRoutes(routes);
+            })
+            .catch((error) => console.error(error));
+    }
+
     const openPopup = (stop) => {
         console.log(showAddForm)
         setSelectedStop(stop)
@@ -86,19 +108,9 @@ export const AdminRoutesPage = () => {
                     }
                 }
             } else {
-                if (routeStops.length === 18) {
-                    return message("Вы можаце дадаць толькі 18 прыпынкаў")
-                }
                 setRouteStops((prev) => [...prev, stop])
                 if (routeStops.length > 0) {
-                    fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${[...routeStops, stop].map((stop) => `${stop.longitude},${stop.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
-                        .then((res) => res.json())
-                        .then((data) => {
-                            console.log([...routeStops, stop])
-                            console.log(data)
-                            setRoutes(data.routes[0].geometry.coordinates);
-                        })
-                        .catch((error) => console.error(error));
+                    fetchDirectionsForStops([...routeStops, stop]);
                 }
             }
         }

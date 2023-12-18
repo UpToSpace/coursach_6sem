@@ -62,6 +62,7 @@ export const RouteBuilding = ({ stops, setSelectedTransport, showTransportRoute 
                     }
                 })}
                 options={options}
+                defaultValue={stopPoints.startStop}
                 isOptionDisabled={(option) => option.value === stopPoints.endStop}
                 openMenuOnClick={false}
                 menuPortalTarget={document.body}
@@ -76,6 +77,7 @@ export const RouteBuilding = ({ stops, setSelectedTransport, showTransportRoute 
                     }
                 })}
                 options={options}
+                defaultValue={stopPoints.endStop}
                 openMenuOnClick={false}
                 isOptionDisabled={(option) => option.value === stopPoints.startStop}
                 menuPortalTarget={document.body}

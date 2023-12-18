@@ -222,8 +222,7 @@ h5 {
 }
 
 .add-form {
-    display: flex;
-    justify-content: space-between;
+    width: 500px;
     align-items: center;
     margin-bottom: 0;
 
@@ -233,9 +232,7 @@ h5 {
 }
 
 .showordelete-form {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    width: 500px;
     margin-bottom: 0;
 
     input {

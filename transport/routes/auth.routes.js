@@ -153,6 +153,9 @@ router.post('/reset', async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: 'Карыстальнiк не знойдзены' });
         }
+        if (!user.isActivated) {
+            return res.status(400).json({ message: 'Праверце пошту, каб актываваць акаунт' });
+        }
         const resetLink = uuid.v4();
         await MailService.sendResetMail(email, `${config.get('clientUrl')}/reset?resetLink=${resetLink}`);
         user.activationLink = resetLink;

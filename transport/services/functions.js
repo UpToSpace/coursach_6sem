@@ -4,6 +4,7 @@ function convertArrivalTimeToMilliseconds(time) {
 
     // Create a Date object with today's date and the specified hours and minutes
     const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 1);
     currentDate.setHours(hours);
     currentDate.setMinutes(minutes);
 

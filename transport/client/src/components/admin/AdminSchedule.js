@@ -19,13 +19,13 @@ const AdminSchedule = ({ transport }) => {
             const routeStops = await request(`/api/routes?type=${transport.transportType}&number=${transport.number}`);
             setRouteStops(routeStops);
             setSchedule(data);
-            M.updateTextFields()
             // console.log(data);
         } catch (e) { }
-    }, [auth.token, request, transport]);
+    }, [request, transport]);
 
     useEffect(() => {
         getSchedule();
+        M.updateTextFields()
     }, [getSchedule]);
 
     if (loading) {
@@ -53,22 +53,25 @@ const AdminSchedule = ({ transport }) => {
             return message('Не запоўненае расклад')
         }
         for (let i = 0; i < newSchedule.length; i++) {
-            console.log(newSchedule[i])
+            //console.log(newSchedule[i])
+            if (i !== 0 && newSchedule[i].arrivalTime <= newSchedule[i - 1].arrivalTime) {
+                return message(`Час прыбыта на прыпынак ${routeStops[i].stopId.name} не можа быць раней за час або аднолькавы часу прыбыта на прыпынак ${routeStops[i - 1].stopId.name}`)
+            }
             if (!(new RegExp(/^([01]\d|2[0-3]):([0-5]\d)$/).test(newSchedule[i].arrivalTime))) {
                 return message(`Час прыбыта на прыпынак ${routeStops[i].stopId.name} некарэктны`)
             }
         }
-        console.log(schedule)
+        //console.log(schedule)
         const scheduleNumber = schedule.length === 0 ? 0 : schedule.sort(e => e.scheduleNumber)[schedule.length - 1].scheduleNumber + 1;
-        console.log(scheduleNumber)
+        //console.log(scheduleNumber)
         const data = await request('/api/schedule', 'POST', { schedule: newSchedule, scheduleNumber: scheduleNumber });
-        console.log(data)
+        //console.log(data)
         setNewSchedule([]);
         await getSchedule();
     }
 
     const DeleteScheduleHandler = async (scheduleNumber, routeStops) => {
-        if (window.confirm('Вы упэўнены, што хлчаце выдалiць расклад?')) {
+        if (window.confirm('Вы упэўнены, што хочаце выдалiць расклад?')) {
             const data = await request('/api/schedule', 'DELETE', { scheduleNumber: scheduleNumber, routeStops: routeStops });
             await getSchedule();
         }
@@ -81,35 +84,49 @@ const AdminSchedule = ({ transport }) => {
             }
             return result;
         }, []);
+        //console.log(filteredSchedule)
+        //console.log(routeStops)
         return (
             <>
                 <table>
                     <tbody>
-                        <tr><td></td><td></td>{filteredSchedule.map((item, index) => {
+                        <tr><td></td><td></td>{filteredSchedule.map((item) => {
                             return (
                                 <>
-                                    <th key={index}><button onClick={(e) => DeleteScheduleHandler(item.scheduleNumber, routeStops)} className="waves-effect waves-light btn-small">Выдалiць</button></th>
+                                    <th key={item._id}><button onClick={(e) => DeleteScheduleHandler(item.scheduleNumber, routeStops)} className="waves-effect waves-light btn-small">Выдалiць</button></th>
                                 </>
                             )
                         })}</tr>
-                        {routeStops.sort(e => e.stopOrder).map((item, index) => {
+                        {schedule && routeStops.sort(e => e.stopOrder).map((item) => {
                             return (
                                 <>
-                                    <tr key={index}>
+                                    <tr key={item._id}>
                                         <th>{item.stopId.name}</th>
                                         <td>
                                             <div style={{ width: "60px" }}>
                                                 <input placeholder="06:09" pattern="[0-2][0-9]:[0-5][0-9]" maxLength={5} onChange={(e) => scheduleHandleChange(e, item)} type="text" className="validate" />
                                             </div>
                                         </td>
-                                        {/* {console.log(schedule)}
-                                        {console.log(item)}
-                                        {console.log(schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber))} */}
+                                         {/* {console.log(schedule)} */}
+                                        {console.log(schedule.filter(e => e.routeStopId._id === item._id)
+                                            .sort((a, b) => a.arrivalTime > b.arrivalTime))}
+                                        {/* {console.log(item)} */}
+                                        {/* {console.log(schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber))} */}
                                         {/* {console.log(filteredSchedule)} */}
-                                        {schedule.filter(e => e.routeStopId._id === item._id).sort(e => e.scheduleNumber).map((item, index) => {
+                                        {schedule.filter(e => e.routeStopId._id === item._id)
+                                            .sort((a, b) => { // was by stoporder
+                                                if (a.arrivalTime < b.arrivalTime) {
+                                                    return -1; // a should be sorted before b
+                                                } else if (a.arrivalTime > b.arrivalTime) {
+                                                    return 1; // b should be sorted before a
+                                                } else {
+                                                    return 0; // the order of a and b remains unchanged
+                                                }
+                                            })
+                                            .map((item) => {
                                             return (
                                                 <>
-                                                    <td key={index}>{item.arrivalTime}</td>
+                                                    <td key={item._id}>{item.arrivalTime}</td>
                                                 </>
                                             )
                                         })}
