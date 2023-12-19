@@ -3,6 +3,7 @@ const config = require('config');
 const mongoose = require('mongoose');
 const https = require("https");
 const fs = require("fs");
+const http = require("http")
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -27,21 +28,24 @@ const PORT = config.get('port') || 5000;
 
 async function start() {
     try {
-        await mongoose.connect(config.get('mongoUri'), {
+        await mongoose.connect('mongodb://admin:admin@host.docker.internal:27017/transport?authSource=admin&authMechanism=DEFAULT', {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
-        const httpsServer = https.createServer(
-            {
-                key: fs.readFileSync("./cert/L.key"),
-                cert: fs.readFileSync("./cert/L.crt"),
-            },
-            app);
+        // const httpsServer = https.createServer(
+        //     {
+        //         key: fs.readFileSync("./cert/L.key"),
+        //         cert: fs.readFileSync("./cert/L.crt"),
+        //     },
+        //     app);
 
-        httpsServer.listen(PORT, () => {
+        // httpsServer.listen(PORT, () => {
+        //     console.log(`Server has been started on port ${PORT}...`)
+        // });
+        const server = http.createServer(app);
+        server.listen(PORT, () => {
             console.log(`Server has been started on port ${PORT}...`)
         });
-
     } catch (e) {
         console.log('Server Error', e.message);
         process.exit(1);
