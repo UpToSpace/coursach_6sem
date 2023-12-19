@@ -5,6 +5,7 @@ import { Loader } from '../components/Loader';
 import Map, { Marker, Popup, Source } from 'react-map-gl';
 import flagIcon from "../styles/images/flag.svg"
 import redflagIcon from "../styles/images/redflag.svg"
+import blueflagIcon from "../styles/images/blueflag.svg"
 import searchIcon from "../styles/images/search.svg"
 import cancelIcon from "../styles/images/cancel.svg"
 import ReactMapGL, {
@@ -22,34 +23,33 @@ import { SelectedStopInfo } from '../components/SelectedStopInfo';
 import { useMessage } from '../hooks/message.hook';
 import { transportTypes } from '../components/arrays';
 import { RouteBuilding } from '../components/RouteBuilding';
-import { set } from 'mongoose';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
     const auth = useContext(AuthContext);
     const message = useMessage();
-    const [stops, setStops] = useState();
-    const [routes, setRoutes] = useState(); // routes for selected transport
+    const [stops, setStops] = useState([]);
+    const [routes, setRoutes] = useState([]); // routes for selected transport
     const [selectedStop, setSelectedStop] = useState(null);
     const [viewState, setViewState] = useState({
         latitude: CENTER[1],
         longitude: CENTER[0],
         zoom: ZOOM
     });
-    const [transports, setTransports] = useState();
+    const [transports, setTransports] = useState([]);
     const [selectedTransportType, setSelectedTransportType] = useState(transportTypes[0]);
     const [selectedTransport, setSelectedTransport] = useState(null);
     const [schedule, setSchedule] = useState([]);
-    const [routeStops, setRouteStops] = useState();
+    const [routeStops, setRouteStops] = useState([]);
     const [stop, setStop] = useState({
         name: '',
         latitude: '',
         longitude: ''
     });
     const [addStopHandler, setAddStopHandler] = useState(false);
-    const [foundStops, setFoundStops] = useState(null);
-    const [favourites, setFavourites] = useState(null);
-    const [nearestStops, setNearestStops] = useState(null);
+    const [foundStops, setFoundStops] = useState([]);
+    const [favourites, setFavourites] = useState([]);
+    const [nearestStops, setNearestStops] = useState([]);
     const [showOnlyFavourites, setShowOnlyFavourites] = useState(false);
 
     const getTransports = useCallback(async () => {
@@ -61,15 +61,15 @@ export const MapPage = () => {
     const getStops = useCallback(async () => {
         const data = await request('/api/stops', 'GET', null);
         setStops(data);
-        console.log(data);
+        //console.log(data);
     }, [auth.token, request])
 
     const getSchedule = async (transport) => {
         const schedule = await request(`/api/schedule?type=${transport.type}&number=${transport.number}`, 'GET', null);
         const routeStops = await request(`/api/routes?type=${transport.type}&number=${transport.number}`, 'GET', null);
         setSchedule(schedule);
-        setRouteStops(routeStops);
         console.log(schedule);
+        setRouteStops(routeStops); //
         console.log(routeStops);
     }
 
@@ -130,7 +130,7 @@ export const MapPage = () => {
     const checkboxHandleChange = (event) => {
         setShowOnlyFavourites(event.target.checked)
         if (selectedTransport && favourites.filter(e => e.transportId === selectedTransport._id).length === 0) {
-            setRouteStops(null)
+            setRouteStops([])
             setSelectedTransportType(transportTypes[0])
             setSelectedTransport(null)
             setRoutes(null)
@@ -272,7 +272,7 @@ export const MapPage = () => {
                         onGeolocate={FindNearestStopsHandler}
                         onTrackUserLocationEnd={() => setNearestStops([])}
                     />
-                    {foundStops && foundStops.map(foundStop => {
+                    {foundStops && foundStops.map(foundStop => { // stops found by user search
                         return (<CustomMarker
                             key={foundStop._id}
                             stop={foundStop}
@@ -281,7 +281,16 @@ export const MapPage = () => {
                             height={ZOOM * 2 + "px"}
                         />)
                     })}
-                    {stops.map(stop => {
+                        {routeStops && routeStops.map(routeStop => { // stops for selected transport
+                            return (<CustomMarker
+                                key={routeStop._id}
+                                stop={routeStop.stopId}
+                                openPopup={openPopup}
+                                icon={blueflagIcon}
+                                height={ZOOM * 2 + "px"}
+                            />)
+                        })}
+                    {stops.map(stop => { // all stops
                         return (
                             <CustomMarker
                                 key={stop._id}
@@ -290,7 +299,7 @@ export const MapPage = () => {
                             />
                         )
                     })}
-                    {nearestStops && nearestStops.map(stop => {
+                    {nearestStops && nearestStops.map(stop => { // stops nearest to user's location
                         return (
                             <CustomMarker
                                 key={stop._id}
@@ -301,7 +310,7 @@ export const MapPage = () => {
                             />
                         )
                     })}
-                    {selectedStop !== null &&
+                    {selectedStop !== null && // being clicked by user
                         <CustomPopup
                             stop={selectedStop}
                             closePopup={closePopup}
@@ -334,9 +343,9 @@ export const MapPage = () => {
                     setSelectedTransport, selectedTransport, showOnlyFavourites
                 })}
             </div>
-            {stops && <RouteBuilding stops={stops} setSelectedTransport={setSelectedTransport} showTransportRoute={showTransportRoute} />}
-            {routeStops && <h5>Расклад на {selectedTransport.number} {selectedTransport.type}</h5>}
-            {routeStops && ScheduleTable()}
+            {stops?.length !== 0 && <RouteBuilding stops={stops} setSelectedTransport={setSelectedTransport} showTransportRoute={showTransportRoute} />}
+            {routeStops?.length !== 0 && selectedTransport && <h5>Расклад на {selectedTransport.number} {selectedTransport.type}</h5>}
+            {routeStops?.length !== 0 && ScheduleTable()}
         </div >
     )
 }

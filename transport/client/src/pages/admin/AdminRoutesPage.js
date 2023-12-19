@@ -19,8 +19,9 @@ import M from 'materialize-css';
 import Select from 'react-select';
 import { AdminSchedule } from '../../components/admin/AdminSchedule';
 import flag from "../../styles/images/redflag.svg"
-import { set } from 'mongoose';
+import blueflag from "../../styles/images/blueflag.svg"
 import { reactSelectStyles } from '../../styles/styles';
+import { set } from 'mongoose';
 
 export const AdminRoutesPage = () => {
     const { loading, request, error } = useHttp();
@@ -41,6 +42,7 @@ export const AdminRoutesPage = () => {
     });
     const [transportNumbers, setTransportNumbers] = useState([]);
     const [showAddForm, setShowAddForm] = useState(false);
+    const [routeStopsForSelectedTransport, setRouteStopsForSelectedTransport] = useState([]);
 
     const getStops = useCallback(async () => {
         const data = await request('/api/stops');
@@ -99,7 +101,7 @@ export const AdminRoutesPage = () => {
                             .then((res) => res.json())
                             .then((data) => {
                                 console.log([...routeStops, stop])
-                                console.log(data)
+                                //console.log(data)
                                 setRoutes(data.routes[0].geometry.coordinates);
                             })
                             .catch((error) => console.error(error));
@@ -152,6 +154,7 @@ export const AdminRoutesPage = () => {
         message('Выбярыце транспарт i прыпынкi для маршрута');
         setRouteStops([]);
         setRoutes([]);
+        setRouteStopsForSelectedTransport([]);
     }
 
     const CancelButtonHandler = () => {
@@ -198,7 +201,6 @@ export const AdminRoutesPage = () => {
                     styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
                 />
                 <button onClick={DeleteRouteHandler} className="waves-effect waves-light btn-small">Выдалiць</button>
-                <button onClick={() => ShowRouteHandler(transport)} className="waves-effect waves-light btn-small">Паглядзець</button>
                 <button onClick={ShowAddFormHandler} className="waves-effect waves-light btn-small">Форма дадання</button>
             </div>
         )
@@ -259,6 +261,8 @@ export const AdminRoutesPage = () => {
                 setRoutes([])
                 return
             }
+            //console.log(routeStops)
+            setRouteStopsForSelectedTransport(routeStops)
             fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
                 .then((res) => res.json())
                 .then((data) => {
@@ -283,6 +287,7 @@ export const AdminRoutesPage = () => {
                         transportType: null,
                         number: null
                     })
+                    setRouteStopsForSelectedTransport([]);
                 } else {
                     message('Транспарт не знойдзены')
                 }
@@ -352,7 +357,7 @@ export const AdminRoutesPage = () => {
                         />
                     )
                 })}
-                routeStops && {routeStops.map(stop => {
+                {routeStops?.length !== 0 && routeStops.map(stop => {
                     return (
                         <CustomMarker
                             key={stop._id}
@@ -363,6 +368,17 @@ export const AdminRoutesPage = () => {
                         />
                     )
                 })}
+                    {routeStopsForSelectedTransport && routeStopsForSelectedTransport?.length !== 0 && routeStopsForSelectedTransport.map(stop => { // TODO
+                        return (
+                            <CustomMarker
+                                key={stop._id}
+                                stop={stop.stopId}
+                                icon={blueflag}
+                                height={ZOOM * 2 + "px"}
+                                openPopup={openPopup}
+                            />
+                        )
+                    })}
                 {selectedStop !== null &&
                     <CustomPopup
                         stop={selectedStop}

@@ -11,6 +11,7 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
         setSelectedTransportType(type)
         setRouteStops(null);
         setSchedule(null);
+        setSelectedTransport(null);
         setRoutes(null);
     }
 

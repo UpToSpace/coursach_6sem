@@ -52,6 +52,10 @@ export const AccountPage = () => {
             message('Паролi не супадаюць');
             return;
         }
+        if (oldPassword === newPassword) {
+            message('Стары i новы паролi супадаюць');
+            return;
+        }
         try {
             await request('/api/user', 'POST', { token: localStorage.getItem('token'), newPassword, oldPassword })
             message('Пароль зменены')
