@@ -1,22 +1,11 @@
-import { useNavigate } from "react-router-dom";
 import M from 'materialize-css';
-import React, { useCallback, useContext, useEffect, useState, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useHttp } from '../../hooks/http.hook';
 import { useMessage } from '../../hooks/message.hook';
 import { AuthContext } from '../../context/AuthContext';
 import { Loader } from '../../components/Loader';
-import flagIcon from "../../styles/images/flag.svg"
-import Map, { Marker, Popup, Source } from 'react-map-gl';
-import ReactMapGL, {
-    FullscreenControl,
-    GeolocateControl,
-    Layer,
-} from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import {
-    MAP_TOKEN, geolocateControlStyle, fullscreenControlStyle, CustomMarker, CustomPopup,
-    ROUTE_LAYER, CENTER, ZOOM, POINT_LAYER
-} from '../../components/MapComponents';
+import { BaseMap } from '../../components/MapComponents';
 import cancelIcon from "../../styles/images/cancel.svg"
 
 export const AdminStopsPage = () => {
@@ -26,11 +15,6 @@ export const AdminStopsPage = () => {
     const [stops, setStops] = useState(null);
     const [selectedStop, setSelectedStop] = useState(null);
     const [foundStops, setFoundStops] = useState(null);
-    const [viewState, setViewState] = useState({
-        latitude: CENTER[1],
-        longitude: CENTER[0],
-        zoom: ZOOM
-    });
     const [addStopHandler, setAddStopHandler] = useState(false);
     const [stop, setStop] = useState({
         name: '',
@@ -54,7 +38,7 @@ export const AdminStopsPage = () => {
     }
 
     const closePopup = async () => {
-        console.log(selectedStop);
+        //console.log(selectedStop);
         setSelectedStop(null)
     };
 
@@ -140,64 +124,21 @@ export const AdminStopsPage = () => {
     return (
         <div className="container" style={{ "marginBottom": "50px" }}>
             {AddStopForm()}
-            {stops &&
+            {stops?.length !== 0 &&
                 <div>
                     <div className="line">
-                        <ReactMapGL // a map component
-                            {...viewState}
-                            onMove={event => setViewState(event.viewState)}
-                            onClick={addStopHandler && MapClickHandler}
-                            style={{ width: "100%", height: 600 }}
-                            mapboxAccessToken={MAP_TOKEN}
-                            mapStyle="mapbox://styles/mapbox/streets-v9"
+                        <BaseMap
+                            openPopup={openPopup}
+                            stops={stops}
+                            foundStops={foundStops}
+                            stop={stop}
+                            addStopHandler={addStopHandler}
+                            selectedStop={selectedStop}
+                            closePopup={closePopup}
+                            deleteButtonHandler={deleteButtonHandler}
+                            MapClickHandler={MapClickHandler}
                         >
-                            <FullscreenControl style={fullscreenControlStyle} />
-                            <GeolocateControl
-                                style={geolocateControlStyle}
-                                positionOptions={{ enableHighAccuracy: true }}
-                                trackUserLocation={true}
-                                auto={false}
-                            />
-                            {stops.map(stop => {
-                                return (
-                                    <CustomMarker
-                                        key={stop._id}
-                                        stop={stop}
-                                        openPopup={openPopup}
-                                        height={viewState.zoom + "px"}
-                                    />
-                                )
-                            })}
-                            {selectedStop !== null &&
-                                <CustomPopup
-                                    stop={selectedStop}
-                                    closePopup={closePopup}
-                                    deleteButtonHandler={deleteButtonHandler}
-                                />}
-                            {foundStops && foundStops.map(foundStop => {
-                                return (<CustomMarker
-                                    key={foundStop._id}
-                                    stop={foundStop}
-                                    openPopup={openPopup}
-                                    icon={flagIcon}
-                                    height={ZOOM * 2 + "px"}
-                                />)
-                            })}
-                            {stop && (
-                                <Source
-                                    id="track"
-                                    type="geojson"
-                                    data={{
-                                        type: 'Feature',
-                                        geometry: {
-                                            type: 'Point',
-                                            coordinates: [stop.longitude, stop.latitude]
-                                        }
-                                    }}>
-                                    <Layer {...POINT_LAYER} />
-                                </Source>
-                            )}
-                        </ReactMapGL>
+                        </BaseMap>
                     </div>
                 </div >}
         </div>

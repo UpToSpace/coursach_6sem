@@ -2,27 +2,16 @@ import React, { useCallback, useContext, useEffect, useState, useRef } from "rea
 import { useHttp } from '../hooks/http.hook';
 import { AuthContext } from '../context/AuthContext';
 import { Loader } from '../components/Loader';
-import Map, { Marker, Popup, Source } from 'react-map-gl';
-import flagIcon from "../styles/images/flag.svg"
-import redflagIcon from "../styles/images/redflag.svg"
-import blueflagIcon from "../styles/images/blueflag.svg"
-import searchIcon from "../styles/images/search.svg"
-import cancelIcon from "../styles/images/cancel.svg"
-import ReactMapGL, {
-    FullscreenControl,
-    GeolocateControl,
-    Layer,
-} from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {
-    MAP_TOKEN, geolocateControlStyle, fullscreenControlStyle, CustomMarker, CustomPopup,
-    ROUTE_LAYER, CENTER, ZOOM
+    MAP_TOKEN, BaseMap
 } from '../components/MapComponents';
 import { TransportTable } from '../components/TransportTable';
 import { SelectedStopInfo } from '../components/SelectedStopInfo';
 import { useMessage } from '../hooks/message.hook';
 import { transportTypes } from '../components/arrays';
 import { RouteBuilding } from '../components/RouteBuilding';
+import cancelIcon from '../styles/images/cancel.svg';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
@@ -31,11 +20,6 @@ export const MapPage = () => {
     const [stops, setStops] = useState([]);
     const [routes, setRoutes] = useState([]); // routes for selected transport
     const [selectedStop, setSelectedStop] = useState(null);
-    const [viewState, setViewState] = useState({
-        latitude: CENTER[1],
-        longitude: CENTER[0],
-        zoom: ZOOM
-    });
     const [transports, setTransports] = useState([]);
     const [selectedTransportType, setSelectedTransportType] = useState(transportTypes[0]);
     const [selectedTransport, setSelectedTransport] = useState(null);
@@ -256,78 +240,22 @@ export const MapPage = () => {
         <div className="schedule">
             {AddStopForm()}
             <div className="line">
-                <ReactMapGL
-                    {...viewState}
-                    onMove={event => setViewState(event.viewState)}
-                    style={{ width: "55%", height: 500 }}
-                    mapboxAccessToken={MAP_TOKEN}
-                    mapStyle="mapbox://styles/mapbox/streets-v9"
+                <BaseMap
+                    setNearestStops={setNearestStops}
+                    FindNearestStopsHandler={FindNearestStopsHandler}
+                    foundStops={foundStops}
+                    openPopup={openPopup}
+                    routeStops={routeStops}
+                    stops={stops}
+                    nearestStops={nearestStops}
+                    user={true}
+                    showTransportRoute={showTransportRoute}
+                    favourites={favourites}
+                    selectedTransport={selectedTransport}
+                    setSelectedTransport={setSelectedTransport}
+                    showOnlyFavourites={showOnlyFavourites}
                 >
-                    <FullscreenControl style={fullscreenControlStyle} />
-                    <GeolocateControl
-                        style={geolocateControlStyle}
-                        positionOptions={{ enableHighAccuracy: true }}
-                        trackUserLocation={true}
-                        auto={false}
-                        onGeolocate={FindNearestStopsHandler}
-                        onTrackUserLocationEnd={() => setNearestStops([])}
-                    />
-                    {foundStops && foundStops.map(foundStop => { // stops found by user search
-                        return (<CustomMarker
-                            key={foundStop._id}
-                            stop={foundStop}
-                            openPopup={openPopup}
-                            icon={flagIcon}
-                            height={ZOOM * 2 + "px"}
-                        />)
-                    })}
-                        {routeStops && routeStops.map(routeStop => { // stops for selected transport
-                            return (<CustomMarker
-                                key={routeStop._id}
-                                stop={routeStop.stopId}
-                                openPopup={openPopup}
-                                icon={blueflagIcon}
-                                height={ZOOM * 2 + "px"}
-                            />)
-                        })}
-                    {stops.map(stop => { // all stops
-                        return (
-                            <CustomMarker
-                                key={stop._id}
-                                stop={stop}
-                                openPopup={openPopup}
-                            />
-                        )
-                    })}
-                    {nearestStops && nearestStops.map(stop => { // stops nearest to user's location
-                        return (
-                            <CustomMarker
-                                key={stop._id}
-                                stop={stop}
-                                openPopup={openPopup}
-                                icon={redflagIcon}
-                                height={ZOOM * 2 + "px"}
-                            />
-                        )
-                    })}
-                    {selectedStop !== null && // being clicked by user
-                        <CustomPopup
-                            stop={selectedStop}
-                            closePopup={closePopup}
-                        />}
-
-                    {(routes || selectedStop !== null) && (
-                        <Source id="track" type="geojson" data={{
-                            type: 'Feature',
-                            geometry: {
-                                type: 'LineString',
-                                coordinates: routes
-                            }
-                        }}>
-                            <Layer {...ROUTE_LAYER} />
-                        </Source>
-                    )}
-                </ReactMapGL>
+                </BaseMap>
                 {selectedStop !== null &&
                     <SelectedStopInfo
                         stop={selectedStop}

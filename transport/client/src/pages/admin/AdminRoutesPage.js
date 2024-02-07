@@ -3,25 +3,13 @@ import { useHttp } from '../../hooks/http.hook';
 import { useMessage } from '../../hooks/message.hook';
 import { AuthContext } from '../../context/AuthContext';
 import { Loader } from '../../components/Loader';
-import Map, { Marker, Popup, Source } from 'react-map-gl';
-import ReactMapGL, {
-    FullscreenControl,
-    GeolocateControl,
-    Layer,
-} from "react-map-gl";
+import { MAP_TOKEN, BaseMap } from '../../components/MapComponents';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import {
-    MAP_TOKEN, geolocateControlStyle, fullscreenControlStyle, CustomMarker, CustomPopup,
-    ROUTE_LAYER, CENTER, ZOOM
-} from '../../components/MapComponents';
 import { transportTypes } from "../../components/arrays"
 import M from 'materialize-css';
 import Select from 'react-select';
 import { AdminSchedule } from '../../components/admin/AdminSchedule';
-import flag from "../../styles/images/redflag.svg"
-import blueflag from "../../styles/images/blueflag.svg"
 import { reactSelectStyles } from '../../styles/styles';
-import { set } from 'mongoose';
 
 export const AdminRoutesPage = () => {
     const { loading, request, error } = useHttp();
@@ -35,11 +23,6 @@ export const AdminRoutesPage = () => {
         number: 1
     });
     const [selectedStop, setSelectedStop] = useState(null);
-    const [viewState, setViewState] = useState({
-        latitude: CENTER[1],
-        longitude: CENTER[0],
-        zoom: ZOOM
-    });
     const [transportNumbers, setTransportNumbers] = useState([]);
     const [showAddForm, setShowAddForm] = useState(false);
     const [routeStopsForSelectedTransport, setRouteStopsForSelectedTransport] = useState([]);
@@ -150,7 +133,7 @@ export const AdminRoutesPage = () => {
     }
 
     const ShowAddFormHandler = () => {
-        setShowAddForm(true); 
+        setShowAddForm(true);
         message('Выбярыце транспарт i прыпынкi для маршрута');
         setRouteStops([]);
         setRoutes([]);
@@ -163,7 +146,7 @@ export const AdminRoutesPage = () => {
             number: 1
         };
         setTransport(defaultTransport)
-        setShowAddForm(false); 
+        setShowAddForm(false);
         ShowRouteHandler(defaultTransport)
     }
 
@@ -334,70 +317,16 @@ export const AdminRoutesPage = () => {
     return (
         stops &&
         <div className="container" style={{ "marginBottom": "50px" }}>
-            <ReactMapGL
-                {...viewState}
-                onMove={event => setViewState(event.viewState)}
-                style={{ width: "100%", height: 600 }}
-                mapboxAccessToken={MAP_TOKEN}
-                mapStyle="mapbox://styles/mapbox/streets-v9"
+            <BaseMap
+                openPopup={openPopup}
+                stops={stops}
+                selectedStop={selectedStop}
+                closePopup={closePopup}
+                routeStops={routeStops}
+                routes={routes}
+                routeStopsForSelectedTransport={routeStopsForSelectedTransport}
             >
-                <FullscreenControl style={fullscreenControlStyle} />
-                <GeolocateControl
-                    style={geolocateControlStyle}
-                    positionOptions={{ enableHighAccuracy: true }}
-                    trackUserLocation={true}
-                    auto={false}
-                />
-                stops && {stops.map(stop => {
-                    return (
-                        <CustomMarker
-                            key={stop._id}
-                            stop={stop}
-                            openPopup={openPopup}
-                        />
-                    )
-                })}
-                {routeStops?.length !== 0 && routeStops.map(stop => {
-                    return (
-                        <CustomMarker
-                            key={stop._id}
-                            stop={stop}
-                            icon={flag}
-                            height={ZOOM * 2 + "px"}
-                            openPopup={openPopup}
-                        />
-                    )
-                })}
-                    {routeStopsForSelectedTransport && routeStopsForSelectedTransport?.length !== 0 && routeStopsForSelectedTransport.map(stop => { // TODO
-                        return (
-                            <CustomMarker
-                                key={stop._id}
-                                stop={stop.stopId}
-                                icon={blueflag}
-                                height={ZOOM * 2 + "px"}
-                                openPopup={openPopup}
-                            />
-                        )
-                    })}
-                {selectedStop !== null &&
-                    <CustomPopup
-                        stop={selectedStop}
-                        closePopup={closePopup}
-                    />}
-
-                {routes && (
-                    <Source id="track" type="geojson" data={{
-                        type: 'Feature',
-                        properties: {},
-                        geometry: {
-                            type: 'LineString',
-                            coordinates: routes
-                        }
-                    }}>
-                        <Layer {...ROUTE_LAYER} />
-                    </Source>
-                )}
-            </ReactMapGL>
+            </BaseMap>
             {showAddForm ? AddForm() : ShowOrDeleteForm()}
             {!showAddForm && <AdminSchedule transport={transport} />}
         </div>
