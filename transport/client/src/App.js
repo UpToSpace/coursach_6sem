@@ -7,7 +7,7 @@ import 'materialize-css';
 import { AuthContext } from "./context/AuthContext";
 import { Loader } from "./components/Loader";
 import { useHttp } from "./hooks/http.hook";
-import { options } from "./components/arrays";
+import { options } from "./constants/constants";
 import { useMessage } from "./hooks/message.hook";
 import { ErrorBoundary } from './pages/errorpages/ErrorBoundary';
 

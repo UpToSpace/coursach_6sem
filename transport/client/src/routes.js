@@ -8,7 +8,7 @@ import { AdminStopsPage } from "./pages/admin/AdminStopsPage";
 import { AdminRoutesPage } from "./pages/admin/AdminRoutesPage";
 import { AdminPage } from "./pages/admin/AdminPage";
 import { AccountPage } from "./pages/AccountPage";
-import { roles } from "./components/arrays";
+import { roles } from "./constants/constants";
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 
 export const useRoutes = (userRole) => {

@@ -9,9 +9,10 @@ import {
 import { TransportTable } from '../components/TransportTable';
 import { SelectedStopInfo } from '../components/SelectedStopInfo';
 import { useMessage } from '../hooks/message.hook';
-import { transportTypes } from '../components/arrays';
+import { transportTypes } from '../constants/constants';
 import { RouteBuilding } from '../components/RouteBuilding';
 import cancelIcon from '../styles/images/cancel.svg';
+import { findNearestStops } from '../components/functions';
 
 export const MapPage = () => {
     const { loading, request } = useHttp();
@@ -100,13 +101,13 @@ export const MapPage = () => {
         setSelectedTransport(transport)
         //console.log(transport)
         setSelectedTransportType(transport.type)
-        fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${transport.routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data)
-                setRoutes(data.routes[0].geometry.coordinates);
-            })
-            .catch((error) => console.error(error));
+        const routeStopsForRequest = transport.routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';');
+        try {
+            const data = await request(`https://api.mapbox.com/directions/v5/mapbox/driving/${routeStopsForRequest}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
+            setRoutes(data.routes[0].geometry.coordinates);
+        } catch (e) {
+            message(e.message);
+        }
         await getSchedule(transport)
         setSelectedStop(stop)
     }
@@ -150,7 +151,7 @@ export const MapPage = () => {
                 <table className="highlight">
                     <tbody>
                         {
-                            routeStops && routeStops.sort(e => e.stopOrder).map((item, index) => {
+                            routeStops?.sort(e => e.stopOrder).map((item, index) => {
                                 return (
                                     <tr key={index}>
                                         <th>{item.stopId.name}</th>
@@ -187,7 +188,7 @@ export const MapPage = () => {
         try {
             const favourite = favourites.filter(item => item.transportId === transport._id)[0];
             console.log(favourite)
-            if (favourite === undefined) {
+            if (!favourite) {
                 const data = await request('/api/favourites', 'POST', { userId: auth.userId, transportId: transport._id });
                 message(data.message);
             } else {
@@ -200,39 +201,8 @@ export const MapPage = () => {
 
     const FindNearestStopsHandler = (e) => {
         console.log(e)
-        const R = 6371; // Earth radius in kilometers
-        const stopAmount = 5;
-        // Calculate distances to all stops
-        const distances = stops.map(stop => {
-            const lat1 = e.coords.latitude; // User latitude
-            const lon1 = e.coords.longitude; // User longitude
-            const lat2 = stop.latitude;
-            const lon2 = stop.longitude;
-
-            const dLat = degToRad(lat2 - lat1);
-            const dLon = degToRad(lon2 - lon1);
-
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(degToRad(lat1)) * Math.cos(degToRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-            const distance = R * c; // Distance in kilometers
-            return { stop, distance };
-        });
-
-        // Sort distances in ascending order
-        distances.sort((a, b) => a.distance - b.distance);
-
-        // Get the three nearest stops
-        const nearestStops = distances.slice(0, stopAmount).map(item => item.stop);
-
+        const nearestStops = findNearestStops(e.coords.latitude, e.coords.longitude, stops);
         setNearestStops(nearestStops);
-    }
-
-    function degToRad(deg) {
-        return deg * (Math.PI / 180);
     }
 
     return (
@@ -256,7 +226,7 @@ export const MapPage = () => {
                     showOnlyFavourites={showOnlyFavourites}
                 >
                 </BaseMap>
-                {selectedStop !== null &&
+                {selectedStop &&
                     <SelectedStopInfo
                         stop={selectedStop}
                         showTransportRoute={showTransportRoute}

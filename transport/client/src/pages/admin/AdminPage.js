@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import M from 'materialize-css';
 import React, { useCallback, useContext, useEffect, useState, useRef } from "react";
 import { useHttp } from '../../hooks/http.hook';
@@ -10,7 +9,6 @@ export const AdminPage = () => {
     const { loading, request } = useHttp();
     const message = useMessage();
     const auth = useContext(AuthContext);
-    const navigate = useNavigate();
     const [users, setUsers] = useState(null);
 
     const getUsers = useCallback(async () => {

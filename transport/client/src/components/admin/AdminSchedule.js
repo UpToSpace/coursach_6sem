@@ -12,6 +12,7 @@ const AdminSchedule = ({ transport }) => {
     const [schedule, setSchedule] = useState(null);
     const [routeStops, setRouteStops] = useState();
     const [newSchedule, setNewSchedule] = useState([]);
+    const [isWeekend, setIsWeekend] = useState(false);
 
     const getSchedule = useCallback(async () => {
         try {
@@ -64,7 +65,7 @@ const AdminSchedule = ({ transport }) => {
         //console.log(schedule)
         const scheduleNumber = schedule.length === 0 ? 0 : schedule.sort(e => e.scheduleNumber)[schedule.length - 1].scheduleNumber + 1;
         //console.log(scheduleNumber)
-        const data = await request('/api/schedule', 'POST', { schedule: newSchedule, scheduleNumber: scheduleNumber });
+        const data = await request('/api/schedule', 'POST', { schedule: newSchedule, scheduleNumber: scheduleNumber, isWeekend: isWeekend});
         //console.log(data)
         setNewSchedule([]);
         await getSchedule();
@@ -88,6 +89,12 @@ const AdminSchedule = ({ transport }) => {
         //console.log(routeStops)
         return (
             <>
+                <p>
+                    <label>
+                        <input type="checkbox" className="filled-in" onChange={() => setIsWeekend(!isWeekend)} checked={isWeekend} />
+                        <span>Выходныя</span>
+                    </label>
+                </p>
                 <table>
                     <tbody>
                         <tr><td></td><td></td>{filteredSchedule.map((item) => {

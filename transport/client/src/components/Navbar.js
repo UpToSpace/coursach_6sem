@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useMessage } from "../hooks/message.hook";
 import { useAuth } from "../hooks/auth.hook";
-import { roles } from "./arrays";
+import { roles } from "./../constants/constants";
 
 export const Navbar = () => {
     const message = useMessage();

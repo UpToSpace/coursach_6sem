@@ -1,4 +1,4 @@
-import { transportTypes } from './arrays'
+import { transportTypes } from '../constants/constants'
 import { useState } from 'react'
 import heart from '../styles/images/heart.png'
 import fullheart from '../styles/images/fullheart.png'
@@ -61,18 +61,19 @@ export const TransportTable = ({ transports, selectedTransportType, setSelectedT
                             .sort((a, b) => +a.number > +b.number)
                             .map((transport, index) => {
                                 if (!showOnlyFavourites || selectedTransport?._id === transport._id) return (
-                                <tr key={index} onClick={() => {showTransportRoute(transport, selectedStop); setSelectedTransport(transport)}} 
-                                    className={selectedTransport && selectedTransport._id === transport._id ? 'not-favourite chosen' : 'not-favourite'}>
-                                    <td>{transport.number}</td>
-                                    <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[0].stopId.name}</td>
-                                    <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
-                                    <td>
-                                        <div className="marker" onClick={() => addToFavourite(transport)}>
-                                            <img src={favourites.some((item) => item.transportId === transport._id) ? fullheart : heart} alt="marker" height="25px" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            )})}
+                                    <tr key={index} onClick={() => { showTransportRoute(transport, selectedStop); setSelectedTransport(transport) }}
+                                        className={selectedTransport && selectedTransport._id === transport._id ? 'not-favourite chosen' : 'not-favourite'}>
+                                        <td>{transport.number}</td>
+                                        <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[0].stopId.name}</td>
+                                        <td>{transport.routeStops.sort((a, b) => a.stopOrder - b.stopOrder)[transport.routeStops.length - 1].stopId.name}</td>
+                                        <td>
+                                            <div className="marker" onClick={() => addToFavourite(transport)}>
+                                                <img src={favourites.some((item) => item.transportId === transport._id) ? fullheart : heart} alt="marker" height="25px" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
                     </tbody>
                 </table>
             }

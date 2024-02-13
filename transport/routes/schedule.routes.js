@@ -47,10 +47,10 @@ router.get('/', auth, async (req, res) => {
 // /api/schedule
 router.post('/', admin, async (req, res) => {
     try {
-        const { schedule, scheduleNumber } = req.body;
+        const { schedule, scheduleNumber, isWeekend } = req.body;
         schedule.map(async (item) => {
             const { arrivalTime, routeStopId } = item;
-            const newSchedule = new Schedule({ scheduleNumber, arrivalTime, routeStopId });
+            const newSchedule = new Schedule({ scheduleNumber, arrivalTime, routeStopId, isWeekend: isWeekend});
             await newSchedule.save(); 
         });
         res.status(201).json({ message: 'Расписание создано' });

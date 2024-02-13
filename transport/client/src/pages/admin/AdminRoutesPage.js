@@ -4,8 +4,7 @@ import { useMessage } from '../../hooks/message.hook';
 import { AuthContext } from '../../context/AuthContext';
 import { Loader } from '../../components/Loader';
 import { MAP_TOKEN, BaseMap } from '../../components/MapComponents';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { transportTypes } from "../../components/arrays"
+import { transportTypes } from "../../constants/constants"
 import M from 'materialize-css';
 import Select from 'react-select';
 import { AdminSchedule } from '../../components/admin/AdminSchedule';
@@ -246,13 +245,12 @@ export const AdminRoutesPage = () => {
             }
             //console.log(routeStops)
             setRouteStopsForSelectedTransport(routeStops)
-            fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';')}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setRoutes(data.routes[0].geometry.coordinates);
-                })
-                .catch((error) => console.error(error));
-        } catch (e) { }
+            const requestForRouteStops = routeStops.sort(e => e.stopOrder).map((stop) => `${stop.stopId.longitude},${stop.stopId.latitude}`).join(';');
+            const data = await request(`https://api.mapbox.com/directions/v5/mapbox/driving/${requestForRouteStops}?steps=true&geometries=geojson&access_token=${MAP_TOKEN}`);
+            setRoutes(data.routes[0].geometry.coordinates);
+        } catch (e) {
+            message('Памылка')
+        }
     }
 
     const DeleteRouteHandler = async () => {
@@ -304,13 +302,14 @@ export const AdminRoutesPage = () => {
             console.log(transportFromDB)
             const data = await request('/api/routes', 'POST', { stops: routeStops, transport: transportFromDB });
             console.log(data);
-            message('Маршрут добавлен')
+            message('Маршрут дададзены')
             setRouteStops([]);
             setRoutes([]);
             setTransport({
                 transportType: transportTypes[0],
                 number: 1
             })
+            await getStops();
         } catch (e) { }
     }
 

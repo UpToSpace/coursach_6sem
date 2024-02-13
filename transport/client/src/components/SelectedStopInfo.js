@@ -3,7 +3,10 @@ import { useState, useEffect } from 'react';
 import { useHttp } from '../hooks/http.hook';
 import { findClosestTimes } from './../components/functions';
 
-export const SelectedStopInfo = ({ stop, showTransportRoute, favourites, selectedTransport, setSelectedTransport, showOnlyFavourites }) => {
+export const SelectedStopInfo = ({ 
+    stop, showTransportRoute, favourites, selectedTransport, 
+    setSelectedTransport, showOnlyFavourites }) => {
+        
     const { loading, request } = useHttp();
     const [transportList, setTransportList] = useState(null);
 

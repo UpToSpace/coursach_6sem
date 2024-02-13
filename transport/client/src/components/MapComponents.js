@@ -11,25 +11,24 @@ import ReactMapGL, {
     Layer,
 } from "react-map-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { SelectedStopInfo } from './SelectedStopInfo';
 
 export const MAP_TOKEN = "pk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2RwNHJ3MTAwdXUzc256bHMwc2dpOWwifQ.v4F89QHCuyottjdKLOFfKg";
-export const SECRET_TOKEN = "sk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2tsaWVpMTBkdzQzZHFxOW53M2hoanAifQ.v_wnapRnZGiB1Xof48SmPw"
-export const CENTER = [27.567444, 53.893009];
-export const ZOOM = 11;
+const SECRET_TOKEN = "sk.eyJ1IjoidmFsZXJpZTE0My12YWxlcmllIiwiYSI6ImNsZ2tsaWVpMTBkdzQzZHFxOW53M2hoanAifQ.v_wnapRnZGiB1Xof48SmPw"
+const CENTER = [27.567444, 53.893009];
+const ZOOM = 11;
 
-export const geolocateControlStyle = {
+const geolocateControlStyle = {
     left: 10,
     top: 10,
 };
 
-export const fullscreenControlStyle = {
+const fullscreenControlStyle = {
     right: 10,
     top: 10,
 };
 
 
-export const ROUTE_LAYER = {
+const ROUTE_LAYER = {
     id: 'route',
     type: 'line',
     source: 'route',
@@ -43,7 +42,7 @@ export const ROUTE_LAYER = {
     },
 };
 
-export const POINT_LAYER = {
+const POINT_LAYER = {
     id: 'point',
     type: 'circle',
     source: 'route',
@@ -53,7 +52,7 @@ export const POINT_LAYER = {
     },
 };
 
-export const CustomPopup = ({ stop, closePopup, deleteButtonHandler }) => {
+const CustomPopup = ({ stop, closePopup, deleteButtonHandler }) => {
     return (
         <Popup
             latitude={stop.latitude}
@@ -69,7 +68,7 @@ export const CustomPopup = ({ stop, closePopup, deleteButtonHandler }) => {
     )
 };
 
-export const CustomMarker = ({ stop, openPopup, icon, height }) => {
+const CustomMarker = ({ stop, openPopup, icon, height }) => {
     return (
         <Marker
             longitude={stop.longitude}
@@ -85,9 +84,7 @@ export const BaseMap = ({
     openPopup, stops, foundStops, stop, addStopHandler, 
     selectedStop, closePopup, deleteButtonHandler, MapClickHandler,
     routeStops, routes, routeStopsForSelectedTransport,
-    FindNearestStopsHandler, setNearestStops, nearestStops, user=false,
-    showTransportRoute, favourites, selectedTransport, setSelectedTransport,
-    showOnlyFavourites }) => {
+    FindNearestStopsHandler, setNearestStops, nearestStops, user=false }) => {
     const [viewState, setViewState] = useState({
         latitude: CENTER[1],
         longitude: CENTER[0],

@@ -37,3 +37,38 @@ function convertToMinutes(time) {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
 }
+
+export function findNearestStops(userLatitude, userLongitude, stops) {
+    const R = 6371; // Earth radius in kilometers
+    const stopAmount = 5;
+    // Calculate distances to all stops
+    const distances = stops.map(stop => {
+        const lat1 = userLatitude; 
+        const lon1 = userLongitude; 
+        const lat2 = stop.latitude;
+        const lon2 = stop.longitude;
+
+        const dLat = degToRad(lat2 - lat1);
+        const dLon = degToRad(lon2 - lon1);
+
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(degToRad(lat1)) * Math.cos(degToRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        const distance = R * c; // Distance in kilometers
+        return { stop, distance };
+    });
+
+    // Sort distances in ascending order
+    distances.sort((a, b) => a.distance - b.distance);
+
+    // Get the three nearest stops
+    const nearestStops = distances.slice(0, stopAmount).map(item => item.stop);
+    return nearestStops;
+}
+
+function degToRad(deg) {
+    return deg * (Math.PI / 180);
+}
